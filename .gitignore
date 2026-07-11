@@ -1,0 +1,66 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+/.tooling/
+/.env
+/.env.*
+!/.env.example
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ---------------------------------------------------------------------------
+# Kept local — NOT published to the public repo.
+# Internal planning, review artifacts, agent configs, and machine-local files.
+# Remove an entry here if you decide it should become public.
+# ---------------------------------------------------------------------------
+
+# Internal planning & review docs (product strategy, schema rationale, gate reviews)
+/docs/
+/SIDEKICK_BUILD_PLAN.md
+/rubrics.md
+/PHASE_*_REVIEW.md
+/TECH_DEBT.md
+
+# Cloud agents, agent scratch, and local Claude Code settings
+/.claude/
+/.agents/
