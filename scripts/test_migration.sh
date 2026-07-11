@@ -24,15 +24,18 @@ run() { # run <file>
   docker exec -i "$CT" psql -v ON_ERROR_STOP=1 -U postgres -d sidekick < "$1"
 }
 
-echo "== 1/3 bootstrap auth stubs =="
+echo "== 1/4 bootstrap auth stubs =="
 run "$ROOT/supabase/tests/00_bootstrap_auth.sql"
 
-echo "== 2/3 apply migration =="
+echo "== 2/4 apply migration =="
 run "$ROOT/supabase/migrations/0001_initial_schema.sql"
 echo "   migration applied cleanly."
 
-echo "== 3/3 RLS isolation test =="
+echo "== 3/4 RLS isolation test =="
 run "$ROOT/supabase/tests/10_rls_isolation.sql"
 
+echo "== 4/4 FK ownership + domain CHECK test =="
+run "$ROOT/supabase/tests/20_fk_ownership.sql"
+
 echo ""
-echo "ALL CHECKS PASSED (clean apply + RLS isolation)."
+echo "ALL CHECKS PASSED (clean apply + RLS isolation + FK ownership + CHECKs)."

@@ -16,6 +16,13 @@
 --   * user_id is denormalised onto EVERY table (even where derivable via FK) so
 --     RLS is a single-column `auth.uid() = user_id` policy with no subquery.
 --   * RLS is enabled on EVERY table. A user can only ever see their own rows.
+--   * SAME-USER FK OWNERSHIP: every parent->child FK is composite,
+--     `(parent_id, user_id) REFERENCES parent(id, user_id)`, so a child can only
+--     ever be attached to a parent owned by the SAME user. RLS gates row
+--     visibility; the composite FK gates row *ownership* (a user cannot bind a
+--     child to another user's RLS-invisible parent, nor can one tenant's delete
+--     mutate another tenant's rows). SET-NULL FKs use PG15 column-list SET NULL so
+--     only the FK column is nulled, never the NOT NULL user_id.
 --
 -- Post-lock changes require a NEW migration file, never an edit to this one.
 -- =============================================================================
@@ -89,7 +96,22 @@ create table public.captures (
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    -- Tenant-ownership target: lets child tables FK on (id, user_id) so a row can
+    -- only ever be attached to a capture owned by the SAME user (see SCHEMA.md
+    -- §"Same-user FK ownership"). id is already unique; this composite key exists
+    -- solely to be the referent of the children's composite FKs.
+    constraint captures_id_user_key unique (id, user_id),
+
+    -- resulting_* only make sense once the capture has been triaged into a typed
+    -- record; they must be null in every other state (and both present when triaged).
+    constraint captures_resulting_only_when_triaged
+        check (status = 'triaged'
+               or (resulting_type is null and resulting_id is null)),
+    constraint captures_triaged_needs_resulting
+        check (status <> 'triaged'
+               or (resulting_type is not null and resulting_id is not null))
 );
 comment on table public.captures is 'Raw capture events (audio+transcript) triaged into typed records. RLS: auth.uid() = user_id.';
 
@@ -97,8 +119,9 @@ comment on table public.captures is 'Raw capture events (audio+transcript) triag
 create table public.tasks (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    capture_id        uuid        references public.captures (id) on delete set null,
+    capture_id        uuid,
                           -- task outlives the capture it came from -> SET NULL, not cascade.
+                          -- Composite FK (below) enforces same-user ownership.
 
     title             text        not null,
     details           text,
@@ -115,7 +138,16 @@ create table public.tasks (
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    -- Same-user ownership: a task's capture must belong to the SAME user. On delete
+    -- of the capture, null ONLY capture_id (Postgres 15 column-list SET NULL) so the
+    -- NOT NULL user_id survives. See SCHEMA.md §"Same-user FK ownership".
+    constraint tasks_capture_fk
+        foreign key (capture_id, user_id) references public.captures (id, user_id)
+        on delete set null (capture_id),
+    -- Ownership target for focus_sessions / reminders composite FKs.
+    constraint tasks_id_user_key unique (id, user_id)
 );
 comment on table public.tasks is 'Actionable items. RLS: auth.uid() = user_id.';
 
@@ -123,14 +155,18 @@ comment on table public.tasks is 'Actionable items. RLS: auth.uid() = user_id.';
 create table public.notes (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    capture_id        uuid        references public.captures (id) on delete set null,
+    capture_id        uuid,       -- same-user composite FK below
 
     title             text,
     body              text,
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    constraint notes_capture_fk
+        foreign key (capture_id, user_id) references public.captures (id, user_id)
+        on delete set null (capture_id)
 );
 comment on table public.notes is 'Reference notes (non-actionable). RLS: auth.uid() = user_id.';
 
@@ -138,7 +174,7 @@ comment on table public.notes is 'Reference notes (non-actionable). RLS: auth.ui
 create table public.habits (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    capture_id        uuid        references public.captures (id) on delete set null,
+    capture_id        uuid,       -- same-user composite FK below
 
     title             text        not null,
     frequency_config  jsonb,                    -- recurrence rule (daily / N-per-week / specific days); heterogeneous -> JSONB
@@ -153,7 +189,13 @@ create table public.habits (
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    constraint habits_capture_fk
+        foreign key (capture_id, user_id) references public.captures (id, user_id)
+        on delete set null (capture_id),
+    -- Ownership target for habit_completions / reminders composite FKs.
+    constraint habits_id_user_key unique (id, user_id)
 );
 comment on table public.habits is 'Elastic habits (mini/normal/mega). RLS: auth.uid() = user_id.';
 
@@ -161,8 +203,9 @@ comment on table public.habits is 'Elastic habits (mini/normal/mega). RLS: auth.
 create table public.habit_completions (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    habit_id          uuid        not null references public.habits (id) on delete cascade,
+    habit_id          uuid        not null,
                           -- completions are meaningless without their habit -> CASCADE.
+                          -- Composite FK enforces same-user ownership.
 
     level             text        not null check (level in ('mini', 'normal', 'mega')),
     energy_mode       text        check (energy_mode in ('low', 'normal', 'charged')),
@@ -170,7 +213,11 @@ create table public.habit_completions (
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    constraint habit_completions_habit_fk
+        foreign key (habit_id, user_id) references public.habits (id, user_id)
+        on delete cascade
 );
 comment on table public.habit_completions is 'Immutable habit-completion log (any level = a full win). RLS: auth.uid() = user_id.';
 
@@ -180,13 +227,16 @@ create table public.places (
     user_id           uuid        not null references public.profiles (id) on delete cascade,
 
     name              text        not null,
-    lat               double precision not null,
-    lng               double precision not null,
-    radius_m          integer     not null default 150,
+    lat               double precision not null check (lat between -90 and 90),
+    lng               double precision not null check (lng between -180 and 180),
+    radius_m          integer     not null default 150 check (radius_m > 0),
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    -- Ownership target for reminders.place_id composite FK.
+    constraint places_id_user_key unique (id, user_id)
 );
 comment on table public.places is 'Geofence anchor points. RLS: auth.uid() = user_id.';
 
@@ -196,11 +246,12 @@ comment on table public.places is 'Geofence anchor points. RLS: auth.uid() = use
 create table public.focus_sessions (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    task_id           uuid        references public.tasks (id) on delete set null,
+    task_id           uuid,
                           -- session may anchor a real task OR a freeform label; keep history if task deleted -> SET NULL.
+                          -- Composite FK (below) enforces same-user ownership.
     task_label        text,                     -- freeform declared task when not a tasks row
 
-    duration_minutes  integer     not null,     -- planned duration
+    duration_minutes  integer     not null check (duration_minutes > 0),  -- planned duration
     started_at        timestamptz not null default now(),
     ended_at          timestamptz,
     status            text        not null default 'active'
@@ -209,7 +260,7 @@ create table public.focus_sessions (
     blocking_enabled  boolean     not null default false,
     blocking_mode     text        not null default 'soft'
                           check (blocking_mode in ('soft', 'hard')),
-    block_attempts    integer     not null default 0,
+    block_attempts    integer     not null default 0 check (block_attempts >= 0),
 
     captures_during   jsonb       not null default '[]'::jsonb,
                           -- ordered JSONB array of capture ids captured mid-session,
@@ -218,7 +269,14 @@ create table public.focus_sessions (
 
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    -- Same-user ownership; null ONLY task_id on parent delete (keep session history).
+    constraint focus_sessions_task_fk
+        foreign key (task_id, user_id) references public.tasks (id, user_id)
+        on delete set null (task_id),
+    -- Ownership target for vibe_checks composite FK.
+    constraint focus_sessions_id_user_key unique (id, user_id)
 );
 comment on table public.focus_sessions is 'Body-double focus sessions + blocking counters. RLS: auth.uid() = user_id.';
 
@@ -226,14 +284,19 @@ comment on table public.focus_sessions is 'Body-double focus sessions + blocking
 create table public.vibe_checks (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
-    focus_session_id  uuid        references public.focus_sessions (id) on delete cascade,
+    focus_session_id  uuid,
                           -- ~30% post-session 3-tap check; tied to its session -> CASCADE.
-                          -- nullable so standalone vibe checks are possible.
+                          -- nullable so standalone vibe checks are possible (MATCH SIMPLE
+                          -- skips the composite FK check when focus_session_id is null).
 
     value             smallint    not null check (value between 1 and 3),  -- 3-tap scale
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
+    deleted_at        timestamptz,
+
+    constraint vibe_checks_session_fk
+        foreign key (focus_session_id, user_id) references public.focus_sessions (id, user_id)
+        on delete cascade
 );
 comment on table public.vibe_checks is 'Post-session mood signal (3-tap). RLS: auth.uid() = user_id.';
 
@@ -245,8 +308,10 @@ create table public.reminders (
     reminder_type     text        not null check (reminder_type in ('time', 'geofence')),
 
     -- Target: a task or a habit (or neither, for a freestanding reminder).
-    task_id           uuid        references public.tasks (id)  on delete cascade,
-    habit_id          uuid        references public.habits (id) on delete cascade,
+    -- Composite FKs (below) enforce same-user ownership; all nullable so a
+    -- freestanding time reminder (no target) is allowed via MATCH SIMPLE.
+    task_id           uuid,
+    habit_id          uuid,
                           -- reminder is meaningless if its target is gone -> CASCADE.
 
     -- Time reminders:
@@ -255,9 +320,9 @@ create table public.reminders (
     snooze_until      timestamptz,              -- "Later" -> +2h
 
     -- Geofence reminders:
-    place_id          uuid        references public.places (id) on delete cascade,
+    place_id          uuid,
     geofence_transition text      check (geofence_transition in ('enter', 'exit')),
-    dwell_seconds     integer     default 60,   -- dwell filter before firing
+    dwell_seconds     integer     default 60 check (dwell_seconds >= 0),  -- dwell filter before firing
 
     copy              text,                     -- question-framed copy (may be generated at fire time)
     status            text        not null default 'scheduled'
@@ -266,6 +331,14 @@ create table public.reminders (
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
     deleted_at        timestamptz,
+
+    -- Same-user ownership on every target FK.
+    constraint reminders_task_fk
+        foreign key (task_id, user_id)  references public.tasks  (id, user_id) on delete cascade,
+    constraint reminders_habit_fk
+        foreign key (habit_id, user_id) references public.habits (id, user_id) on delete cascade,
+    constraint reminders_place_fk
+        foreign key (place_id, user_id) references public.places (id, user_id) on delete cascade,
 
     -- Structural integrity: each type has the fields it needs.
     constraint reminders_time_needs_schedule
