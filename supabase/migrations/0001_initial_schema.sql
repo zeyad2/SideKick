@@ -1,5 +1,5 @@
 -- =============================================================================
--- Sidekick — Initial schema (P1, LOCKED once approved)
+-- Sidekick — Initial schema (P1 — LOCKED 2026-07-11)
 -- Target: Postgres 15+ / Supabase (auth schema + auth.uid()).
 --
 -- Design tenets (see docs/SCHEMA.md for full rationale):
@@ -115,12 +115,43 @@ create table public.captures (
 );
 comment on table public.captures is 'Raw capture events (audio+transcript) triaged into typed records. RLS: auth.uid() = user_id.';
 
--- ============================ 3. tasks =======================================
+-- ============================ 3. goals =======================================
+-- Long-horizon aspirations that tasks and habits ladder up to. Goal Sage (P9)
+-- is UNDERSPECIFIED in the source, so this table is deliberately THIN: a title,
+-- a motivation ("why"), a lifecycle status, and an OPTIONAL target date. Sub-goals,
+-- milestones, progress computation, and any goal-breakdown logic are intentionally
+-- NOT modelled here — they are added by a FUTURE migration once P9 specs them.
+-- An item belongs to AT MOST ONE goal (nullable goal_id on tasks/habits, no join
+-- table); widen to many-to-many later only if the spec demands it. See SCHEMA.md §Goals.
+create table public.goals (
+    id                uuid primary key default gen_random_uuid(),
+    user_id           uuid        not null references public.profiles (id) on delete cascade,
+
+    title             text        not null,
+    why               text,                     -- motivation / north-star; Goal Sage's context
+    status            text        not null default 'active'
+                          check (status in ('active', 'achieved', 'paused', 'dropped')),
+    target_date       date,                     -- OPTIONAL: goals need not be time-boxed (ADHD-friendly)
+
+    created_at        timestamptz not null default now(),
+    updated_at        timestamptz not null default now(),
+    deleted_at        timestamptz,
+
+    -- Ownership target for tasks.goal_id / habits.goal_id composite FKs.
+    constraint goals_id_user_key unique (id, user_id)
+);
+comment on table public.goals is 'Long-horizon goals (Goal Sage). Tasks/habits ladder up via goal_id. RLS: auth.uid() = user_id.';
+
+-- ============================ 4. tasks =======================================
 create table public.tasks (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
     capture_id        uuid,
                           -- task outlives the capture it came from -> SET NULL, not cascade.
+                          -- Composite FK (below) enforces same-user ownership.
+    goal_id           uuid,
+                          -- optional: task ladders up to at most one goal (P9 Goal Sage).
+                          -- Deleting the goal must NOT delete the task -> SET NULL.
                           -- Composite FK (below) enforces same-user ownership.
 
     title             text        not null,
@@ -146,12 +177,17 @@ create table public.tasks (
     constraint tasks_capture_fk
         foreign key (capture_id, user_id) references public.captures (id, user_id)
         on delete set null (capture_id),
+    -- Same-user ownership: a task's goal must belong to the SAME user. Deleting the
+    -- goal nulls ONLY goal_id (PG15 column-list SET NULL) so the task survives.
+    constraint tasks_goal_fk
+        foreign key (goal_id, user_id) references public.goals (id, user_id)
+        on delete set null (goal_id),
     -- Ownership target for focus_sessions / reminders composite FKs.
     constraint tasks_id_user_key unique (id, user_id)
 );
 comment on table public.tasks is 'Actionable items. RLS: auth.uid() = user_id.';
 
--- ============================ 4. notes =======================================
+-- ============================ 5. notes =======================================
 create table public.notes (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
@@ -170,11 +206,13 @@ create table public.notes (
 );
 comment on table public.notes is 'Reference notes (non-actionable). RLS: auth.uid() = user_id.';
 
--- ============================ 5. habits ======================================
+-- ============================ 6. habits ======================================
 create table public.habits (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
     capture_id        uuid,       -- same-user composite FK below
+    goal_id           uuid,       -- optional: habit ladders up to at most one goal (P9);
+                                  -- goal delete -> SET NULL. Same-user composite FK below.
 
     title             text        not null,
     frequency_config  jsonb,                    -- recurrence rule (daily / N-per-week / specific days); heterogeneous -> JSONB
@@ -194,12 +232,16 @@ create table public.habits (
     constraint habits_capture_fk
         foreign key (capture_id, user_id) references public.captures (id, user_id)
         on delete set null (capture_id),
+    -- Same-user ownership; deleting the goal nulls ONLY goal_id so the habit survives.
+    constraint habits_goal_fk
+        foreign key (goal_id, user_id) references public.goals (id, user_id)
+        on delete set null (goal_id),
     -- Ownership target for habit_completions / reminders composite FKs.
     constraint habits_id_user_key unique (id, user_id)
 );
 comment on table public.habits is 'Elastic habits (mini/normal/mega). RLS: auth.uid() = user_id.';
 
--- ====================== 6. habit_completions =================================
+-- ====================== 7. habit_completions =================================
 create table public.habit_completions (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
@@ -221,7 +263,7 @@ create table public.habit_completions (
 );
 comment on table public.habit_completions is 'Immutable habit-completion log (any level = a full win). RLS: auth.uid() = user_id.';
 
--- ============================ 7. places ======================================
+-- ============================ 8. places ======================================
 create table public.places (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
@@ -240,7 +282,7 @@ create table public.places (
 );
 comment on table public.places is 'Geofence anchor points. RLS: auth.uid() = user_id.';
 
--- ====================== 8. focus_sessions ====================================
+-- ====================== 9. focus_sessions ====================================
 -- Declared before reminders is not required (no FK from reminders to sessions),
 -- but vibe_checks FKs into it, so it must precede vibe_checks.
 create table public.focus_sessions (
@@ -280,7 +322,7 @@ create table public.focus_sessions (
 );
 comment on table public.focus_sessions is 'Body-double focus sessions + blocking counters. RLS: auth.uid() = user_id.';
 
--- ============================ 9. vibe_checks =================================
+-- ============================ 10. vibe_checks ================================
 create table public.vibe_checks (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
@@ -300,7 +342,7 @@ create table public.vibe_checks (
 );
 comment on table public.vibe_checks is 'Post-session mood signal (3-tap). RLS: auth.uid() = user_id.';
 
--- ============================ 10. reminders ==================================
+-- ============================ 11. reminders ==================================
 create table public.reminders (
     id                uuid primary key default gen_random_uuid(),
     user_id           uuid        not null references public.profiles (id) on delete cascade,
@@ -349,7 +391,7 @@ create table public.reminders (
 );
 comment on table public.reminders is 'Time + geofence reminders. RLS: auth.uid() = user_id.';
 
--- ============================ 11. block_list =================================
+-- ============================ 12. block_list =================================
 -- One row per app to block during focus sessions.
 -- app_identifier holds an Android package name (e.g. "com.instagram.android")
 -- OR an iOS FamilyControls opaque token (base64), disambiguated by `platform`.
@@ -398,6 +440,15 @@ create index idx_tasks_stale
     on public.tasks (user_id, last_activity_at)
     where status = 'todo' and deleted_at is null;
 
+-- Goal lists by status (P9): WHERE user_id=? AND status=?.
+create index idx_goals_user_status
+    on public.goals (user_id, status)
+    where deleted_at is null;
+
+-- Items laddering up to a goal (P9 goal detail): WHERE goal_id=?.
+create index idx_tasks_goal  on public.tasks  (goal_id) where goal_id is not null and deleted_at is null;
+create index idx_habits_goal on public.habits (goal_id) where goal_id is not null and deleted_at is null;
+
 -- Reminder lookups by target (P6/P9 fire + cancel-on-delete paths).
 create index idx_reminders_place on public.reminders (place_id) where place_id is not null;
 create index idx_reminders_task  on public.reminders (task_id)  where task_id  is not null;
@@ -409,6 +460,7 @@ create index idx_reminders_habit on public.reminders (habit_id) where habit_id i
 -- =============================================================================
 alter table public.profiles          enable row level security;
 alter table public.captures          enable row level security;
+alter table public.goals             enable row level security;
 alter table public.tasks             enable row level security;
 alter table public.notes             enable row level security;
 alter table public.habits            enable row level security;
@@ -423,6 +475,8 @@ create policy profiles_owner on public.profiles
     for all using (auth.uid() = id) with check (auth.uid() = id);
 
 create policy captures_owner on public.captures
+    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy goals_owner on public.goals
     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy tasks_owner on public.tasks
     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

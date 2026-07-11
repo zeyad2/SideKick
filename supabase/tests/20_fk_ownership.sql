@@ -19,6 +19,8 @@ insert into public.tasks (id, user_id, title) values
     ('cccc0000-0000-0000-0000-000000000001', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C task');
 insert into public.captures (id, user_id, status) values
     ('cccc0000-0000-0000-0000-0000000000ca', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'ready');
+insert into public.goals (id, user_id, title) values
+    ('cccc0000-0000-0000-0000-0000000000a1', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C goal');
 
 -- ============================================================================
 -- Act as user D (attacker). D must NOT be able to bind children to C's rows.
@@ -65,6 +67,32 @@ begin
     end;
 end$$;
 
+-- ATTACK 4: task laddering up to C's goal -> composite FK must reject.
+do $$
+begin
+    begin
+        insert into public.tasks (user_id, goal_id, title)
+        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
+                'cccc0000-0000-0000-0000-0000000000a1', 'stolen goal task');
+        raise exception 'FAIL: D attached a task to C''s goal';
+    exception when foreign_key_violation then
+        raise notice 'PASS: cross-tenant task->goal FK rejected';
+    end;
+end$$;
+
+-- ATTACK 5: habit laddering up to C's goal -> composite FK must reject.
+do $$
+begin
+    begin
+        insert into public.habits (user_id, goal_id, title)
+        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
+                'cccc0000-0000-0000-0000-0000000000a1', 'stolen goal habit');
+        raise exception 'FAIL: D attached a habit to C''s goal';
+    exception when foreign_key_violation then
+        raise notice 'PASS: cross-tenant habit->goal FK rejected';
+    end;
+end$$;
+
 reset request.jwt.claims;
 reset role;
 
@@ -91,6 +119,31 @@ begin
         raise exception 'FAIL: SET NULL clobbered user_id (got %)', uid;
     end if;
     raise notice 'PASS: SET NULL nulled task_id only; user_id intact';
+end$$;
+
+-- Goal delete must SET NULL only goal_id and keep the task (goals don't own tasks).
+insert into public.tasks (id, user_id, goal_id, title)
+values ('cccc0000-0000-0000-0000-0000000000b2',
+        'cccccccc-cccc-cccc-cccc-cccccccccccc',
+        'cccc0000-0000-0000-0000-0000000000a1', 'C goal-linked task');
+delete from public.goals where id = 'cccc0000-0000-0000-0000-0000000000a1';
+do $$
+declare gid uuid; uid uuid; cnt int;
+begin
+    select count(*) into cnt from public.tasks
+    where id = 'cccc0000-0000-0000-0000-0000000000b2';
+    if cnt <> 1 then
+        raise exception 'FAIL: task deleted when its goal was deleted (should survive)';
+    end if;
+    select goal_id, user_id into gid, uid from public.tasks
+    where id = 'cccc0000-0000-0000-0000-0000000000b2';
+    if gid is not null then
+        raise exception 'FAIL: goal_id should be NULL after goal delete, got %', gid;
+    end if;
+    if uid is distinct from 'cccccccc-cccc-cccc-cccc-cccccccccccc' then
+        raise exception 'FAIL: SET NULL clobbered user_id (got %)', uid;
+    end if;
+    raise notice 'PASS: goal delete nulled goal_id only; task + user_id intact';
 end$$;
 
 -- ============================================================================
