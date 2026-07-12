@@ -115,6 +115,10 @@ spacing:
 
 ## Brand & Style
 
+> **Screen mockups:** see [`docs/SCREENS.md`](docs/SCREENS.md) for the Stitch-generated
+> screen reference (recording overlay, inbox, triage, completion burst, Fresh Start,
+> focus session, settings), each mapped to the build-plan phase that builds it.
+
 This design system is built on the philosophy of "Analog Warmth." It aims to reduce the digital friction often felt by ADHD users by grounding the interface in the tactile, comforting aesthetic of high-quality stationery and dimly lit workspaces. The experience should feel like a trusted leather-bound notebook—permanent, forgiving, and quiet.
 
 The style rejects modern digital trends like glassmorphism or neon glows in favor of a flat, structured, and deeply matte aesthetic. Visual hierarchy is established through tonal layering and high-quality serif typography rather than shadows or depth effects. The goal is to create a focused "sanctuary" that minimizes overstimulation while providing a sense of ritual and reward.

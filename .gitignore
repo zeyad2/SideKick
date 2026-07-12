@@ -64,3 +64,4 @@ app.*.map.json
 # Cloud agents, agent scratch, and local Claude Code settings
 /.claude/
 /.agents/
+stitch_sidekick_adhd_companion/
