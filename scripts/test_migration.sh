@@ -27,15 +27,20 @@ run() { # run <file>
 echo "== 1/4 bootstrap auth stubs =="
 run "$ROOT/supabase/tests/00_bootstrap_auth.sql"
 
-echo "== 2/4 apply migration =="
+echo "== 2/4 apply migrations =="
 run "$ROOT/supabase/migrations/0001_initial_schema.sql"
-echo "   migration applied cleanly."
+run "$ROOT/supabase/migrations/0002_events_log.sql"
+run "$ROOT/supabase/migrations/0003_sync_guards.sql"
+echo "   migrations applied cleanly."
 
 echo "== 3/4 RLS isolation test =="
 run "$ROOT/supabase/tests/10_rls_isolation.sql"
 
-echo "== 4/4 FK ownership + domain CHECK test =="
+echo "== 4/5 FK ownership + domain CHECK test =="
 run "$ROOT/supabase/tests/20_fk_ownership.sql"
 
+echo "== 5/5 server-side sync guards (LWW + skew clamp + event immutability) =="
+run "$ROOT/supabase/tests/30_sync_guards.sql"
+
 echo ""
-echo "ALL CHECKS PASSED (clean apply + RLS isolation + FK ownership + CHECKs)."
+echo "ALL CHECKS PASSED (clean apply + RLS + FK ownership + CHECKs + sync guards)."

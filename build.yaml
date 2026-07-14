@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Store DateTime as ISO-8601 text so local timestamps round-trip
+          # losslessly against Supabase `timestamptz` and last-write-wins
+          # comparisons are exact. See docs/DATA_CONTRACT.md.
+          store_date_time_values_as_text: true
+          # Dart camelCase getters -> snake_case SQL columns, matching the
+          # locked Postgres migrations (userId -> user_id, etc.).
+          case_from_dart_to_sql: snake_case
