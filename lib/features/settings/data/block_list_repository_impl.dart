@@ -57,24 +57,24 @@ class BlockListRepositoryImpl extends LocalFirstRepository
       entityType: EntityTypes.blockListEntry,
       entityId: id,
     );
-    final BlockListRow row = await (db.select(db.blockList)
-          ..where((BlockList b) => b.id.equals(id)))
-        .getSingle();
+    final BlockListRow row = await (db.select(
+      db.blockList,
+    )..where((BlockList b) => b.id.equals(id))).getSingle();
     return _toDomain(row);
   }
 
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.blockList)
-          ..where((BlockList b) => b.id.equals(id) & b.userId.equals(userId)))
-        .write(
-          BlockListCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.blockList,
+    )..where((BlockList b) => b.id.equals(id) & b.userId.equals(userId))).write(
+      BlockListCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   BlockListEntry _toDomain(BlockListRow row) => BlockListEntry(

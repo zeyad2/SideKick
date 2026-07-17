@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sidekick/core/capture/capture_providers.dart';
 import 'package:sidekick/core/router/app_router.dart';
 import 'package:sidekick/core/sync/sync_providers.dart';
 import 'package:sidekick/core/theme/app_theme.dart';
 import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/core/theme/theme_providers.dart';
+import 'package:sidekick/features/capture/presentation/capture_overlay_host.dart';
+import 'package:sidekick/features/inbox/application/capture_processing_providers.dart';
 
 class SidekickApp extends ConsumerStatefulWidget {
   const SidekickApp({super.key});
@@ -21,7 +26,10 @@ class _SidekickAppState extends ConsumerState<SidekickApp> {
     super.initState();
     // Flush + pull whenever the app returns to the foreground (best-effort).
     _lifecycle = AppLifecycleListener(
-      onResume: () => ref.read(syncEngineProvider)?.syncNow(),
+      onResume: () {
+        ref.read(syncEngineProvider)?.syncNow();
+        unawaited(ref.read(captureProcessingServiceProvider)?.retryNow());
+      },
     );
   }
 
@@ -37,6 +45,8 @@ class _SidekickAppState extends ConsumerState<SidekickApp> {
     // Instantiate (and start) the sync engine for the signed-in user; it
     // reacts to connectivity regained on its own.
     ref.watch(syncEngineProvider);
+    ref.watch(captureOwnerBindingProvider);
+    ref.watch(captureProcessingServiceProvider);
 
     return AppThemeScope(
       theme: appTheme,
@@ -48,7 +58,7 @@ class _SidekickAppState extends ConsumerState<SidekickApp> {
         themeMode: ThemeMode.dark,
         builder: (BuildContext context, Widget? child) => Directionality(
           textDirection: TextDirection.ltr,
-          child: child ?? const SizedBox.shrink(),
+          child: CaptureOverlayHost(child: child ?? const SizedBox.shrink()),
         ),
       ),
     );

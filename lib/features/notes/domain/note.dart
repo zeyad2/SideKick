@@ -37,3 +37,12 @@ abstract interface class NotesRepository {
   Future<void> update(Note note);
   Future<void> delete(String id);
 }
+
+/// Additive P4 idempotent writer for capture-derived notes.
+abstract interface class CaptureLinkedNotesRepository {
+  Future<Note> createForCapture({
+    required String captureId,
+    String? title,
+    String? body,
+  });
+}

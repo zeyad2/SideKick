@@ -43,7 +43,11 @@ class Goal {
 abstract interface class GoalsRepository {
   Stream<List<Goal>> watchAll();
   Stream<List<Goal>> watchByStatus(GoalStatus status);
-  Future<Goal> create({required String title, String? why, DateTime? targetDate});
+  Future<Goal> create({
+    required String title,
+    String? why,
+    DateTime? targetDate,
+  });
 
   /// Persist edits; emits `goal_status_changed` when the status changes.
   Future<void> update(Goal goal);

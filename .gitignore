@@ -58,8 +58,6 @@ app.*.map.json
 /docs/
 /SIDEKICK_BUILD_PLAN.md
 /rubrics.md
-/PHASE_*_REVIEW.md
-/TECH_DEBT.md
 
 # Cloud agents, agent scratch, and local Claude Code settings
 /.claude/

@@ -70,8 +70,9 @@ class SupabaseSyncGateway implements SyncGateway {
     if (rows.isEmpty) {
       return;
     }
-    final List<Map<String, Object?>> payload =
-        rows.map(_coerceForPush).toList(growable: false);
+    final List<Map<String, Object?>> payload = rows
+        .map(_coerceForPush)
+        .toList(growable: false);
     if (insertOnly) {
       // Idempotent insert: a retry after a committed-but-unacknowledged push
       // (crash between the server commit and the local `dirty` clear) must not

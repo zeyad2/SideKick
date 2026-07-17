@@ -16,7 +16,8 @@ class HabitCompletionsRepositoryImpl extends LocalFirstRepository
   });
 
   @override
-  Stream<List<HabitCompletion>> watchAll() => _query(null).watch().map(_mapRows);
+  Stream<List<HabitCompletion>> watchAll() =>
+      _query(null).watch().map(_mapRows);
 
   @override
   Stream<List<HabitCompletion>> watchByHabit(String habitId) =>
@@ -27,8 +28,7 @@ class HabitCompletionsRepositoryImpl extends LocalFirstRepository
   ) {
     final select = db.select(db.habitCompletions)
       ..where(
-        (HabitCompletions c) =>
-            c.userId.equals(userId) & c.deletedAt.isNull(),
+        (HabitCompletions c) => c.userId.equals(userId) & c.deletedAt.isNull(),
       )
       ..orderBy(<OrderClauseGenerator<HabitCompletions>>[
         (HabitCompletions c) => OrderingTerm.desc(c.completedAt),
@@ -73,9 +73,9 @@ class HabitCompletionsRepositoryImpl extends LocalFirstRepository
         if (energyMode != null) 'energy_mode': energyMode.wire,
       },
     );
-    final HabitCompletionRow row = await (db.select(db.habitCompletions)
-          ..where((HabitCompletions c) => c.id.equals(id)))
-        .getSingle();
+    final HabitCompletionRow row = await (db.select(
+      db.habitCompletions,
+    )..where((HabitCompletions c) => c.id.equals(id))).getSingle();
     return _toDomain(row);
   }
 
@@ -83,8 +83,7 @@ class HabitCompletionsRepositoryImpl extends LocalFirstRepository
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
     await (db.update(db.habitCompletions)..where(
-          (HabitCompletions c) =>
-              c.id.equals(id) & c.userId.equals(userId),
+          (HabitCompletions c) => c.id.equals(id) & c.userId.equals(userId),
         ))
         .write(
           HabitCompletionsCompanion(

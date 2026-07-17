@@ -73,3 +73,13 @@ abstract interface class HabitsRepository {
   Future<void> update(Habit habit);
   Future<void> delete(String id);
 }
+
+/// Additive P4 idempotent writer for capture-derived habits.
+abstract interface class CaptureLinkedHabitsRepository {
+  Future<Habit> createForCapture({
+    required String captureId,
+    required String title,
+    Map<String, Object?>? levelConfig,
+    String? anchorDescription,
+  });
+}

@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:sidekick/core/capture/capture_ingestion_barrier.dart';
 import 'package:sidekick/core/db/app_database.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,7 +12,10 @@ enum AuthPhase { unknown, signedIn, signedOut }
 class SessionState {
   const SessionState({required this.phase, this.userId, this.email});
 
-  const SessionState.signedOut() : phase = AuthPhase.signedOut, userId = null, email = null;
+  const SessionState.signedOut()
+    : phase = AuthPhase.signedOut,
+      userId = null,
+      email = null;
 
   final AuthPhase phase;
   final String? userId;
@@ -48,10 +52,11 @@ abstract interface class AuthRepository {
 }
 
 class SupabaseAuthRepository implements AuthRepository {
-  SupabaseAuthRepository(this._auth, this._db);
+  SupabaseAuthRepository(this._auth, this._db, this._captureBarrier);
 
   final GoTrueClient _auth;
   final AppDatabase _db;
+  final CaptureIngestionBarrier _captureBarrier;
 
   SessionState _fromSession(Session? session) {
     if (session == null) {
@@ -85,9 +90,14 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    // End the session first so no in-flight sync can re-populate the tables
-    // under the outgoing user's JWT, then clear the shared local store.
-    await _auth.signOut();
-    await _db.wipeAllData();
+    await _captureBarrier.closeAndDrain();
+    try {
+      // End the session first so no in-flight sync can re-populate the tables
+      // under the outgoing user's JWT, then clear the shared local store.
+      await _auth.signOut();
+      await _db.wipeAllData();
+    } finally {
+      _captureBarrier.reopen();
+    }
   }
 }

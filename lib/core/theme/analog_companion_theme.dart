@@ -137,6 +137,9 @@ AppTheme buildAnalogCompanionTheme() {
       navigationIcon: 24,
       navigationBarHeight: 80,
       maxReadableWidth: 720,
+      captureMic: 80,
+      captureWaveformHeight: 72,
+      captureOverlayBlur: 16,
     ),
   );
 }

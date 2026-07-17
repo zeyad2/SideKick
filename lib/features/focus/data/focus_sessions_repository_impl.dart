@@ -34,11 +34,9 @@ class FocusSessionsRepositoryImpl extends LocalFirstRepository
 
   @override
   Stream<FocusSession?> watchById(String id) =>
-      (db.select(db.focusSessions)
-            ..where(
-              (FocusSessions f) =>
-                  f.id.equals(id) & f.userId.equals(userId),
-            ))
+      (db.select(db.focusSessions)..where(
+            (FocusSessions f) => f.id.equals(id) & f.userId.equals(userId),
+          ))
           .watchSingleOrNull()
           .map((FocusSessionRow? row) => row == null ? null : _toDomain(row));
 
@@ -133,11 +131,11 @@ class FocusSessionsRepositoryImpl extends LocalFirstRepository
   }
 
   Future<FocusSession?> _byId(String id) async {
-    final FocusSessionRow? row = await (db.select(db.focusSessions)
-          ..where(
-            (FocusSessions f) => f.id.equals(id) & f.userId.equals(userId),
-          ))
-        .getSingleOrNull();
+    final FocusSessionRow? row =
+        await (db.select(db.focusSessions)..where(
+              (FocusSessions f) => f.id.equals(id) & f.userId.equals(userId),
+            ))
+            .getSingleOrNull();
     return row == null ? null : _toDomain(row);
   }
 

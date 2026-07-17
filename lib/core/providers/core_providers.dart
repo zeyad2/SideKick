@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sidekick/core/audio/pending_audio_queue.dart';
+import 'package:sidekick/core/capture/capture_ingestion_barrier.dart';
 import 'package:sidekick/core/data/id_generator.dart';
 import 'package:sidekick/core/db/app_database.dart';
 import 'package:sidekick/core/events/event_emitter.dart';
@@ -18,8 +19,12 @@ final Provider<AppDatabase> appDatabaseProvider = Provider<AppDatabase>((
   return db;
 });
 
-final Provider<IdGenerator> idGeneratorProvider =
-    Provider<IdGenerator>((Ref ref) => IdGenerator());
+final Provider<IdGenerator> idGeneratorProvider = Provider<IdGenerator>(
+  (Ref ref) => IdGenerator(),
+);
+
+final Provider<CaptureIngestionBarrier> captureIngestionBarrierProvider =
+    Provider<CaptureIngestionBarrier>((Ref ref) => CaptureIngestionBarrier());
 
 /// The Supabase client (initialised in `main` before the app runs).
 final Provider<SupabaseClient> supabaseClientProvider =

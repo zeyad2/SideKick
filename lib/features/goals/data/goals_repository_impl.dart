@@ -62,24 +62,25 @@ class GoalsRepositoryImpl extends LocalFirstRepository
       entityType: EntityTypes.goal,
       entityId: id,
     );
-    final GoalRow row = await (db.select(db.goals)
-          ..where((Goals g) => g.id.equals(id)))
-        .getSingle();
+    final GoalRow row = await (db.select(
+      db.goals,
+    )..where((Goals g) => g.id.equals(id))).getSingle();
     return _toDomain(row);
   }
 
   @override
   Future<void> update(Goal goal) async {
-    final GoalRow? existing = await (db.select(db.goals)
-          ..where((Goals g) => g.id.equals(goal.id) & g.userId.equals(userId)))
-        .getSingleOrNull();
+    final GoalRow? existing =
+        await (db.select(db.goals)..where(
+              (Goals g) => g.id.equals(goal.id) & g.userId.equals(userId),
+            ))
+            .getSingleOrNull();
     if (existing == null) {
       return;
     }
     final DateTime timestamp = now();
-    await (db.update(db.goals)..where(
-          (Goals g) => g.id.equals(goal.id) & g.userId.equals(userId),
-        ))
+    await (db.update(db.goals)
+          ..where((Goals g) => g.id.equals(goal.id) & g.userId.equals(userId)))
         .write(
           GoalsCompanion(
             title: Value<String>(goal.title),
@@ -104,15 +105,15 @@ class GoalsRepositoryImpl extends LocalFirstRepository
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.goals)
-          ..where((Goals g) => g.id.equals(id) & g.userId.equals(userId)))
-        .write(
-          GoalsCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.goals,
+    )..where((Goals g) => g.id.equals(id) & g.userId.equals(userId))).write(
+      GoalsCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   List<Goal> _mapRows(List<GoalRow> rows) =>

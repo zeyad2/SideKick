@@ -92,3 +92,20 @@ abstract interface class CapturesRepository {
   /// Soft-delete (tombstone) so the delete propagates through sync.
   Future<void> delete(String id);
 }
+
+/// Additive replay lookup that includes terminal captures hidden from inbox
+/// streams. It prevents a journal replay after a crash from creating a second
+/// capture row.
+abstract interface class CaptureReplayLookup {
+  Future<Capture?> findByAudioPath(String audioPath);
+}
+
+/// Atomic P4 state transitions that keep a stale Gemini response from
+/// resurrecting a capture after the user has discarded or triaged it.
+abstract interface class CaptureProcessingTransitions {
+  Future<Capture?> beginProcessing(String captureId);
+
+  /// Completes a `processing` row as either `ready` or `failed`. Returns false
+  /// when another terminal action won the race.
+  Future<bool> finishProcessing(Capture capture);
+}

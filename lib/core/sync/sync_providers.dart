@@ -22,3 +22,16 @@ final Provider<SyncEngine?> syncEngineProvider = Provider<SyncEngine?>((
   ref.onDispose(engine.dispose);
   return engine;
 });
+
+/// Resolves once the signed-in user's first sync cycle has settled (or
+/// immediately when signed out). The onboarding gate reads its loading state to
+/// avoid treating a returning user as new before their profile has pulled down.
+final FutureProvider<void> initialSyncSettledProvider = FutureProvider<void>((
+  Ref ref,
+) async {
+  final SyncEngine? engine = ref.watch(syncEngineProvider);
+  if (engine == null) {
+    return;
+  }
+  await engine.firstSyncSettled;
+});

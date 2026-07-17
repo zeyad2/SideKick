@@ -6,7 +6,11 @@ import 'package:path/path.dart' as p;
 /// A single queued audio file awaiting transcription.
 @immutable
 class PendingAudio {
-  const PendingAudio({required this.id, required this.file, required this.enqueuedAt});
+  const PendingAudio({
+    required this.id,
+    required this.file,
+    required this.enqueuedAt,
+  });
 
   /// Stable id == the file's base name.
   final String id;
@@ -27,7 +31,10 @@ abstract interface class PendingAudioQueue {
   Future<File> reservePath({String extension = 'm4a'});
 
   /// Write [bytes] to a new queue file and return the entry.
-  Future<PendingAudio> enqueueBytes(List<int> bytes, {String extension = 'm4a'});
+  Future<PendingAudio> enqueueBytes(
+    List<int> bytes, {
+    String extension = 'm4a',
+  });
 
   /// All queued audio files, oldest first.
   Future<List<PendingAudio>> pending();
@@ -44,7 +51,8 @@ class DirectoryPendingAudioQueue implements PendingAudioQueue {
     required Directory baseDir,
     String Function()? idFactory,
   }) : _dir = Directory(p.join(baseDir.path, 'pending_audio')),
-       _idFactory = idFactory ??
+       _idFactory =
+           idFactory ??
            (() => DateTime.now().toUtc().microsecondsSinceEpoch.toString());
 
   final Directory _dir;
@@ -80,19 +88,22 @@ class DirectoryPendingAudioQueue implements PendingAudioQueue {
   @override
   Future<List<PendingAudio>> pending() async {
     await _ensureDir();
-    final List<PendingAudio> entries = _dir
-        .listSync()
-        .whereType<File>()
-        .map(
-          (File f) => PendingAudio(
-            id: p.basename(f.path),
-            file: f,
-            enqueuedAt: f.statSync().modified,
-          ),
-        )
-        .toList(growable: true)
-      ..sort((PendingAudio a, PendingAudio b) =>
-          a.enqueuedAt.compareTo(b.enqueuedAt));
+    final List<PendingAudio> entries =
+        _dir
+            .listSync()
+            .whereType<File>()
+            .map(
+              (File f) => PendingAudio(
+                id: p.basename(f.path),
+                file: f,
+                enqueuedAt: f.statSync().modified,
+              ),
+            )
+            .toList(growable: true)
+          ..sort(
+            (PendingAudio a, PendingAudio b) =>
+                a.enqueuedAt.compareTo(b.enqueuedAt),
+          );
     return entries;
   }
 

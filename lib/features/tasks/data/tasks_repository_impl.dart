@@ -6,7 +6,7 @@ import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/features/tasks/domain/task.dart';
 
 class TasksRepositoryImpl extends LocalFirstRepository
-    implements TasksRepository {
+    implements TasksRepository, CaptureLinkedTasksRepository {
   TasksRepositoryImpl({
     required super.db,
     required super.emitter,
@@ -42,11 +42,42 @@ class TasksRepositoryImpl extends LocalFirstRepository
     String? goalId,
     DateTime? scheduledAt,
   }) async {
+    return _createWithId(
+      id: newId(),
+      title: title,
+      details: details,
+      captureId: captureId,
+      goalId: goalId,
+      scheduledAt: scheduledAt,
+    );
+  }
+
+  @override
+  Future<Task> createForCapture({
+    required String captureId,
+    required String title,
+    String? details,
+    DateTime? scheduledAt,
+  }) => _createWithId(
+    id: captureId,
+    title: title,
+    details: details,
+    captureId: captureId,
+    scheduledAt: scheduledAt,
+  );
+
+  Future<Task> _createWithId({
+    required String id,
+    required String title,
+    String? details,
+    String? captureId,
+    String? goalId,
+    DateTime? scheduledAt,
+  }) async {
     final DateTime timestamp = now();
-    final String id = newId();
-    await db
+    final TaskRow? inserted = await db
         .into(db.tasks)
-        .insert(
+        .insertReturningOrNull(
           TasksCompanion.insert(
             id: id,
             userId: userId,
@@ -61,12 +92,15 @@ class TasksRepositoryImpl extends LocalFirstRepository
             lastActivityAt: Value<DateTime>(timestamp),
             dirty: const Value<bool>(true),
           ),
+          mode: InsertMode.insertOrIgnore,
         );
-    emitter.emitCreated(
-      userId: userId,
-      entityType: EntityTypes.task,
-      entityId: id,
-    );
+    if (inserted != null) {
+      emitter.emitCreated(
+        userId: userId,
+        entityType: EntityTypes.task,
+        entityId: id,
+      );
+    }
     return (await _byId(id))!;
   }
 
@@ -77,9 +111,8 @@ class TasksRepositoryImpl extends LocalFirstRepository
       return;
     }
     final DateTime timestamp = now();
-    await (db.update(db.tasks)..where(
-          (Tasks t) => t.id.equals(task.id) & t.userId.equals(userId),
-        ))
+    await (db.update(db.tasks)
+          ..where((Tasks t) => t.id.equals(task.id) & t.userId.equals(userId)))
         .write(
           TasksCompanion(
             goalId: Value<String?>(task.goalId),
@@ -108,21 +141,22 @@ class TasksRepositoryImpl extends LocalFirstRepository
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.tasks)
-          ..where((Tasks t) => t.id.equals(id) & t.userId.equals(userId)))
-        .write(
-          TasksCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals(id) & t.userId.equals(userId))).write(
+      TasksCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   Future<Task?> _byId(String id) async {
-    final TaskRow? row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals(id) & t.userId.equals(userId)))
-        .getSingleOrNull();
+    final TaskRow? row =
+        await (db.select(db.tasks)
+              ..where((Tasks t) => t.id.equals(id) & t.userId.equals(userId)))
+            .getSingleOrNull();
     return row == null ? null : _toDomain(row);
   }
 

@@ -118,8 +118,7 @@ class RemindersRepositoryImpl extends LocalFirstRepository
     }
     final DateTime timestamp = now();
     await (db.update(db.reminders)..where(
-          (Reminders r) =>
-              r.id.equals(reminder.id) & r.userId.equals(userId),
+          (Reminders r) => r.id.equals(reminder.id) & r.userId.equals(userId),
         ))
         .write(
           RemindersCompanion(
@@ -154,21 +153,23 @@ class RemindersRepositoryImpl extends LocalFirstRepository
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.reminders)
-          ..where((Reminders r) => r.id.equals(id) & r.userId.equals(userId)))
-        .write(
-          RemindersCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.reminders,
+    )..where((Reminders r) => r.id.equals(id) & r.userId.equals(userId))).write(
+      RemindersCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   Future<Reminder?> _byId(String id) async {
-    final ReminderRow? row = await (db.select(db.reminders)
-          ..where((Reminders r) => r.id.equals(id) & r.userId.equals(userId)))
-        .getSingleOrNull();
+    final ReminderRow? row =
+        await (db.select(db.reminders)..where(
+              (Reminders r) => r.id.equals(id) & r.userId.equals(userId),
+            ))
+            .getSingleOrNull();
     return row == null ? null : _toDomain(row);
   }
 

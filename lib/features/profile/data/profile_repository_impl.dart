@@ -29,9 +29,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Profile?> get() async {
-    final ProfileRow? row = await (db.select(db.profiles)
-          ..where((Profiles p) => p.id.equals(userId)))
-        .getSingleOrNull();
+    final ProfileRow? row = await (db.select(
+      db.profiles,
+    )..where((Profiles p) => p.id.equals(userId))).getSingleOrNull();
     return row == null ? null : _toDomain(row);
   }
 
@@ -45,7 +45,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
         .insert(
           ProfilesCompanion.insert(
             id: userId,
-            personaResponseLanguage: Value<String>(PersonaLanguage.english.wire),
+            personaResponseLanguage: Value<String>(
+              PersonaLanguage.english.wire,
+            ),
             theme: const Value<String>('analog_companion'),
             createdAt: Value<DateTime>(timestamp),
             updatedAt: Value<DateTime>(timestamp),
@@ -61,28 +63,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<void> setPersonaLanguage(PersonaLanguage language) async {
     await ensureExists();
     final DateTime timestamp = _clock();
-    await (db.update(db.profiles)..where((Profiles p) => p.id.equals(userId)))
-        .write(
-          ProfilesCompanion(
-            personaResponseLanguage: Value<String>(language.wire),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.profiles,
+    )..where((Profiles p) => p.id.equals(userId))).write(
+      ProfilesCompanion(
+        personaResponseLanguage: Value<String>(language.wire),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   @override
   Future<void> setTheme(String theme) async {
     await ensureExists();
     final DateTime timestamp = _clock();
-    await (db.update(db.profiles)..where((Profiles p) => p.id.equals(userId)))
-        .write(
-          ProfilesCompanion(
-            theme: Value<String>(theme),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.profiles,
+    )..where((Profiles p) => p.id.equals(userId))).write(
+      ProfilesCompanion(
+        theme: Value<String>(theme),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   @override
@@ -93,14 +97,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
       ...values,
     };
     final DateTime timestamp = _clock();
-    await (db.update(db.profiles)..where((Profiles p) => p.id.equals(userId)))
-        .write(
-          ProfilesCompanion(
-            prefs: Value<String>(JsonCodecs.encode(merged)),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.profiles,
+    )..where((Profiles p) => p.id.equals(userId))).write(
+      ProfilesCompanion(
+        prefs: Value<String>(JsonCodecs.encode(merged)),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   Profile _toDomain(ProfileRow row) => Profile(

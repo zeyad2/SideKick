@@ -10,6 +10,10 @@ final class AppConfig {
     'SUPABASE_PUBLISHABLE_KEY',
   );
   static const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
+  static const String geminiModel = String.fromEnvironment(
+    'GEMINI_MODEL',
+    defaultValue: 'gemini-3.5-flash',
+  );
 
   static bool get hasSupabaseConfiguration =>
       supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;

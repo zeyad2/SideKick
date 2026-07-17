@@ -22,16 +22,17 @@ class Place {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Place copyWith({String? name, double? lat, double? lng, int? radiusM}) => Place(
-    id: id,
-    userId: userId,
-    name: name ?? this.name,
-    lat: lat ?? this.lat,
-    lng: lng ?? this.lng,
-    radiusM: radiusM ?? this.radiusM,
-    createdAt: createdAt,
-    updatedAt: updatedAt,
-  );
+  Place copyWith({String? name, double? lat, double? lng, int? radiusM}) =>
+      Place(
+        id: id,
+        userId: userId,
+        name: name ?? this.name,
+        lat: lat ?? this.lat,
+        lng: lng ?? this.lng,
+        radiusM: radiusM ?? this.radiusM,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      );
 }
 
 abstract interface class PlacesRepository {

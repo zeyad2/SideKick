@@ -40,8 +40,9 @@ Runtime config is read from a gitignored `.env` at the repo root (see
 `.env.example` for the keys). It is loaded at build time via
 `--dart-define-from-file`; no secrets are committed. Required keys:
 `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (Supabase's modern client key,
-`sb_publishable_…`, replacing the legacy `anon` JWT). `GEMINI_API_KEY` is
-optional and unused at this stage. Extra keys in `.env` are ignored.
+`sb_publishable_…`, replacing the legacy `anon` JWT), plus `GEMINI_API_KEY` for
+voice transcription. `GEMINI_MODEL` is optional and defaults to
+`gemini-3.5-flash`. Extra keys in `.env` are ignored.
 
 ## Verify
 

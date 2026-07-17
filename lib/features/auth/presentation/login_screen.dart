@@ -80,7 +80,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: theme.spacing.mobileMargin),
+            padding: EdgeInsets.symmetric(
+              horizontal: theme.spacing.mobileMargin,
+            ),
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth: theme.dimensions.maxReadableWidth,

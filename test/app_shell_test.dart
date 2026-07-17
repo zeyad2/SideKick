@@ -6,10 +6,10 @@ import 'package:sidekick/app.dart';
 import 'package:sidekick/core/auth/auth_providers.dart';
 import 'package:sidekick/core/db/app_database.dart';
 import 'package:sidekick/core/providers/core_providers.dart';
+import 'package:sidekick/core/router/app_gate.dart';
 import 'package:sidekick/core/sync/sync_providers.dart';
 import 'package:sidekick/core/theme/app_theme_registry.dart';
 import 'package:sidekick/core/theme/theme_providers.dart';
-import 'package:sidekick/features/profile/preferences_providers.dart';
 
 import 'support/fakes.dart';
 
@@ -24,7 +24,7 @@ void main() {
       return db;
     }),
     authRepositoryProvider.overrideWithValue(FakeAuthRepository.signedIn('u1')),
-    onboardingCompletedProvider.overrideWithValue(true),
+    appGateProvider.overrideWithValue(AppGate.ready),
     syncEngineProvider.overrideWithValue(null),
   ];
 
@@ -55,6 +55,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Habits'), findsWidgets);
+
+    // P4's live Drift inbox streams close asynchronously. Pump their zero-delay
+    // cleanup so this test verifies lifecycle disposal as well as rendering.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
   });
 
   testWidgets('active theme override changes widgets without widget changes', (
@@ -97,5 +103,9 @@ void main() {
     expect(scaffold.backgroundColor, throwaway.colors.background);
     expect(scaffold.backgroundColor, isNot(analog.colors.background));
     expect(decoration.color, throwaway.colors.primaryContainer);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
   });
 }

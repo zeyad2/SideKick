@@ -58,18 +58,18 @@ class PlacesRepositoryImpl extends LocalFirstRepository
       entityType: EntityTypes.place,
       entityId: id,
     );
-    final PlaceRow row = await (db.select(db.places)
-          ..where((Places p) => p.id.equals(id)))
-        .getSingle();
+    final PlaceRow row = await (db.select(
+      db.places,
+    )..where((Places p) => p.id.equals(id))).getSingle();
     return _toDomain(row);
   }
 
   @override
   Future<void> update(Place place) async {
     final DateTime timestamp = now();
-    await (db.update(db.places)..where(
-          (Places p) => p.id.equals(place.id) & p.userId.equals(userId),
-        ))
+    await (db.update(
+          db.places,
+        )..where((Places p) => p.id.equals(place.id) & p.userId.equals(userId)))
         .write(
           PlacesCompanion(
             name: Value<String>(place.name),
@@ -85,15 +85,15 @@ class PlacesRepositoryImpl extends LocalFirstRepository
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.places)
-          ..where((Places p) => p.id.equals(id) & p.userId.equals(userId)))
-        .write(
-          PlacesCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.places,
+    )..where((Places p) => p.id.equals(id) & p.userId.equals(userId))).write(
+      PlacesCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   Place _toDomain(PlaceRow row) => Place(

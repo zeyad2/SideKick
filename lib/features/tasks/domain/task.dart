@@ -76,3 +76,15 @@ abstract interface class TasksRepository {
 
   Future<void> delete(String id);
 }
+
+/// Additive P4 contract used to make capture triage idempotent without
+/// changing the frozen P2 repository interface. Implementations must use
+/// [captureId] as the stable record id and return the existing row on replay.
+abstract interface class CaptureLinkedTasksRepository {
+  Future<Task> createForCapture({
+    required String captureId,
+    required String title,
+    String? details,
+    DateTime? scheduledAt,
+  });
+}

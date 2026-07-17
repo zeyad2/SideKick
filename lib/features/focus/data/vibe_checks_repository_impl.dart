@@ -52,9 +52,9 @@ class VibeChecksRepositoryImpl extends LocalFirstRepository
       entityId: id,
       metadata: <String, Object?>{'value': value},
     );
-    final VibeCheckRow row = await (db.select(db.vibeChecks)
-          ..where((VibeChecks v) => v.id.equals(id)))
-        .getSingle();
+    final VibeCheckRow row = await (db.select(
+      db.vibeChecks,
+    )..where((VibeChecks v) => v.id.equals(id))).getSingle();
     return _toDomain(row);
   }
 

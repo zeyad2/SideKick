@@ -25,6 +25,13 @@ abstract interface class SyncEngine {
   /// caller via [syncNow]).
   void start();
 
+  /// Completes once the first [syncNow] cycle has finished — whether it
+  /// succeeded, failed, or found nothing. The onboarding gate waits on this so a
+  /// returning user on a fresh install is not misclassified as new (and made to
+  /// re-onboard, overwriting synced preferences) before their profile pulls
+  /// down. It never throws: a failed cycle still settles.
+  Future<void> get firstSyncSettled;
+
   Future<void> dispose();
 }
 
@@ -64,6 +71,10 @@ class DriftSyncEngine implements SyncEngine {
 
   StreamSubscription<bool>? _connectivitySub;
   bool _syncing = false;
+  final Completer<void> _firstSync = Completer<void>();
+
+  @override
+  Future<void> get firstSyncSettled => _firstSync.future;
 
   @override
   void start() {
@@ -99,6 +110,9 @@ class DriftSyncEngine implements SyncEngine {
       _report('syncNow', error, stackTrace);
     } finally {
       _syncing = false;
+      if (!_firstSync.isCompleted) {
+        _firstSync.complete();
+      }
     }
   }
 
@@ -143,12 +157,7 @@ class DriftSyncEngine implements SyncEngine {
     final List<_DirtyRef> refs = <_DirtyRef>[];
     for (final QueryRow row in dirty) {
       final Map<String, Object?> data = Map<String, Object?>.of(row.data);
-      refs.add(
-        _DirtyRef(
-          data['id']! as String,
-          data['updated_at'] as String?,
-        ),
-      );
+      refs.add(_DirtyRef(data['id']! as String, data['updated_at'] as String?));
       for (final String col in _localOnlyColumns) {
         data.remove(col);
       }
@@ -262,8 +271,10 @@ class DriftSyncEngine implements SyncEngine {
     data['synced_at'] = _clock().toIso8601String();
 
     final List<String> columns = data.keys.toList(growable: false);
-    final String placeholders =
-        List<String>.filled(columns.length, '?').join(', ');
+    final String placeholders = List<String>.filled(
+      columns.length,
+      '?',
+    ).join(', ');
     final List<Variable<Object>> variables = columns
         .map((String col) => Variable<Object>(_toSqlite(col, data[col])))
         .toList(growable: false);
@@ -303,9 +314,9 @@ class DriftSyncEngine implements SyncEngine {
   }
 
   Future<DateTime?> _lastPull(String tableName) async {
-    final SyncMetaData? row = await (db.select(db.syncMeta)
-          ..where((SyncMeta m) => m.syncTable.equals(tableName)))
-        .getSingleOrNull();
+    final SyncMetaData? row = await (db.select(
+      db.syncMeta,
+    )..where((SyncMeta m) => m.syncTable.equals(tableName))).getSingleOrNull();
     return row?.lastPull;
   }
 

@@ -6,7 +6,12 @@
 // unknown value by falling back (so a newer server value never crashes an
 // older client).
 
-T _byWire<T>(List<T> values, String Function(T) wireOf, String wire, T fallback) {
+T _byWire<T>(
+  List<T> values,
+  String Function(T) wireOf,
+  String wire,
+  T fallback,
+) {
   for (final T value in values) {
     if (wireOf(value) == wire) {
       return value;
@@ -133,8 +138,12 @@ enum ReminderStatus {
   cancelled;
 
   String get wire => name;
-  static ReminderStatus fromWire(String wire) =>
-      _byWire(values, (ReminderStatus v) => v.wire, wire, ReminderStatus.scheduled);
+  static ReminderStatus fromWire(String wire) => _byWire(
+    values,
+    (ReminderStatus v) => v.wire,
+    wire,
+    ReminderStatus.scheduled,
+  );
 }
 
 enum FocusSessionStatus {

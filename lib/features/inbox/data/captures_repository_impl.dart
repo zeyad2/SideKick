@@ -7,7 +7,10 @@ import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
 
 class CapturesRepositoryImpl extends LocalFirstRepository
-    implements CapturesRepository {
+    implements
+        CapturesRepository,
+        CaptureReplayLookup,
+        CaptureProcessingTransitions {
   CapturesRepositoryImpl({
     required super.db,
     required super.emitter,
@@ -33,8 +36,9 @@ class CapturesRepositoryImpl extends LocalFirstRepository
 
   @override
   Stream<List<Capture>> watchByStatuses(Set<CaptureStatus> statuses) {
-    final List<String> wires =
-        statuses.map((CaptureStatus s) => s.wire).toList(growable: false);
+    final List<String> wires = statuses
+        .map((CaptureStatus s) => s.wire)
+        .toList(growable: false);
     return (db.select(db.captures)
           ..where(
             (Captures c) =>
@@ -54,12 +58,108 @@ class CapturesRepositoryImpl extends LocalFirstRepository
     if (ids.isEmpty) {
       return const <Capture>[];
     }
-    final List<CaptureRow> rows = await (db.select(db.captures)
-          ..where(
-            (Captures c) => c.userId.equals(userId) & c.id.isIn(ids),
-          ))
-        .get();
+    final List<CaptureRow> rows = await (db.select(
+      db.captures,
+    )..where((Captures c) => c.userId.equals(userId) & c.id.isIn(ids))).get();
     return _mapRows(rows);
+  }
+
+  @override
+  Future<Capture?> findByAudioPath(String audioPath) async {
+    final CaptureRow? row =
+        await (db.select(db.captures)..where(
+              (Captures c) =>
+                  c.userId.equals(userId) &
+                  c.deletedAt.isNull() &
+                  c.audioPath.equals(audioPath),
+            ))
+            .getSingleOrNull();
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
+  Future<Capture?> beginProcessing(String captureId) async {
+    final Capture? existing = await _byId(captureId);
+    if (existing == null ||
+        (existing.status != CaptureStatus.pending &&
+            existing.status != CaptureStatus.failed &&
+            existing.status != CaptureStatus.processing)) {
+      return null;
+    }
+    final DateTime timestamp = now();
+    final int changed =
+        await (db.update(db.captures)..where(
+              (Captures c) =>
+                  c.id.equals(captureId) &
+                  c.userId.equals(userId) &
+                  c.status.equals(existing.status.wire),
+            ))
+            .write(
+              CapturesCompanion(
+                status: Value<String>(CaptureStatus.processing.wire),
+                updatedAt: Value<DateTime>(timestamp),
+                dirty: const Value<bool>(true),
+              ),
+            );
+    if (changed == 0) return null;
+    if (existing.status != CaptureStatus.processing) {
+      emitter.emitStatusChanged(
+        userId: userId,
+        entityType: EntityTypes.capture,
+        entityId: captureId,
+        from: existing.status.wire,
+        to: CaptureStatus.processing.wire,
+      );
+    }
+    return _byId(captureId);
+  }
+
+  @override
+  Future<bool> finishProcessing(Capture capture) async {
+    if (capture.status != CaptureStatus.ready &&
+        capture.status != CaptureStatus.failed) {
+      throw ArgumentError.value(
+        capture.status,
+        'capture.status',
+        'must be ready or failed',
+      );
+    }
+    final DateTime timestamp = now();
+    final int changed =
+        await (db.update(db.captures)..where(
+              (Captures c) =>
+                  c.id.equals(capture.id) &
+                  c.userId.equals(userId) &
+                  c.status.equals(CaptureStatus.processing.wire),
+            ))
+            .write(
+              CapturesCompanion(
+                audioPath: Value<String?>(capture.audioPath),
+                rawTranscript: Value<String?>(capture.rawTranscript),
+                llmType: Value<String>(capture.llmType.wire),
+                title: Value<String?>(capture.title),
+                details: Value<String?>(capture.details),
+                suggestedSchedule: Value<String?>(
+                  capture.suggestedSchedule == null
+                      ? null
+                      : JsonCodecs.encode(capture.suggestedSchedule),
+                ),
+                status: Value<String>(capture.status.wire),
+                resultingType: Value<String?>(capture.resultingType?.wire),
+                resultingId: Value<String?>(capture.resultingId),
+                updatedAt: Value<DateTime>(timestamp),
+                dirty: const Value<bool>(true),
+              ),
+            );
+    if (changed == 0) return false;
+    emitter.emitStatusChanged(
+      userId: userId,
+      entityType: EntityTypes.capture,
+      entityId: capture.id,
+      from: CaptureStatus.processing.wire,
+      to: capture.status.wire,
+    );
+    return true;
   }
 
   @override
@@ -137,21 +237,23 @@ class CapturesRepositoryImpl extends LocalFirstRepository
   @override
   Future<void> delete(String id) async {
     final DateTime timestamp = now();
-    await (db.update(db.captures)
-          ..where((Captures c) => c.id.equals(id) & c.userId.equals(userId)))
-        .write(
-          CapturesCompanion(
-            deletedAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
-        );
+    await (db.update(
+      db.captures,
+    )..where((Captures c) => c.id.equals(id) & c.userId.equals(userId))).write(
+      CapturesCompanion(
+        deletedAt: Value<DateTime>(timestamp),
+        updatedAt: Value<DateTime>(timestamp),
+        dirty: const Value<bool>(true),
+      ),
+    );
   }
 
   Future<Capture?> _byId(String id) async {
-    final CaptureRow? row = await (db.select(db.captures)
-          ..where((Captures c) => c.id.equals(id) & c.userId.equals(userId)))
-        .getSingleOrNull();
+    final CaptureRow? row =
+        await (db.select(
+              db.captures,
+            )..where((Captures c) => c.id.equals(id) & c.userId.equals(userId)))
+            .getSingleOrNull();
     return row == null ? null : _toDomain(row);
   }
 

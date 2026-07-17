@@ -45,6 +45,9 @@ final class AppDimensions {
     required this.navigationIcon,
     required this.navigationBarHeight,
     required this.maxReadableWidth,
+    required this.captureMic,
+    required this.captureWaveformHeight,
+    required this.captureOverlayBlur,
   });
 
   final double outlineWidth;
@@ -53,4 +56,7 @@ final class AppDimensions {
   final double navigationIcon;
   final double navigationBarHeight;
   final double maxReadableWidth;
+  final double captureMic;
+  final double captureWaveformHeight;
+  final double captureOverlayBlur;
 }

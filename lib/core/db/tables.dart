@@ -64,8 +64,7 @@ class Captures extends Table with SyncColumns {
   TextColumn get status => text().withDefault(const Constant('pending'))();
   TextColumn get resultingType => text().nullable()();
   TextColumn get resultingId => text().nullable()();
-  DateTimeColumn get capturedAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get capturedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
@@ -234,8 +233,7 @@ class Events extends Table with SyncColumns {
   TextColumn get entityType => text().nullable()();
   TextColumn get entityId => text().nullable()();
   TextColumn get metadata => text().withDefault(const Constant('{}'))();
-  DateTimeColumn get occurredAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get occurredAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};

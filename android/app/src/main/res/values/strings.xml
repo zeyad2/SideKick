@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sidekick</string>
+    <string name="capture_accessibility_description">Starts a private voice capture when your configured hardware-key gesture is pressed.</string>
+</resources>

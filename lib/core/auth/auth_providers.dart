@@ -7,6 +7,7 @@ final Provider<AuthRepository> authRepositoryProvider =
       (Ref ref) => SupabaseAuthRepository(
         ref.watch(supabaseClientProvider).auth,
         ref.watch(appDatabaseProvider),
+        ref.watch(captureIngestionBarrierProvider),
       ),
     );
 
