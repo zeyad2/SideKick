@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sidekick/core/router/app_gate.dart';
 import 'package:sidekick/core/router/app_routes.dart';
+import 'package:sidekick/features/auth/presentation/forgot_password_screen.dart';
 import 'package:sidekick/features/auth/presentation/login_screen.dart';
 import 'package:sidekick/features/focus/presentation/focus_screen.dart';
 import 'package:sidekick/features/habits/presentation/habits_screen.dart';
@@ -28,13 +29,17 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         case AppGate.loading:
           return location == AppRoutes.splash ? null : AppRoutes.splash;
         case AppGate.login:
-          return location == AppRoutes.login ? null : AppRoutes.login;
+          return location == AppRoutes.login ||
+                  location == AppRoutes.forgotPassword
+              ? null
+              : AppRoutes.login;
         case AppGate.onboarding:
           return location == AppRoutes.onboarding
               ? null
               : AppRoutes.onboarding;
         case AppGate.ready:
           return location == AppRoutes.login ||
+                  location == AppRoutes.forgotPassword ||
                   location == AppRoutes.onboarding ||
                   location == AppRoutes.splash
               ? AppRoutes.inbox
@@ -51,6 +56,11 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         path: AppRoutes.login,
         name: AppRoutes.loginName,
         builder: (_, _) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: AppRoutes.forgotPasswordName,
+        builder: (_, _) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.onboarding,

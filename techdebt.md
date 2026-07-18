@@ -97,57 +97,49 @@ long captures remain failed and queued instead of using Gemini's Files API.
 polling, generation, and remote cleanup behind the frozen `GeminiClient`
 interface.
 
-## Auth/onboarding: login-screen UX polish (deferred)
+## Auth: email/password shipped; Google + password reset still open
 
-**What.** The email-OTP login (`lib/features/auth/presentation/login_screen.dart`)
-is functional but thin:
-- `_sendCode` only checks the email is non-empty — no format validation, so a
-  typo round-trips to Supabase before failing.
-- Errors are surfaced as `error.toString()` (e.g. `AuthException: Token has
-  expired or is invalid`) — raw exception text shown to the user.
-- There is no "resend code" affordance or expiry messaging; the only recovery
-  from an expired/mistyped code is "Use a different email" (back to step one).
+**Done (this session).** Auth moved from passwordless email-OTP to **explicit
+email + password** with no email verification (`DATA_CONTRACT.md §5`):
+- `AuthRepository` now exposes `signUpWithPassword` / `signInWithPassword`
+  (replacing `sendOtp` / `verifyOtp`); `SupabaseAuthRepository` uses
+  `signUp` + `signInWithPassword`. The downstream session shape is unchanged, so
+  sync / RLS / the provider graph were untouched.
+- `login_screen.dart` is now a single sign-in / create-account form with a mode
+  toggle, client-side email + password-length validation, and friendly mapping
+  of the common `AuthException`s (replaces the old raw-`toString()` display).
 
-**Risk.** None structural — this is chrome quality, not correctness. Bites
-first-time-user polish, not data.
+**Requires a dashboard setting.** Supabase **"Confirm email" must be OFF** — the
+no-verification decision. `signUpWithPassword` throws a clear error if a session
+isn't returned (i.e. confirmation was left on) rather than stranding the user.
 
-**Fix when auth is next touched** (likely folded into the account-model rework
-below): add client-side email validation, map known `AuthException`s to friendly
-copy, and add a resend button with a short countdown.
+**Still open — Google sign-in (designed in, disabled).** The login screen shows a
+disabled "Continue with Google · Soon" button. Enabling it needs:
+- `google_sign_in` (native `signInWithIdToken`, not the browser-redirect OAuth —
+  avoids deep-link plumbing).
+- A Google Cloud OAuth client (web client ID for Supabase + an Android client ID),
+  the Android SHA-1/SHA-256 fingerprints registered (debug **and** release keys),
+  the OAuth consent screen, and Supabase's Google provider enabled.
+- An `AuthRepository.signInWithGoogle()` method + wiring the button's `onPressed`.
+- Gate invariant to preserve (`lib/core/router/app_gate.dart`): a first Google
+  sign-in creates a brand-new user (→ onboarding), but an existing user signing in
+  on a new device must still take splash → pull → ready, never a spurious
+  re-onboard.
 
-## Auth: planned move to real account creation (email/password + Google)
+**Partly shipped — password reset.** The **request** half is now wired:
+`AuthRepository.sendPasswordReset` → `resetPasswordForEmail`, a
+`ForgotPasswordScreen` (route `/forgot-password`, whitelisted under the login
+gate and bounced to inbox under the ready gate), and a "Forgot password?" link on
+the sign-in form. It always shows the same "check your inbox" message and never
+reveals whether an address has an account.
 
-**What (decision, not yet built).** Today auth is passwordless email-OTP with
-`signInWithOtp(shouldCreateUser: true)` — there is no distinct sign-up; a new
-email is auto-provisioned on first code verification (`DATA_CONTRACT.md §5`). The
-intended direction is **explicit account creation with email + password, and
-possibly Google sign-in.**
+**Still open — completing the reset.** Following the emailed link back into the
+app to set a new password is NOT built: it needs deep-link handling (the plumbing
+OTP was chosen to avoid) plus an `updateUser(password:)` "set new password"
+screen. Also still needs a working outbound email channel (custom SMTP —
+Supabase's built-in mailer is rate-limited and not for production) before it's
+usable for real users.
 
-**What the change touches (so it isn't underestimated):**
-- **`AuthRepository` interface + `SupabaseAuthRepository`** — add
-  `signUp(email, password)` / `signInWithPassword(...)` / `signInWithGoogle()`
-  (or `signInWithIdToken`). This is a **frozen P2 contract** (`DATA_CONTRACT.md
-  §5`); widening it is a deliberate contract amendment, not a silent edit.
-- **Google login is native, not just Dart** — needs `google_sign_in` (or Supabase
-  OAuth), a Google Cloud OAuth client per platform, the Android SHA-1/SHA-256
-  fingerprints registered, an iOS URL scheme, and Supabase's Google provider
-  enabled. This is real platform/console setup, not a code-only change.
-- **Password reset flow** — a new "forgot password" path + screen, which
-  reintroduces the email-link/deep-link plumbing that OTP was specifically chosen
-  to avoid. Budget for deep-link handling if password reset is in scope.
-- **Login/onboarding screens** — the single-step OTP screen becomes a
-  sign-in/sign-up form (password field, confirm, validation, provider buttons).
-- **The onboarding gate** (`lib/core/router/app_gate.dart`) — already hardened
-  this session to wait for the first sync before treating a profile-less signed-in
-  user as new (prevents a returning user on a fresh install from re-onboarding and
-  having LWW overwrite their synced prefs). The new flows must preserve that
-  invariant: OAuth first-sign-in creates a brand-new user (correct → onboarding),
-  but an existing user signing in on a new device must still land on the splash →
-  pull → ready path, never a spurious re-onboard.
-- **Security posture** — passwords mean password strength/breach considerations
-  and account-recovery abuse surface that OTP didn't have.
-
-**Why now vs later.** The gate correctness bug is fixed regardless. This entry
-exists so that when the account model is reworked, none of the above (especially
-the native Google + console setup and the deep-link'd password reset) is
-discovered mid-implementation. It is a **feature-sized** change, not a fix.
+**Login-screen polish still deferred.** No "resend"/countdown concepts remain
+(OTP-specific), but there's still no password-strength meter and no confirm-
+password field on sign-up — acceptable for the personal build.

@@ -100,15 +100,28 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> sendOtp(String email) async {}
-
-  @override
-  Future<void> verifyOtp({
+  Future<void> signUpWithPassword({
     required String email,
-    required String token,
+    required String password,
   }) async {
     emit(const SessionState(phase: AuthPhase.signedIn, userId: 'fake-user'));
   }
+
+  @override
+  Future<void> signInWithPassword({
+    required String email,
+    required String password,
+  }) async {
+    emit(const SessionState(phase: AuthPhase.signedIn, userId: 'fake-user'));
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String email}) async {
+    lastPasswordResetEmail = email;
+  }
+
+  /// The email passed to the most recent [sendPasswordReset], for assertions.
+  String? lastPasswordResetEmail;
 
   @override
   Future<void> signOut() async => emit(const SessionState.signedOut());
