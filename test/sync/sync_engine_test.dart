@@ -4,11 +4,15 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sidekick/core/data/id_generator.dart';
 import 'package:sidekick/core/db/app_database.dart';
+import 'package:sidekick/core/domain/enums.dart';
 import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/core/events/event_emitter.dart';
 import 'package:sidekick/core/events/events_repository.dart';
 import 'package:sidekick/core/sync/connectivity_service.dart';
 import 'package:sidekick/core/sync/sync_engine.dart';
+import 'package:sidekick/features/inbox/data/captures_repository_impl.dart';
+import 'package:sidekick/features/inbox/domain/capture.dart';
+import 'package:sidekick/features/inbox/domain/proposed_item.dart';
 import 'package:sidekick/features/tasks/data/tasks_repository_impl.dart';
 import 'package:sidekick/features/tasks/domain/task.dart';
 
@@ -74,16 +78,17 @@ void main() {
     await engine().flush();
 
     expect(gateway.pushes, isNotEmpty);
-    final PushCall taskPush =
-        gateway.pushes.firstWhere((PushCall p) => p.table == 'tasks');
+    final PushCall taskPush = gateway.pushes.firstWhere(
+      (PushCall p) => p.table == 'tasks',
+    );
     expect(taskPush.rows.single['id'], task.id);
     // Local-only columns are never pushed (R0).
     expect(taskPush.rows.single.containsKey('dirty'), isFalse);
     expect(taskPush.rows.single.containsKey('synced_at'), isFalse);
 
-    final TaskRow row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals(task.id)))
-        .getSingle();
+    final TaskRow row = await (db.select(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals(task.id))).getSingle();
     expect(row.dirty, isFalse);
     expect(row.syncedAt, isNotNull);
   });
@@ -101,10 +106,60 @@ void main() {
 
     await engine().flush();
 
-    final PushCall eventsPush =
-        gateway.pushes.firstWhere((PushCall p) => p.table == 'events');
+    final PushCall eventsPush = gateway.pushes.firstWhere(
+      (PushCall p) => p.table == 'events',
+    );
     expect(eventsPush.insertOnly, isTrue);
   });
+
+  test(
+    'capture decomposition JSON pushes decoded and pulls as sqlite text',
+    () async {
+      final CapturesRepositoryImpl captures = CapturesRepositoryImpl(
+        db: db,
+        emitter: EventEmitter(DriftEventsRepository(db), IdGenerator()),
+        idGenerator: IdGenerator(),
+        userId: 'u1',
+        clock: () => _fixed('2026-07-12T10:00:00.000Z'),
+      );
+      final Capture created = await captures.create(source: 'fab');
+      const ProposedItem draft = ProposedItem(
+        id: 'json-draft',
+        kind: ResultingType.task,
+        title: 'Round trip',
+        confidence: DraftConfidence.high,
+      );
+      await captures.update(
+        created.copyWith(
+          proposedItems: const <ProposedItem>[draft],
+          dispositionedItemIds: const <String>['json-draft'],
+          status: CaptureStatus.triaged,
+        ),
+      );
+
+      await engine().flush();
+
+      final PushCall pushed = gateway.pushes.firstWhere(
+        (call) => call.table == 'captures',
+      );
+      expect(pushed.rows.single['proposed_items'], isA<List<Object?>>());
+      expect(pushed.rows.single['dispositioned_item_ids'], <Object?>[
+        'json-draft',
+      ]);
+
+      final Map<String, Object?> remote = Map<String, Object?>.of(
+        pushed.rows.single,
+      )..['updated_at'] = '2026-07-12T11:00:00.000Z';
+      gateway.seedRemote('captures', remote);
+      await engine().pull();
+
+      final CaptureRow row = await (db.select(
+        db.captures,
+      )..where((table) => table.id.equals(created.id))).getSingle();
+      expect(row.proposedItems, contains('json-draft'));
+      expect(row.dispositionedItemIds, '["json-draft"]');
+    },
+  );
 
   test('pull upserts remote rows and advances last_pull', () async {
     gateway.seedRemote(
@@ -118,15 +173,15 @@ void main() {
 
     await engine().pull();
 
-    final TaskRow row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals('remote-1')))
-        .getSingle();
+    final TaskRow row = await (db.select(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals('remote-1'))).getSingle();
     expect(row.title, 'From another device');
     expect(row.dirty, isFalse, reason: 'a pulled row is clean');
 
-    final SyncMetaData cursor = await (db.select(db.syncMeta)
-          ..where((SyncMeta m) => m.syncTable.equals('tasks')))
-        .getSingle();
+    final SyncMetaData cursor = await (db.select(
+      db.syncMeta,
+    )..where((SyncMeta m) => m.syncTable.equals('tasks'))).getSingle();
     expect(cursor.lastPull, _fixed('2026-07-12T10:00:00.000Z'));
   });
 
@@ -148,9 +203,9 @@ void main() {
 
     await engine().pull();
 
-    final TaskRow row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals(local.id)))
-        .getSingle();
+    final TaskRow row = await (db.select(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals(local.id))).getSingle();
     expect(row.title, 'Local newer', reason: 'local dirty + newer wins');
   });
 
@@ -170,9 +225,9 @@ void main() {
 
     await engine().pull();
 
-    final TaskRow row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals(local.id)))
-        .getSingle();
+    final TaskRow row = await (db.select(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals(local.id))).getSingle();
     expect(row.title, 'Remote newer');
     expect(row.dirty, isFalse);
   });
@@ -184,19 +239,21 @@ void main() {
     ).create(title: 'Original');
 
     gateway.onPush = () async {
-      await tasksRepo(clock: () => _fixed('2026-07-12T12:05:00.000Z'))
-          .update(task.copyWith(title: 'Edited mid-flush'));
+      await tasksRepo(
+        clock: () => _fixed('2026-07-12T12:05:00.000Z'),
+      ).update(task.copyWith(title: 'Edited mid-flush'));
     };
 
     await engine().flush();
 
-    final TaskRow row = await (db.select(db.tasks)
-          ..where((Tasks t) => t.id.equals(task.id)))
-        .getSingle();
+    final TaskRow row = await (db.select(
+      db.tasks,
+    )..where((Tasks t) => t.id.equals(task.id))).getSingle();
     expect(
       row.dirty,
       isTrue,
-      reason: 'the version pushed (t1) no longer matches; the t2 edit stays '
+      reason:
+          'the version pushed (t1) no longer matches; the t2 edit stays '
           'dirty and will retry',
     );
     expect(row.title, 'Edited mid-flush');

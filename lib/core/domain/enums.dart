@@ -44,10 +44,14 @@ enum CaptureStatus {
       _byWire(values, (CaptureStatus v) => v.wire, wire, CaptureStatus.pending);
 }
 
+/// The four draft **kinds** a rant decomposes into (docs/CAPTURE_DECOMPOSITION.md
+/// §2). Doubles as the capture's (retired) `resulting_type`. `goal` was added in
+/// migration `0004` for the rant → many-items flow.
 enum ResultingType {
   task,
   note,
-  habit;
+  habit,
+  goal;
 
   String get wire => name;
   static ResultingType? fromWire(String? wire) => wire == null
@@ -58,6 +62,17 @@ enum ResultingType {
           wire,
           ResultingType.task,
         );
+}
+
+/// A draft item's model self-reported confidence (§4). Feeds the §12.1
+/// auto-commit gate: any `low` item forces the whole capture to review.
+enum DraftConfidence {
+  high,
+  low;
+
+  String get wire => name;
+  static DraftConfidence fromWire(String wire) =>
+      _byWire(values, (DraftConfidence v) => v.wire, wire, DraftConfidence.low);
 }
 
 enum GoalStatus {

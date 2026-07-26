@@ -5,6 +5,7 @@ import 'package:sidekick/core/db/json_codec.dart';
 import 'package:sidekick/core/domain/enums.dart';
 import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
+import 'package:sidekick/features/inbox/domain/proposed_item.dart';
 
 class CapturesRepositoryImpl extends LocalFirstRepository
     implements
@@ -147,6 +148,13 @@ class CapturesRepositoryImpl extends LocalFirstRepository
                 status: Value<String>(capture.status.wire),
                 resultingType: Value<String?>(capture.resultingType?.wire),
                 resultingId: Value<String?>(capture.resultingId),
+                proposedItems: Value<String?>(
+                  _encodeProposedItems(capture.proposedItems),
+                ),
+                dispositionedItemIds: Value<String>(
+                  JsonCodecs.encode(capture.dispositionedItemIds),
+                ),
+                autoCommittedAt: Value<DateTime?>(capture.autoCommittedAt),
                 updatedAt: Value<DateTime>(timestamp),
                 dirty: const Value<bool>(true),
               ),
@@ -219,6 +227,13 @@ class CapturesRepositoryImpl extends LocalFirstRepository
             status: Value<String>(capture.status.wire),
             resultingType: Value<String?>(capture.resultingType?.wire),
             resultingId: Value<String?>(capture.resultingId),
+            proposedItems: Value<String?>(
+              _encodeProposedItems(capture.proposedItems),
+            ),
+            dispositionedItemIds: Value<String>(
+              JsonCodecs.encode(capture.dispositionedItemIds),
+            ),
+            autoCommittedAt: Value<DateTime?>(capture.autoCommittedAt),
             updatedAt: Value<DateTime>(timestamp),
             dirty: const Value<bool>(true),
           ),
@@ -272,8 +287,27 @@ class CapturesRepositoryImpl extends LocalFirstRepository
     status: CaptureStatus.fromWire(row.status),
     resultingType: ResultingType.fromWire(row.resultingType),
     resultingId: row.resultingId,
+    proposedItems: _decodeProposedItems(row.proposedItems),
+    dispositionedItemIds: JsonCodecs.decodeList(
+      row.dispositionedItemIds,
+    ).cast<String>(),
+    autoCommittedAt: row.autoCommittedAt,
     capturedAt: row.capturedAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   );
+
+  static String? _encodeProposedItems(List<ProposedItem>? items) =>
+      items == null
+      ? null
+      : JsonCodecs.encode(
+          items.map((ProposedItem i) => i.toJson()).toList(growable: false),
+        );
+
+  static List<ProposedItem>? _decodeProposedItems(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    return JsonCodecs.decodeList(
+      raw,
+    ).map<ProposedItem>(ProposedItem.fromStored).toList(growable: false);
+  }
 }

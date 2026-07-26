@@ -39,10 +39,11 @@ class NotesRepositoryImpl extends LocalFirstRepository
   @override
   Future<Note> createForCapture({
     required String captureId,
+    String? id,
     String? title,
     String? body,
   }) => _createWithId(
-    id: captureId,
+    id: id ?? captureId,
     title: title,
     body: body,
     captureId: captureId,

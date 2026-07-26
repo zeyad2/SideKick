@@ -7,6 +7,7 @@ import 'package:sidekick/core/theme/app_theme_registry.dart';
 import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/features/inbox/application/inbox_providers.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
+import 'package:sidekick/features/inbox/domain/proposed_item.dart';
 import 'package:sidekick/features/inbox/presentation/inbox_screen.dart';
 
 void main() {
@@ -77,6 +78,170 @@ void main() {
     expect(title.controller!.text, 'Call the dentist');
     expect(find.text('Add schedule'), findsNothing);
   });
+
+  testWidgets('bulk review renders one card per proposed item', (
+    WidgetTester tester,
+  ) async {
+    final Capture decomposed = capture.copyWith(
+      proposedItems: <ProposedItem>[
+        const ProposedItem(
+          id: 'd1',
+          kind: ResultingType.task,
+          title: 'Call the dentist',
+          confidence: DraftConfidence.high,
+        ),
+        const ProposedItem(
+          id: 'd2',
+          kind: ResultingType.note,
+          title: 'Idea for the pitch',
+          confidence: DraftConfidence.low,
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(child: _themed(CaptureTriageSheet(capture: decomposed))),
+    );
+    await tester.pumpAndSettle();
+
+    // Two editable cards, the low-confidence hint, and a count-aware CTA.
+    expect(find.widgetWithText(TextField, 'Title'), findsNWidgets(2));
+    expect(find.text('Worth a second look'), findsOneWidget);
+    expect(find.text('Save all 2 items'), findsOneWidget);
+  });
+
+  testWidgets('dropping an item updates the count and can be undone', (
+    WidgetTester tester,
+  ) async {
+    final Capture decomposed = capture.copyWith(
+      proposedItems: <ProposedItem>[
+        const ProposedItem(
+          id: 'd1',
+          kind: ResultingType.task,
+          title: 'Call the dentist',
+          confidence: DraftConfidence.high,
+        ),
+        const ProposedItem(
+          id: 'd2',
+          kind: ResultingType.note,
+          title: 'Idea for the pitch',
+          confidence: DraftConfidence.high,
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(child: _themed(CaptureTriageSheet(capture: decomposed))),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Save all 2 items'), findsOneWidget);
+
+    // Drop the first item.
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Save 1 item'), findsOneWidget);
+    expect(find.text('Dropped: Call the dentist'), findsOneWidget);
+
+    // Undo restores it.
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Save all 2 items'), findsOneWidget);
+  });
+
+  testWidgets('switching a task draft to habit defaults to Mini', (
+    WidgetTester tester,
+  ) async {
+    final Capture decomposed = capture.copyWith(
+      proposedItems: const <ProposedItem>[
+        ProposedItem(
+          id: 'switch-to-habit',
+          kind: ResultingType.task,
+          title: 'Stretch',
+          confidence: DraftConfidence.low,
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(child: _themed(CaptureTriageSheet(capture: decomposed))),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Habit'));
+    await tester.pumpAndSettle();
+
+    final ChoiceChip mini = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'Mini'),
+    );
+    expect(mini.selected, isTrue);
+  });
+
+  testWidgets('custom habit cadence remains stored but not authored', (
+    WidgetTester tester,
+  ) async {
+    final Capture decomposed = capture.copyWith(
+      proposedItems: const <ProposedItem>[
+        ProposedItem(
+          id: 'custom-habit',
+          kind: ResultingType.habit,
+          title: 'Practice scales',
+          confidence: DraftConfidence.low,
+          cadence: <String, Object?>{
+            'type': 'custom',
+            'per_week': 3,
+            'interval_days': 2,
+          },
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(child: _themed(CaptureTriageSheet(capture: decomposed))),
+    );
+    await tester.pumpAndSettle();
+
+    final ChoiceChip daily = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'Daily'),
+    );
+    final ChoiceChip weekly = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, 'Weekly'),
+    );
+    expect(daily.selected, isFalse);
+    expect(weekly.selected, isFalse);
+    expect(find.text('Custom'), findsNothing);
+  });
+
+  testWidgets(
+    'dropping the last partial draft finalizes instead of discarding',
+    (WidgetTester tester) async {
+      final Capture partial = capture.copyWith(
+        dispositionedItemIds: const <String>['already-saved'],
+        proposedItems: const <ProposedItem>[
+          ProposedItem(
+            id: 'already-saved',
+            kind: ResultingType.task,
+            title: 'Already saved',
+            confidence: DraftConfidence.low,
+          ),
+          ProposedItem(
+            id: 'last-draft',
+            kind: ResultingType.note,
+            title: 'Last draft',
+            confidence: DraftConfidence.low,
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        ProviderScope(child: _themed(CaptureTriageSheet(capture: partial))),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Last draft'), findsOneWidget);
+      expect(find.text('Already saved'), findsNothing);
+      await tester.tap(find.byIcon(Icons.close_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Drop remaining'), findsOneWidget);
+      expect(find.text('Discard capture'), findsNothing);
+    },
+  );
 }
 
 Widget _themed(Widget child) {

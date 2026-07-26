@@ -29,7 +29,10 @@ class IoGeminiTransport implements GeminiTransport {
   }) async {
     final HttpClientRequest request = await _client.postUrl(uri);
     headers.forEach(request.headers.set);
-    request.write(jsonEncode(body));
+    // Encode as UTF-8 explicitly: HttpClientRequest.write defaults to Latin-1,
+    // which throws on the non-Latin-1 characters (em dashes, ellipses, curly
+    // quotes) in the prompt.
+    request.add(utf8.encode(jsonEncode(body)));
     final HttpClientResponse response = await request.close().timeout(
       const Duration(seconds: 45),
     );
@@ -108,58 +111,140 @@ class GeminiFlashClient implements GeminiClient {
     throw GeminiRequestException('Gemini request failed: $lastError');
   }
 
-  Map<String, Object?> _requestBody(
-    List<int> bytes,
-    String mimeType,
-  ) => <String, Object?>{
-    'contents': <Object?>[
+  Map<String, Object?> _requestBody(List<int> bytes, String mimeType) =>
       <String, Object?>{
-        'role': 'user',
-        'parts': <Object?>[
+        'contents': <Object?>[
           <String, Object?>{
-            'text':
-                'Transcribe and categorize this voice capture. The speaker '
-                'may use Egyptian Arabic, Arabizi, English, or code-switching. '
-                'Preserve the full meaning in raw_transcript, but return title '
-                'and details in concise English. Choose exactly task, note, or '
-                'habit. suggested_schedule must be null or a small JSON object.',
+            'role': 'user',
+            'parts': <Object?>[
+              <String, Object?>{'text': _prompt},
+              <String, Object?>{
+                'inlineData': <String, Object?>{
+                  'mimeType': mimeType,
+                  'data': base64Encode(bytes),
+                },
+              },
+            ],
           },
-          <String, Object?>{
-            'inlineData': <String, Object?>{
-              'mimeType': mimeType,
-              'data': base64Encode(bytes),
+        ],
+        'generationConfig': <String, Object?>{
+          'temperature': 0.1,
+          'responseMimeType': 'application/json',
+          'responseSchema': _responseSchema,
+        },
+      };
+
+  // A rant usually holds SEVERAL distinct things; the model breaks them apart
+  // into one draft item per thing. The kind rule and the no-cross-propagation
+  // rule mirror docs/CAPTURE_DECOMPOSITION.md §2 and §10/§12.3 — the latter is
+  // load-bearing for auto-commit trust.
+  static const String _prompt =
+      'You are decomposing a spoken brain-dump (a "rant") into distinct '
+      'actionable items. The speaker may use Egyptian Arabic, Arabizi, English, '
+      'or code-switching.\n'
+      '\n'
+      'Return an object with:\n'
+      '- raw_transcript: the full spoken content, meaning preserved (original '
+      'language is fine).\n'
+      '- items: an array with ONE element per distinct thing the speaker '
+      'mentioned. Titles and details must be concise English.\n'
+      '\n'
+      'Classify each item into exactly one kind:\n'
+      '- task: a discrete, completable action (has a "done"). Default for '
+      'anything actionable.\n'
+      '- habit: a recurring behavior where success is consistency, not '
+      'completion.\n'
+      '- goal: a longer-horizon outcome you work toward; do NOT over-detect — '
+      'a typical rant has none.\n'
+      '- note: a thought or reference with no action.\n'
+      '\n'
+      'Fill ONLY the fields relevant to the chosen kind. Set confidence to '
+      '"high" only when the wording is unambiguous; otherwise "low".\n'
+      '\n'
+      'CRITICAL: do NOT copy context between items. A location, date, or '
+      'trigger the speaker attached to one item must not be applied to any '
+      'other item unless the speaker clearly said it for that item too. When in '
+      'doubt, leave the sibling item plain.\n'
+      '\n'
+      'If the rant contains nothing actionable or notable, return an empty '
+      'items array (do not invent content).';
+
+  static const Map<String, Object?> _responseSchema = <String, Object?>{
+    'type': 'OBJECT',
+    'properties': <String, Object?>{
+      'raw_transcript': <String, Object?>{'type': 'STRING'},
+      'items': <String, Object?>{
+        'type': 'ARRAY',
+        'items': <String, Object?>{
+          'type': 'OBJECT',
+          'properties': <String, Object?>{
+            'kind': <String, Object?>{
+              'type': 'STRING',
+              'enum': <String>['task', 'note', 'habit', 'goal'],
+            },
+            'title': <String, Object?>{'type': 'STRING'},
+            'details': <String, Object?>{'type': 'STRING', 'nullable': true},
+            'confidence': <String, Object?>{
+              'type': 'STRING',
+              'enum': <String>['high', 'low'],
+            },
+            // task only
+            'schedule': <String, Object?>{
+              'type': 'OBJECT',
+              'nullable': true,
+              'properties': <String, Object?>{
+                'date': <String, Object?>{'type': 'STRING', 'nullable': true},
+                'time': <String, Object?>{'type': 'STRING', 'nullable': true},
+              },
+            },
+            'location': <String, Object?>{
+              'type': 'OBJECT',
+              'nullable': true,
+              'properties': <String, Object?>{
+                'name': <String, Object?>{'type': 'STRING'},
+                'transition': <String, Object?>{
+                  'type': 'STRING',
+                  'nullable': true,
+                  'enum': <String>['enter', 'exit'],
+                },
+              },
+            },
+            'reminder': <String, Object?>{'type': 'BOOLEAN', 'nullable': true},
+            // habit only
+            'anchor': <String, Object?>{'type': 'STRING', 'nullable': true},
+            'cadence': <String, Object?>{
+              'type': 'OBJECT',
+              'nullable': true,
+              'properties': <String, Object?>{
+                'type': <String, Object?>{'type': 'STRING'},
+                'days': <String, Object?>{
+                  'type': 'ARRAY',
+                  'nullable': true,
+                  'items': <String, Object?>{'type': 'STRING'},
+                },
+                'per_week': <String, Object?>{
+                  'type': 'INTEGER',
+                  'nullable': true,
+                },
+              },
+            },
+            'level': <String, Object?>{
+              'type': 'STRING',
+              'nullable': true,
+              'enum': <String>['mini', 'normal', 'mega'],
+            },
+            // goal only
+            'why': <String, Object?>{'type': 'STRING', 'nullable': true},
+            'target_date': <String, Object?>{
+              'type': 'STRING',
+              'nullable': true,
             },
           },
-        ],
-      },
-    ],
-    'generationConfig': <String, Object?>{
-      'temperature': 0.1,
-      'responseMimeType': 'application/json',
-      'responseSchema': <String, Object?>{
-        'type': 'OBJECT',
-        'properties': <String, Object?>{
-          'type': <String, Object?>{
-            'type': 'STRING',
-            'enum': <String>['task', 'note', 'habit'],
-          },
-          'title': <String, Object?>{'type': 'STRING'},
-          'details': <String, Object?>{'type': 'STRING'},
-          'suggested_schedule': <String, Object?>{
-            'type': 'OBJECT',
-            'nullable': true,
-          },
-          'raw_transcript': <String, Object?>{'type': 'STRING'},
+          'required': <String>['kind', 'title', 'confidence'],
         },
-        'required': <String>[
-          'type',
-          'title',
-          'details',
-          'suggested_schedule',
-          'raw_transcript',
-        ],
       },
     },
+    'required': <String>['raw_transcript', 'items'],
   };
 
   static String _responseText(Map<String, Object?> response) {
@@ -173,8 +258,9 @@ class GeminiFlashClient implements GeminiClient {
       final Map<String, Object?> part = parts.first! as Map<String, Object?>;
       return part['text']! as String;
     } catch (error) {
-      throw GeminiRequestException(
-        'Gemini response envelope was malformed: $error',
+      throw CaptureAnalysisFormatException(
+        'Gemini response envelope was malformed.',
+        error,
       );
     }
   }

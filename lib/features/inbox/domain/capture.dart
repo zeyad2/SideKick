@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:sidekick/core/domain/enums.dart';
+import 'package:sidekick/features/inbox/domain/proposed_item.dart';
 
 /// A raw brain-dump event (audio + transcript) awaiting triage. Immutable
 /// inbox event; triaged INTO a typed record (task/note/habit). See SCHEMA.md.
@@ -20,6 +21,9 @@ class Capture {
     this.suggestedSchedule,
     this.resultingType,
     this.resultingId,
+    this.proposedItems,
+    this.dispositionedItemIds = const <String>[],
+    this.autoCommittedAt,
   });
 
   final String id;
@@ -33,6 +37,17 @@ class Capture {
   final CaptureStatus status;
   final ResultingType? resultingType;
   final String? resultingId;
+
+  /// Ordered draft items decomposed from the rant (§4). `null` until the P4
+  /// worker has run; an empty list never occurs (empty extraction falls back to
+  /// a single `note` draft, §11).
+  final List<ProposedItem>? proposedItems;
+
+  /// Stable draft ids already saved or dropped. Remaining ids re-enter review.
+  final List<String> dispositionedItemIds;
+
+  /// Non-null only for captures materialized by the automatic gate.
+  final DateTime? autoCommittedAt;
   final DateTime capturedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -47,6 +62,10 @@ class Capture {
     CaptureStatus? status,
     ResultingType? resultingType,
     String? resultingId,
+    List<ProposedItem>? proposedItems,
+    List<String>? dispositionedItemIds,
+    DateTime? autoCommittedAt,
+    bool clearAutoCommittedAt = false,
   }) => Capture(
     id: id,
     userId: userId,
@@ -59,6 +78,11 @@ class Capture {
     status: status ?? this.status,
     resultingType: resultingType ?? this.resultingType,
     resultingId: resultingId ?? this.resultingId,
+    proposedItems: proposedItems ?? this.proposedItems,
+    dispositionedItemIds: dispositionedItemIds ?? this.dispositionedItemIds,
+    autoCommittedAt: clearAutoCommittedAt
+        ? null
+        : (autoCommittedAt ?? this.autoCommittedAt),
     capturedAt: capturedAt,
     createdAt: createdAt,
     updatedAt: updatedAt,

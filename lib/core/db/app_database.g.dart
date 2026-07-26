@@ -754,6 +754,41 @@ class $CapturesTable extends Captures
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _proposedItemsMeta = const VerificationMeta(
+    'proposedItems',
+  );
+  @override
+  late final GeneratedColumn<String> proposedItems = GeneratedColumn<String>(
+    'proposed_items',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dispositionedItemIdsMeta =
+      const VerificationMeta('dispositionedItemIds');
+  @override
+  late final GeneratedColumn<String> dispositionedItemIds =
+      GeneratedColumn<String>(
+        'dispositioned_item_ids',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _autoCommittedAtMeta = const VerificationMeta(
+    'autoCommittedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> autoCommittedAt =
+      GeneratedColumn<DateTime>(
+        'auto_committed_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _capturedAtMeta = const VerificationMeta(
     'capturedAt',
   );
@@ -784,6 +819,9 @@ class $CapturesTable extends Captures
     status,
     resultingType,
     resultingId,
+    proposedItems,
+    dispositionedItemIds,
+    autoCommittedAt,
     capturedAt,
   ];
   @override
@@ -907,6 +945,33 @@ class $CapturesTable extends Captures
         ),
       );
     }
+    if (data.containsKey('proposed_items')) {
+      context.handle(
+        _proposedItemsMeta,
+        proposedItems.isAcceptableOrUnknown(
+          data['proposed_items']!,
+          _proposedItemsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dispositioned_item_ids')) {
+      context.handle(
+        _dispositionedItemIdsMeta,
+        dispositionedItemIds.isAcceptableOrUnknown(
+          data['dispositioned_item_ids']!,
+          _dispositionedItemIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_committed_at')) {
+      context.handle(
+        _autoCommittedAtMeta,
+        autoCommittedAt.isAcceptableOrUnknown(
+          data['auto_committed_at']!,
+          _autoCommittedAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('captured_at')) {
       context.handle(
         _capturedAtMeta,
@@ -986,6 +1051,18 @@ class $CapturesTable extends Captures
         DriftSqlType.string,
         data['${effectivePrefix}resulting_id'],
       ),
+      proposedItems: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}proposed_items'],
+      ),
+      dispositionedItemIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dispositioned_item_ids'],
+      )!,
+      autoCommittedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}auto_committed_at'],
+      ),
       capturedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}captured_at'],
@@ -1021,6 +1098,17 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
   final String status;
   final String? resultingType;
   final String? resultingId;
+
+  /// Ordered JSON array of draft items (rant decomposition). Stored as TEXT
+  /// holding a JSON string; read whole, never queried. See
+  /// docs/CAPTURE_DECOMPOSITION.md §4. Mirrors `captures.proposed_items` (0004).
+  final String? proposedItems;
+
+  /// JSON array of stable draft ids already saved or explicitly dropped.
+  final String dispositionedItemIds;
+
+  /// Durable marker used to recover the recent auto-added safety net.
+  final DateTime? autoCommittedAt;
   final DateTime capturedAt;
   const CaptureRow({
     required this.createdAt,
@@ -1039,6 +1127,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     required this.status,
     this.resultingType,
     this.resultingId,
+    this.proposedItems,
+    required this.dispositionedItemIds,
+    this.autoCommittedAt,
     required this.capturedAt,
   });
   @override
@@ -1077,6 +1168,13 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     }
     if (!nullToAbsent || resultingId != null) {
       map['resulting_id'] = Variable<String>(resultingId);
+    }
+    if (!nullToAbsent || proposedItems != null) {
+      map['proposed_items'] = Variable<String>(proposedItems);
+    }
+    map['dispositioned_item_ids'] = Variable<String>(dispositionedItemIds);
+    if (!nullToAbsent || autoCommittedAt != null) {
+      map['auto_committed_at'] = Variable<DateTime>(autoCommittedAt);
     }
     map['captured_at'] = Variable<DateTime>(capturedAt);
     return map;
@@ -1118,6 +1216,13 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       resultingId: resultingId == null && nullToAbsent
           ? const Value.absent()
           : Value(resultingId),
+      proposedItems: proposedItems == null && nullToAbsent
+          ? const Value.absent()
+          : Value(proposedItems),
+      dispositionedItemIds: Value(dispositionedItemIds),
+      autoCommittedAt: autoCommittedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(autoCommittedAt),
       capturedAt: Value(capturedAt),
     );
   }
@@ -1146,6 +1251,11 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       status: serializer.fromJson<String>(json['status']),
       resultingType: serializer.fromJson<String?>(json['resultingType']),
       resultingId: serializer.fromJson<String?>(json['resultingId']),
+      proposedItems: serializer.fromJson<String?>(json['proposedItems']),
+      dispositionedItemIds: serializer.fromJson<String>(
+        json['dispositionedItemIds'],
+      ),
+      autoCommittedAt: serializer.fromJson<DateTime?>(json['autoCommittedAt']),
       capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
     );
   }
@@ -1169,6 +1279,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       'status': serializer.toJson<String>(status),
       'resultingType': serializer.toJson<String?>(resultingType),
       'resultingId': serializer.toJson<String?>(resultingId),
+      'proposedItems': serializer.toJson<String?>(proposedItems),
+      'dispositionedItemIds': serializer.toJson<String>(dispositionedItemIds),
+      'autoCommittedAt': serializer.toJson<DateTime?>(autoCommittedAt),
       'capturedAt': serializer.toJson<DateTime>(capturedAt),
     };
   }
@@ -1190,6 +1303,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     String? status,
     Value<String?> resultingType = const Value.absent(),
     Value<String?> resultingId = const Value.absent(),
+    Value<String?> proposedItems = const Value.absent(),
+    String? dispositionedItemIds,
+    Value<DateTime?> autoCommittedAt = const Value.absent(),
     DateTime? capturedAt,
   }) => CaptureRow(
     createdAt: createdAt ?? this.createdAt,
@@ -1214,6 +1330,13 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
         ? resultingType.value
         : this.resultingType,
     resultingId: resultingId.present ? resultingId.value : this.resultingId,
+    proposedItems: proposedItems.present
+        ? proposedItems.value
+        : this.proposedItems,
+    dispositionedItemIds: dispositionedItemIds ?? this.dispositionedItemIds,
+    autoCommittedAt: autoCommittedAt.present
+        ? autoCommittedAt.value
+        : this.autoCommittedAt,
     capturedAt: capturedAt ?? this.capturedAt,
   );
   CaptureRow copyWithCompanion(CapturesCompanion data) {
@@ -1242,6 +1365,15 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       resultingId: data.resultingId.present
           ? data.resultingId.value
           : this.resultingId,
+      proposedItems: data.proposedItems.present
+          ? data.proposedItems.value
+          : this.proposedItems,
+      dispositionedItemIds: data.dispositionedItemIds.present
+          ? data.dispositionedItemIds.value
+          : this.dispositionedItemIds,
+      autoCommittedAt: data.autoCommittedAt.present
+          ? data.autoCommittedAt.value
+          : this.autoCommittedAt,
       capturedAt: data.capturedAt.present
           ? data.capturedAt.value
           : this.capturedAt,
@@ -1267,6 +1399,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
           ..write('status: $status, ')
           ..write('resultingType: $resultingType, ')
           ..write('resultingId: $resultingId, ')
+          ..write('proposedItems: $proposedItems, ')
+          ..write('dispositionedItemIds: $dispositionedItemIds, ')
+          ..write('autoCommittedAt: $autoCommittedAt, ')
           ..write('capturedAt: $capturedAt')
           ..write(')'))
         .toString();
@@ -1290,6 +1425,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     status,
     resultingType,
     resultingId,
+    proposedItems,
+    dispositionedItemIds,
+    autoCommittedAt,
     capturedAt,
   );
   @override
@@ -1312,6 +1450,9 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
           other.status == this.status &&
           other.resultingType == this.resultingType &&
           other.resultingId == this.resultingId &&
+          other.proposedItems == this.proposedItems &&
+          other.dispositionedItemIds == this.dispositionedItemIds &&
+          other.autoCommittedAt == this.autoCommittedAt &&
           other.capturedAt == this.capturedAt);
 }
 
@@ -1332,6 +1473,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
   final Value<String> status;
   final Value<String?> resultingType;
   final Value<String?> resultingId;
+  final Value<String?> proposedItems;
+  final Value<String> dispositionedItemIds;
+  final Value<DateTime?> autoCommittedAt;
   final Value<DateTime> capturedAt;
   final Value<int> rowid;
   const CapturesCompanion({
@@ -1351,6 +1495,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     this.status = const Value.absent(),
     this.resultingType = const Value.absent(),
     this.resultingId = const Value.absent(),
+    this.proposedItems = const Value.absent(),
+    this.dispositionedItemIds = const Value.absent(),
+    this.autoCommittedAt = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1371,6 +1518,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     this.status = const Value.absent(),
     this.resultingType = const Value.absent(),
     this.resultingId = const Value.absent(),
+    this.proposedItems = const Value.absent(),
+    this.dispositionedItemIds = const Value.absent(),
+    this.autoCommittedAt = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1392,6 +1542,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     Expression<String>? status,
     Expression<String>? resultingType,
     Expression<String>? resultingId,
+    Expression<String>? proposedItems,
+    Expression<String>? dispositionedItemIds,
+    Expression<DateTime>? autoCommittedAt,
     Expression<DateTime>? capturedAt,
     Expression<int>? rowid,
   }) {
@@ -1412,6 +1565,10 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
       if (status != null) 'status': status,
       if (resultingType != null) 'resulting_type': resultingType,
       if (resultingId != null) 'resulting_id': resultingId,
+      if (proposedItems != null) 'proposed_items': proposedItems,
+      if (dispositionedItemIds != null)
+        'dispositioned_item_ids': dispositionedItemIds,
+      if (autoCommittedAt != null) 'auto_committed_at': autoCommittedAt,
       if (capturedAt != null) 'captured_at': capturedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1434,6 +1591,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     Value<String>? status,
     Value<String?>? resultingType,
     Value<String?>? resultingId,
+    Value<String?>? proposedItems,
+    Value<String>? dispositionedItemIds,
+    Value<DateTime?>? autoCommittedAt,
     Value<DateTime>? capturedAt,
     Value<int>? rowid,
   }) {
@@ -1454,6 +1614,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
       status: status ?? this.status,
       resultingType: resultingType ?? this.resultingType,
       resultingId: resultingId ?? this.resultingId,
+      proposedItems: proposedItems ?? this.proposedItems,
+      dispositionedItemIds: dispositionedItemIds ?? this.dispositionedItemIds,
+      autoCommittedAt: autoCommittedAt ?? this.autoCommittedAt,
       capturedAt: capturedAt ?? this.capturedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1510,6 +1673,17 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     if (resultingId.present) {
       map['resulting_id'] = Variable<String>(resultingId.value);
     }
+    if (proposedItems.present) {
+      map['proposed_items'] = Variable<String>(proposedItems.value);
+    }
+    if (dispositionedItemIds.present) {
+      map['dispositioned_item_ids'] = Variable<String>(
+        dispositionedItemIds.value,
+      );
+    }
+    if (autoCommittedAt.present) {
+      map['auto_committed_at'] = Variable<DateTime>(autoCommittedAt.value);
+    }
     if (capturedAt.present) {
       map['captured_at'] = Variable<DateTime>(capturedAt.value);
     }
@@ -1538,6 +1712,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
           ..write('status: $status, ')
           ..write('resultingType: $resultingType, ')
           ..write('resultingId: $resultingId, ')
+          ..write('proposedItems: $proposedItems, ')
+          ..write('dispositionedItemIds: $dispositionedItemIds, ')
+          ..write('autoCommittedAt: $autoCommittedAt, ')
           ..write('capturedAt: $capturedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1627,6 +1804,17 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _captureIdMeta = const VerificationMeta(
+    'captureId',
+  );
+  @override
+  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
+    'capture_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -1675,6 +1863,7 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
     syncedAt,
     id,
     userId,
+    captureId,
     title,
     why,
     status,
@@ -1734,6 +1923,12 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
       );
     } else if (isInserting) {
       context.missing(_userIdMeta);
+    }
+    if (data.containsKey('capture_id')) {
+      context.handle(
+        _captureIdMeta,
+        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
+      );
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -1798,6 +1993,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
         DriftSqlType.string,
         data['${effectivePrefix}user_id'],
       )!,
+      captureId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}capture_id'],
+      ),
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}title'],
@@ -1836,6 +2035,11 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
   final DateTime? syncedAt;
   final String id;
   final String userId;
+
+  /// Provenance link to the originating capture (rant decomposition). Mirrors
+  /// `goals.capture_id` (0004); nullable, SET NULL server-side. Local DB carries
+  /// no FK — the server enforces same-user ownership.
+  final String? captureId;
   final String title;
   final String? why;
   final String status;
@@ -1848,6 +2052,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     this.syncedAt,
     required this.id,
     required this.userId,
+    this.captureId,
     required this.title,
     this.why,
     required this.status,
@@ -1867,6 +2072,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     }
     map['id'] = Variable<String>(id);
     map['user_id'] = Variable<String>(userId);
+    if (!nullToAbsent || captureId != null) {
+      map['capture_id'] = Variable<String>(captureId);
+    }
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || why != null) {
       map['why'] = Variable<String>(why);
@@ -1891,6 +2099,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           : Value(syncedAt),
       id: Value(id),
       userId: Value(userId),
+      captureId: captureId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(captureId),
       title: Value(title),
       why: why == null && nullToAbsent ? const Value.absent() : Value(why),
       status: Value(status),
@@ -1913,6 +2124,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
       syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<String>(json['userId']),
+      captureId: serializer.fromJson<String?>(json['captureId']),
       title: serializer.fromJson<String>(json['title']),
       why: serializer.fromJson<String?>(json['why']),
       status: serializer.fromJson<String>(json['status']),
@@ -1930,6 +2142,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
       'syncedAt': serializer.toJson<DateTime?>(syncedAt),
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<String>(userId),
+      'captureId': serializer.toJson<String?>(captureId),
       'title': serializer.toJson<String>(title),
       'why': serializer.toJson<String?>(why),
       'status': serializer.toJson<String>(status),
@@ -1945,6 +2158,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     Value<DateTime?> syncedAt = const Value.absent(),
     String? id,
     String? userId,
+    Value<String?> captureId = const Value.absent(),
     String? title,
     Value<String?> why = const Value.absent(),
     String? status,
@@ -1957,6 +2171,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
     id: id ?? this.id,
     userId: userId ?? this.userId,
+    captureId: captureId.present ? captureId.value : this.captureId,
     title: title ?? this.title,
     why: why.present ? why.value : this.why,
     status: status ?? this.status,
@@ -1971,6 +2186,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
       id: data.id.present ? data.id.value : this.id,
       userId: data.userId.present ? data.userId.value : this.userId,
+      captureId: data.captureId.present ? data.captureId.value : this.captureId,
       title: data.title.present ? data.title.value : this.title,
       why: data.why.present ? data.why.value : this.why,
       status: data.status.present ? data.status.value : this.status,
@@ -1990,6 +2206,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
+          ..write('captureId: $captureId, ')
           ..write('title: $title, ')
           ..write('why: $why, ')
           ..write('status: $status, ')
@@ -2007,6 +2224,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     syncedAt,
     id,
     userId,
+    captureId,
     title,
     why,
     status,
@@ -2023,6 +2241,7 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           other.syncedAt == this.syncedAt &&
           other.id == this.id &&
           other.userId == this.userId &&
+          other.captureId == this.captureId &&
           other.title == this.title &&
           other.why == this.why &&
           other.status == this.status &&
@@ -2037,6 +2256,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
   final Value<DateTime?> syncedAt;
   final Value<String> id;
   final Value<String> userId;
+  final Value<String?> captureId;
   final Value<String> title;
   final Value<String?> why;
   final Value<String> status;
@@ -2050,6 +2270,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     this.syncedAt = const Value.absent(),
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
+    this.captureId = const Value.absent(),
     this.title = const Value.absent(),
     this.why = const Value.absent(),
     this.status = const Value.absent(),
@@ -2064,6 +2285,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     this.syncedAt = const Value.absent(),
     required String id,
     required String userId,
+    this.captureId = const Value.absent(),
     required String title,
     this.why = const Value.absent(),
     this.status = const Value.absent(),
@@ -2080,6 +2302,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     Expression<DateTime>? syncedAt,
     Expression<String>? id,
     Expression<String>? userId,
+    Expression<String>? captureId,
     Expression<String>? title,
     Expression<String>? why,
     Expression<String>? status,
@@ -2094,6 +2317,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
       if (syncedAt != null) 'synced_at': syncedAt,
       if (id != null) 'id': id,
       if (userId != null) 'user_id': userId,
+      if (captureId != null) 'capture_id': captureId,
       if (title != null) 'title': title,
       if (why != null) 'why': why,
       if (status != null) 'status': status,
@@ -2110,6 +2334,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     Value<DateTime?>? syncedAt,
     Value<String>? id,
     Value<String>? userId,
+    Value<String?>? captureId,
     Value<String>? title,
     Value<String?>? why,
     Value<String>? status,
@@ -2124,6 +2349,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
       syncedAt: syncedAt ?? this.syncedAt,
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      captureId: captureId ?? this.captureId,
       title: title ?? this.title,
       why: why ?? this.why,
       status: status ?? this.status,
@@ -2156,6 +2382,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
     }
+    if (captureId.present) {
+      map['capture_id'] = Variable<String>(captureId.value);
+    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -2184,6 +2413,7 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
+          ..write('captureId: $captureId, ')
           ..write('title: $title, ')
           ..write('why: $why, ')
           ..write('status: $status, ')
@@ -10374,6 +10604,9 @@ typedef $$CapturesTableCreateCompanionBuilder =
       Value<String> status,
       Value<String?> resultingType,
       Value<String?> resultingId,
+      Value<String?> proposedItems,
+      Value<String> dispositionedItemIds,
+      Value<DateTime?> autoCommittedAt,
       Value<DateTime> capturedAt,
       Value<int> rowid,
     });
@@ -10395,6 +10628,9 @@ typedef $$CapturesTableUpdateCompanionBuilder =
       Value<String> status,
       Value<String?> resultingType,
       Value<String?> resultingId,
+      Value<String?> proposedItems,
+      Value<String> dispositionedItemIds,
+      Value<DateTime?> autoCommittedAt,
       Value<DateTime> capturedAt,
       Value<int> rowid,
     });
@@ -10485,6 +10721,21 @@ class $$CapturesTableFilterComposer
 
   ColumnFilters<String> get resultingId => $composableBuilder(
     column: $table.resultingId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get proposedItems => $composableBuilder(
+    column: $table.proposedItems,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dispositionedItemIds => $composableBuilder(
+    column: $table.dispositionedItemIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get autoCommittedAt => $composableBuilder(
+    column: $table.autoCommittedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10583,6 +10834,21 @@ class $$CapturesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get proposedItems => $composableBuilder(
+    column: $table.proposedItems,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dispositionedItemIds => $composableBuilder(
+    column: $table.dispositionedItemIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get autoCommittedAt => $composableBuilder(
+    column: $table.autoCommittedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
     column: $table.capturedAt,
     builder: (column) => ColumnOrderings(column),
@@ -10654,6 +10920,21 @@ class $$CapturesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get proposedItems => $composableBuilder(
+    column: $table.proposedItems,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dispositionedItemIds => $composableBuilder(
+    column: $table.dispositionedItemIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get autoCommittedAt => $composableBuilder(
+    column: $table.autoCommittedAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
     column: $table.capturedAt,
     builder: (column) => column,
@@ -10707,6 +10988,9 @@ class $$CapturesTableTableManager
                 Value<String> status = const Value.absent(),
                 Value<String?> resultingType = const Value.absent(),
                 Value<String?> resultingId = const Value.absent(),
+                Value<String?> proposedItems = const Value.absent(),
+                Value<String> dispositionedItemIds = const Value.absent(),
+                Value<DateTime?> autoCommittedAt = const Value.absent(),
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CapturesCompanion(
@@ -10726,6 +11010,9 @@ class $$CapturesTableTableManager
                 status: status,
                 resultingType: resultingType,
                 resultingId: resultingId,
+                proposedItems: proposedItems,
+                dispositionedItemIds: dispositionedItemIds,
+                autoCommittedAt: autoCommittedAt,
                 capturedAt: capturedAt,
                 rowid: rowid,
               ),
@@ -10747,6 +11034,9 @@ class $$CapturesTableTableManager
                 Value<String> status = const Value.absent(),
                 Value<String?> resultingType = const Value.absent(),
                 Value<String?> resultingId = const Value.absent(),
+                Value<String?> proposedItems = const Value.absent(),
+                Value<String> dispositionedItemIds = const Value.absent(),
+                Value<DateTime?> autoCommittedAt = const Value.absent(),
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CapturesCompanion.insert(
@@ -10766,6 +11056,9 @@ class $$CapturesTableTableManager
                 status: status,
                 resultingType: resultingType,
                 resultingId: resultingId,
+                proposedItems: proposedItems,
+                dispositionedItemIds: dispositionedItemIds,
+                autoCommittedAt: autoCommittedAt,
                 capturedAt: capturedAt,
                 rowid: rowid,
               ),
@@ -10800,6 +11093,7 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<DateTime?> syncedAt,
       required String id,
       required String userId,
+      Value<String?> captureId,
       required String title,
       Value<String?> why,
       Value<String> status,
@@ -10815,6 +11109,7 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<DateTime?> syncedAt,
       Value<String> id,
       Value<String> userId,
+      Value<String?> captureId,
       Value<String> title,
       Value<String?> why,
       Value<String> status,
@@ -10862,6 +11157,11 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get userId => $composableBuilder(
     column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get captureId => $composableBuilder(
+    column: $table.captureId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10930,6 +11230,11 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get captureId => $composableBuilder(
+    column: $table.captureId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get title => $composableBuilder(
     column: $table.title,
     builder: (column) => ColumnOrderings(column),
@@ -10981,6 +11286,9 @@ class $$GoalsTableAnnotationComposer
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
+  GeneratedColumn<String> get captureId =>
+      $composableBuilder(column: $table.captureId, builder: (column) => column);
+
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
@@ -11031,6 +11339,7 @@ class $$GoalsTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> userId = const Value.absent(),
+                Value<String?> captureId = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> why = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -11044,6 +11353,7 @@ class $$GoalsTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
+                captureId: captureId,
                 title: title,
                 why: why,
                 status: status,
@@ -11059,6 +11369,7 @@ class $$GoalsTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 required String id,
                 required String userId,
+                Value<String?> captureId = const Value.absent(),
                 required String title,
                 Value<String?> why = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -11072,6 +11383,7 @@ class $$GoalsTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
+                captureId: captureId,
                 title: title,
                 why: why,
                 status: status,

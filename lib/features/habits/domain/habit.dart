@@ -74,12 +74,15 @@ abstract interface class HabitsRepository {
   Future<void> delete(String id);
 }
 
-/// Additive P4 idempotent writer for capture-derived habits.
+/// Additive P4 idempotent writer for capture-derived habits. [id] defaults to
+/// [captureId] (legacy 1:1); the N-item flow passes the draft's stable client id.
 abstract interface class CaptureLinkedHabitsRepository {
   Future<Habit> createForCapture({
     required String captureId,
     required String title,
+    String? id,
     Map<String, Object?>? levelConfig,
     String? anchorDescription,
+    Map<String, Object?>? frequencyConfig,
   });
 }

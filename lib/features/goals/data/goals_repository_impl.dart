@@ -6,7 +6,7 @@ import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/features/goals/domain/goal.dart';
 
 class GoalsRepositoryImpl extends LocalFirstRepository
-    implements GoalsRepository {
+    implements GoalsRepository, CaptureLinkedGoalsRepository {
   GoalsRepositoryImpl({
     required super.db,
     required super.emitter,
@@ -39,15 +39,44 @@ class GoalsRepositoryImpl extends LocalFirstRepository
     required String title,
     String? why,
     DateTime? targetDate,
+  }) => _createWithId(
+    id: newId(),
+    title: title,
+    why: why,
+    targetDate: targetDate,
+    captureId: null,
+  );
+
+  @override
+  Future<Goal> createForCapture({
+    required String captureId,
+    required String title,
+    String? id,
+    String? why,
+    DateTime? targetDate,
+  }) => _createWithId(
+    id: id ?? captureId,
+    title: title,
+    why: why,
+    targetDate: targetDate,
+    captureId: captureId,
+  );
+
+  Future<Goal> _createWithId({
+    required String id,
+    required String title,
+    String? why,
+    DateTime? targetDate,
+    String? captureId,
   }) async {
     final DateTime timestamp = now();
-    final String id = newId();
-    await db
+    final GoalRow? inserted = await db
         .into(db.goals)
-        .insert(
+        .insertReturningOrNull(
           GoalsCompanion.insert(
             id: id,
             userId: userId,
+            captureId: Value<String?>(captureId),
             title: title,
             why: Value<String?>(why),
             status: Value<String>(GoalStatus.active.wire),
@@ -56,15 +85,19 @@ class GoalsRepositoryImpl extends LocalFirstRepository
             updatedAt: Value<DateTime>(timestamp),
             dirty: const Value<bool>(true),
           ),
+          mode: InsertMode.insertOrIgnore,
         );
-    emitter.emitCreated(
-      userId: userId,
-      entityType: EntityTypes.goal,
-      entityId: id,
-    );
-    final GoalRow row = await (db.select(
-      db.goals,
-    )..where((Goals g) => g.id.equals(id))).getSingle();
+    if (inserted != null) {
+      emitter.emitCreated(
+        userId: userId,
+        entityType: EntityTypes.goal,
+        entityId: id,
+      );
+    }
+    final GoalRow row =
+        await (db.select(db.goals)
+              ..where((Goals g) => g.id.equals(id) & g.userId.equals(userId)))
+            .getSingle();
     return _toDomain(row);
   }
 
@@ -122,6 +155,7 @@ class GoalsRepositoryImpl extends LocalFirstRepository
   Goal _toDomain(GoalRow row) => Goal(
     id: row.id,
     userId: row.userId,
+    captureId: row.captureId,
     title: row.title,
     why: row.why,
     status: GoalStatus.fromWire(row.status),

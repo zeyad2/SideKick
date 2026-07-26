@@ -38,10 +38,12 @@ abstract interface class NotesRepository {
   Future<void> delete(String id);
 }
 
-/// Additive P4 idempotent writer for capture-derived notes.
+/// Additive P4 idempotent writer for capture-derived notes. [id] defaults to
+/// [captureId] (legacy 1:1); the N-item flow passes the draft's stable client id.
 abstract interface class CaptureLinkedNotesRepository {
   Future<Note> createForCapture({
     required String captureId,
+    String? id,
     String? title,
     String? body,
   });

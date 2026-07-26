@@ -51,9 +51,12 @@ final Provider<CaptureTriageService> captureTriageServiceProvider =
         tasks: ref.watch(tasksRepositoryProvider),
         notes: ref.watch(notesRepositoryProvider),
         habits: ref.watch(habitsRepositoryProvider),
+        goals: ref.watch(goalsRepositoryProvider),
         emitter: ref.watch(eventEmitterProvider),
         nativeApi: ref.watch(nativeCaptureApiProvider),
         pendingQueue: ref.watch(pendingAudioQueueProvider.future),
         barrier: ref.watch(captureIngestionBarrierProvider),
+        db: ref.watch(appDatabaseProvider),
+        idGenerator: ref.watch(idGeneratorProvider),
       ),
     );

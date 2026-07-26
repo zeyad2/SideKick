@@ -54,13 +54,16 @@ class HabitsRepositoryImpl extends LocalFirstRepository
   Future<Habit> createForCapture({
     required String captureId,
     required String title,
+    String? id,
     Map<String, Object?>? levelConfig,
     String? anchorDescription,
+    Map<String, Object?>? frequencyConfig,
   }) => _createWithId(
-    id: captureId,
+    id: id ?? captureId,
     title: title,
     levelConfig: levelConfig,
     anchorDescription: anchorDescription,
+    frequencyConfig: frequencyConfig,
     captureId: captureId,
   );
 

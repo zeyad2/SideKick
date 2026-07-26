@@ -159,6 +159,28 @@ begin
         raise exception 'FAIL: negative duration_minutes accepted';
     exception when check_violation then null; end;
 
+    -- disposition ids must be unique and belong to proposed_items.
+    begin
+        insert into public.captures (
+          user_id, status, proposed_items, dispositioned_item_ids
+        ) values (
+          C, 'ready',
+          '[{"id":"draft-3","kind":"task","title":"Safe","confidence":"high"}]',
+          '["not-a-draft"]'
+        );
+        raise exception 'FAIL: foreign disposition id accepted';
+    exception when check_violation then null; end;
+    begin
+        insert into public.captures (
+          user_id, status, proposed_items, dispositioned_item_ids
+        ) values (
+          C, 'ready',
+          '[{"id":"draft-4","kind":"task","title":"Safe","confidence":"high"}]',
+          '["draft-4","draft-4"]'
+        );
+        raise exception 'FAIL: duplicate disposition ids accepted';
+    exception when check_violation then null; end;
+
     -- negative block_attempts
     begin
         insert into public.focus_sessions (user_id, duration_minutes, block_attempts)
@@ -191,10 +213,56 @@ begin
         raise exception 'FAIL: resulting_type set on non-triaged capture accepted';
     exception when check_violation then null; end;
 
-    -- triaged capture with NO resulting_* (the other half of the constraint)
+    -- triaged capture with neither legacy result nor complete decomposition
     begin
         insert into public.captures (user_id, status) values (C, 'triaged');
         raise exception 'FAIL: triaged capture without resulting_* accepted';
+    exception when check_violation then null; end;
+
+    -- decomposition terminal: every proposed draft has a disposition id.
+    insert into public.captures (
+      user_id, status, proposed_items, dispositioned_item_ids
+    ) values (
+      C, 'triaged',
+      '[{"id":"draft-1","kind":"task","title":"Safe","confidence":"high"}]',
+      '["draft-1"]'
+    );
+
+    -- Retired legacy result columns remain an all-or-none pair, including on
+    -- otherwise valid decomposed terminal rows.
+    begin
+        insert into public.captures (
+          user_id, status, proposed_items, dispositioned_item_ids,
+          resulting_type
+        ) values (
+          C, 'triaged',
+          '[{"id":"half-type","kind":"task","title":"Safe","confidence":"high"}]',
+          '["half-type"]', 'task'
+        );
+        raise exception 'FAIL: resulting_type without resulting_id accepted';
+    exception when check_violation then null; end;
+    begin
+        insert into public.captures (
+          user_id, status, proposed_items, dispositioned_item_ids,
+          resulting_id
+        ) values (
+          C, 'triaged',
+          '[{"id":"half-id","kind":"task","title":"Safe","confidence":"high"}]',
+          '["half-id"]', 'dddddddd-dddd-dddd-dddd-dddddddddddd'
+        );
+        raise exception 'FAIL: resulting_id without resulting_type accepted';
+    exception when check_violation then null; end;
+
+    -- incomplete decomposition may not be marked terminal.
+    begin
+        insert into public.captures (
+          user_id, status, proposed_items, dispositioned_item_ids
+        ) values (
+          C, 'triaged',
+          '[{"id":"draft-2","kind":"task","title":"Unsafe","confidence":"high"}]',
+          '[]'
+        );
+        raise exception 'FAIL: incomplete decomposition accepted as triaged';
     exception when check_violation then null; end;
 
     raise notice 'PASS: all domain CHECKs rejected bad values';

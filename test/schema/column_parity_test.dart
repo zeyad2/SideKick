@@ -5,9 +5,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sidekick/core/db/app_database.dart';
 
-/// P1 integration: the drift mirror's column names must match the LOCKED
-/// migrations `0001` + `0002` EXACTLY, plus only the two client-local sync
-/// columns (`dirty`, `synced_at`) the cloud schema omits (R0).
+/// Integration: the drift mirror's column names must match the cloud
+/// migrations EXACTLY (the LOCKED `0001` + `0002`, plus additive `0004`
+/// column adds), plus only the two client-local sync columns (`dirty`,
+/// `synced_at`) the cloud schema omits (R0).
 ///
 /// Column names are parsed straight out of the migration SQL so the test tracks
 /// the source of truth, not a hand-copied list.
@@ -18,15 +19,29 @@ void main() {
   final String sql = <String>[
     File('supabase/migrations/0001_initial_schema.sql').readAsStringSync(),
     File('supabase/migrations/0002_events_log.sql').readAsStringSync(),
+    // 0004 is additive `alter table ... add column` (capture decomposition).
+    File(
+      'supabase/migrations/0004_capture_decomposition.sql',
+    ).readAsStringSync(),
   ].join('\n');
 
   final Map<String, Set<String>> cloudColumns = _parseColumns(sql);
 
   test('migration parsing found all 13 cloud tables', () {
     expect(cloudColumns.keys.toSet(), <String>{
-      'profiles', 'captures', 'goals', 'tasks', 'notes', 'habits',
-      'habit_completions', 'places', 'focus_sessions', 'vibe_checks',
-      'reminders', 'block_list', 'events',
+      'profiles',
+      'captures',
+      'goals',
+      'tasks',
+      'notes',
+      'habits',
+      'habit_completions',
+      'places',
+      'focus_sessions',
+      'vibe_checks',
+      'reminders',
+      'block_list',
+      'events',
     });
   });
 
@@ -76,6 +91,18 @@ Map<String, Set<String>> _parseColumns(String sql) {
       }
     }
     result[table] = columns;
+  }
+
+  // Additive column adds from later migrations (`alter table ... add column`),
+  // which may span the table name and the column onto separate lines.
+  final RegExp alterAdd = RegExp(
+    r'alter table public\.(\w+)\s+add column\s+(?:if not exists\s+)?'
+    r'([a-z_][a-z0-9_]*)\s+'
+    r'(uuid|text|timestamptz|jsonb|boolean|integer|smallint|double|date)\b',
+    caseSensitive: false,
+  );
+  for (final RegExpMatch match in alterAdd.allMatches(sql)) {
+    (result[match.group(1)!] ??= <String>{}).add(match.group(2)!);
   }
   return result;
 }

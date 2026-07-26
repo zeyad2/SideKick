@@ -62,6 +62,8 @@ class DriftSyncEngine implements SyncEngine {
   static const Set<String> _jsonColumns = <String>{
     'prefs',
     'suggested_schedule',
+    'proposed_items',
+    'dispositioned_item_ids',
     'frequency_config',
     'level_config',
     'captures_during',
@@ -160,6 +162,10 @@ class DriftSyncEngine implements SyncEngine {
       refs.add(_DirtyRef(data['id']! as String, data['updated_at'] as String?));
       for (final String col in _localOnlyColumns) {
         data.remove(col);
+      }
+      for (final String col in _jsonColumns) {
+        final Object? value = data[col];
+        if (value is String) data[col] = jsonDecode(value);
       }
       payloads.add(data);
     }

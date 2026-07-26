@@ -56,10 +56,11 @@ class TasksRepositoryImpl extends LocalFirstRepository
   Future<Task> createForCapture({
     required String captureId,
     required String title,
+    String? id,
     String? details,
     DateTime? scheduledAt,
   }) => _createWithId(
-    id: captureId,
+    id: id ?? captureId,
     title: title,
     details: details,
     captureId: captureId,

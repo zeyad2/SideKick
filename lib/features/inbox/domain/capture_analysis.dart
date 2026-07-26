@@ -1,17 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:sidekick/core/domain/enums.dart';
+import 'package:sidekick/features/inbox/domain/proposed_item.dart';
 
+/// The result of decomposing a rant (docs/CAPTURE_DECOMPOSITION.md §10 — the
+/// deliberately-unfrozen P4 boundary). Carries the full transcript at capture
+/// level plus an **ordered list of draft items** (§4). The list may be empty —
+/// the processing service applies the single-`note` fallback (§11) rather than
+/// this parser inventing content.
 @immutable
 class CaptureAnalysis {
-  const CaptureAnalysis({
-    required this.type,
-    required this.title,
-    required this.details,
-    required this.suggestedSchedule,
-    required this.rawTranscript,
-  });
+  const CaptureAnalysis({required this.rawTranscript, required this.items});
 
   factory CaptureAnalysis.parse(String responseText) {
     final String cleaned = responseText
@@ -37,56 +36,34 @@ class CaptureAnalysis {
   }
 
   factory CaptureAnalysis.fromJson(Map<String, Object?> json) {
-    const Set<String> required = <String>{
-      'type',
-      'title',
-      'details',
-      'suggested_schedule',
-      'raw_transcript',
-    };
-    if (!json.keys.toSet().containsAll(required)) {
-      throw const CaptureAnalysisFormatException(
-        'Gemini JSON is missing one or more required fields.',
-      );
-    }
-    final Object? typeValue = json['type'];
-    final Object? titleValue = json['title'];
-    final Object? detailsValue = json['details'];
     final Object? transcriptValue = json['raw_transcript'];
-    final Object? scheduleValue = json['suggested_schedule'];
-    if (typeValue is! String ||
-        titleValue is! String ||
-        detailsValue is! String ||
-        transcriptValue is! String ||
-        (scheduleValue != null && scheduleValue is! Map)) {
+    if (transcriptValue is! String || transcriptValue.trim().isEmpty) {
       throw const CaptureAnalysisFormatException(
-        'Gemini JSON contains invalid field types.',
+        'Gemini JSON is missing a non-empty `raw_transcript`.',
       );
     }
-    final LlmType type = LlmType.fromWire(typeValue);
-    if (type == LlmType.uncategorized ||
-        titleValue.trim().isEmpty ||
-        transcriptValue.trim().isEmpty) {
+    final Object? itemsValue = json['items'];
+    if (itemsValue is! List) {
       throw const CaptureAnalysisFormatException(
-        'Gemini JSON contains invalid semantic values.',
+        'Gemini JSON `items` must be an array.',
       );
     }
-    return CaptureAnalysis(
-      type: type,
-      title: titleValue.trim(),
-      details: detailsValue.trim(),
-      suggestedSchedule: scheduleValue == null
-          ? null
-          : Map<String, Object?>.from(scheduleValue as Map),
-      rawTranscript: transcriptValue.trim(),
-    );
+    final List<ProposedItem> items;
+    try {
+      items = itemsValue
+          .map<ProposedItem>(ProposedItem.fromGemini)
+          .toList(growable: false);
+    } on ProposedItemFormatException catch (error) {
+      throw CaptureAnalysisFormatException(
+        'Gemini JSON contains an invalid draft item.',
+        error,
+      );
+    }
+    return CaptureAnalysis(rawTranscript: transcriptValue, items: items);
   }
 
-  final LlmType type;
-  final String title;
-  final String details;
-  final Map<String, Object?>? suggestedSchedule;
   final String rawTranscript;
+  final List<ProposedItem> items;
 }
 
 class CaptureAnalysisFormatException implements Exception {

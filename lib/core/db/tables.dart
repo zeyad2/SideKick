@@ -64,6 +64,18 @@ class Captures extends Table with SyncColumns {
   TextColumn get status => text().withDefault(const Constant('pending'))();
   TextColumn get resultingType => text().nullable()();
   TextColumn get resultingId => text().nullable()();
+
+  /// Ordered JSON array of draft items (rant decomposition). Stored as TEXT
+  /// holding a JSON string; read whole, never queried. See
+  /// docs/CAPTURE_DECOMPOSITION.md §4. Mirrors `captures.proposed_items` (0004).
+  TextColumn get proposedItems => text().nullable()();
+
+  /// JSON array of stable draft ids already saved or explicitly dropped.
+  TextColumn get dispositionedItemIds =>
+      text().withDefault(const Constant('[]'))();
+
+  /// Durable marker used to recover the recent auto-added safety net.
+  DateTimeColumn get autoCommittedAt => dateTime().nullable()();
   DateTimeColumn get capturedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
@@ -74,6 +86,11 @@ class Captures extends Table with SyncColumns {
 class Goals extends Table with SyncColumns {
   TextColumn get id => text()();
   TextColumn get userId => text()();
+
+  /// Provenance link to the originating capture (rant decomposition). Mirrors
+  /// `goals.capture_id` (0004); nullable, SET NULL server-side. Local DB carries
+  /// no FK — the server enforces same-user ownership.
+  TextColumn get captureId => text().nullable()();
   TextColumn get title => text()();
   TextColumn get why => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('active'))();

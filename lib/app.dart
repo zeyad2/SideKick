@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidekick/core/capture/capture_providers.dart';
 import 'package:sidekick/core/router/app_router.dart';
+import 'package:sidekick/core/router/app_routes.dart';
 import 'package:sidekick/core/sync/sync_providers.dart';
 import 'package:sidekick/core/theme/app_theme.dart';
 import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/core/theme/theme_providers.dart';
 import 'package:sidekick/features/capture/presentation/capture_overlay_host.dart';
+import 'package:sidekick/features/inbox/application/auto_commit_notifications.dart';
 import 'package:sidekick/features/inbox/application/capture_processing_providers.dart';
 
 class SidekickApp extends ConsumerStatefulWidget {
@@ -46,13 +48,18 @@ class _SidekickAppState extends ConsumerState<SidekickApp> {
     // reacts to connectivity regained on its own.
     ref.watch(syncEngineProvider);
     ref.watch(captureOwnerBindingProvider);
+    ref.watch(autoCommitNotificationsProvider);
     ref.watch(captureProcessingServiceProvider);
+    final router = ref.watch(appRouterProvider);
+    ref.listen<String?>(autoCommitEditRequestProvider, (_, String? captureId) {
+      if (captureId != null) router.go(AppRoutes.inbox);
+    });
 
     return AppThemeScope(
       theme: appTheme,
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        routerConfig: ref.watch(appRouterProvider),
+        routerConfig: router,
         theme: appTheme.toThemeData(),
         darkTheme: appTheme.toThemeData(),
         themeMode: ThemeMode.dark,

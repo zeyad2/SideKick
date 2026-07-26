@@ -24,19 +24,20 @@ run() { # run <file>
   docker exec -i "$CT" psql -v ON_ERROR_STOP=1 -U postgres -d sidekick < "$1"
 }
 
-echo "== 1/4 bootstrap auth stubs =="
+echo "== 1/5 bootstrap auth stubs =="
 run "$ROOT/supabase/tests/00_bootstrap_auth.sql"
 
-echo "== 2/4 apply migrations =="
+echo "== 2/5 apply migrations =="
 run "$ROOT/supabase/migrations/0001_initial_schema.sql"
 run "$ROOT/supabase/migrations/0002_events_log.sql"
 run "$ROOT/supabase/migrations/0003_sync_guards.sql"
+run "$ROOT/supabase/migrations/0004_capture_decomposition.sql"
 echo "   migrations applied cleanly."
 
-echo "== 3/4 RLS isolation test =="
+echo "== 3/5 RLS isolation test =="
 run "$ROOT/supabase/tests/10_rls_isolation.sql"
 
-echo "== 4/5 FK ownership + domain CHECK test =="
+echo "== 4/5 FK ownership + decomposition CHECK test =="
 run "$ROOT/supabase/tests/20_fk_ownership.sql"
 
 echo "== 5/5 server-side sync guards (LWW + skew clamp + event immutability) =="

@@ -78,12 +78,16 @@ abstract interface class TasksRepository {
 }
 
 /// Additive P4 contract used to make capture triage idempotent without
-/// changing the frozen P2 repository interface. Implementations must use
-/// [captureId] as the stable record id and return the existing row on replay.
+/// changing the frozen P2 repository interface. The record is created with a
+/// stable id and returns the existing row on replay. For the legacy 1:1 flow
+/// that id is [captureId]; for the N-item decomposition flow (one rant → many
+/// drafts) the caller passes the draft's stable client [id] so sibling drafts
+/// from the same capture do not collide (docs/CAPTURE_DECOMPOSITION.md §11).
 abstract interface class CaptureLinkedTasksRepository {
   Future<Task> createForCapture({
     required String captureId,
     required String title,
+    String? id,
     String? details,
     DateTime? scheduledAt,
   });
