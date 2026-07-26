@@ -97,6 +97,61 @@ long captures remain failed and queued instead of using Gemini's Files API.
 polling, generation, and remote cleanup behind the frozen `GeminiClient`
 interface.
 
+## Phase 4: notification and mixed-language acceptance need devices
+
+**What.** The grouped auto-commit notification, cold-launch Undo/Edit actions,
+and English/Arabic mixed-audio decomposition are covered at the service and
+widget boundaries, but have not been exercised end-to-end on physical Android
+and iOS devices against the live Gemini API.
+
+**Close before distribution.** Run the Phase 4 device matrix with notification
+permissions granted/denied, background and terminated launches, and representative
+Arabic/English recordings. Record screenshots/logs and fix any platform-specific
+action routing or transcription differences before release.
+
+## Capture decomposition: shipped end-to-end
+
+**Done.** The rant → many-items pipeline (docs/CAPTURE_DECOMPOSITION.md, FROZEN) is
+implemented through data, service, AND presentation layers, and unit/widget-tested:
+- Migration `0004_capture_decomposition.sql` (additive, post-lock): `captures.proposed_items jsonb`,
+  `goals.capture_id` composite SET-NULL FK + `idx_goals_capture`, drops the two 1:1
+  capture CHECKs, widens `resulting_type` to include `goal`. **APPLIED to remote
+  Supabase** (eu-west-1 pooler). Note: the remote `supabase_migrations` history was
+  empty (0001–0003 had been applied out-of-band), so it was `migration repair`ed to
+  mark 0001–0003 applied before `db push` ran 0004 — history is now clean, so future
+  `supabase db push` will apply cleanly with no repair.
+- Drift mirror bumped to `schemaVersion 2` with an `onUpgrade` (there was none before);
+  `ProposedItem` domain model + `AutoCommit` gate; `CaptureAnalysis` unfrozen to an
+  ordered draft list; Gemini array `responseSchema` + no-cross-context prompt;
+  `CaptureProcessingService` stores drafts and runs the §12 auto-commit branch;
+  `CaptureTriageService.saveAll` bulk-materialises idempotently; new
+  `CaptureLinkedGoalsRepository.createForCapture`.
+- **Multi-card review UI** (`inbox_screen.dart`): `CaptureTriageSheet` now dispatches
+  to `_BulkReviewSheet` when a capture carries `proposed_items` — one editable card
+  per draft, with complete task/habit/goal fields, partial Save Later re-entry,
+  low-confidence guidance, and disposition tracking.
+  Captures with no drafts (processed before this change) fall back to the legacy
+  single-result editor so nothing already in an inbox is stranded.
+- **Auto-commit safety net (§12.5):** `auto_committed_at` persists each receipt;
+  the restart-safe inbox strip and one grouped OS notification offer **Undo** and
+  non-destructive **Edit**. `CaptureTriageService.undoAutoCommit`
+  soft-deletes the materialised children and returns the capture to `ready` — and
+  RE-STAMPS the surviving drafts with fresh ids, because a soft-delete only tombstones
+  the row and `createForCapture` uses `insertOrIgnore`, so re-saving under the old ids
+  would silently no-op against the tombstone and never resurrect the item.
+
+**Implementation notes for the reviewer (not bugs).**
+- Auto-commit routes through a brief `processing → ready → triaged` sequence, not
+  `processing → triaged` directly as §12.4 describes: `proposed_items` is persisted
+  via the existing atomic `finishProcessing(ready)` checkpoint first, then the shared
+  bulk path flips to `triaged`. A crash between the two leaves a reviewable `ready`
+  capture (nothing lost). The observable end state matches the design; it emits an
+  extra `..._status_changed` event.
+- The legacy single-result `captures` fields (`llm_type/title/details/
+  suggested_schedule/resulting_type/resulting_id`) are retired for the multi-item
+  flow but still written by the OLD single-card triage path, which remains until the
+  new UI lands.
+
 ## Auth: email/password shipped; Google + password reset still open
 
 **Done (this session).** Auth moved from passwordless email-OTP to **explicit
@@ -143,3 +198,41 @@ usable for real users.
 **Login-screen polish still deferred.** No "resend"/countdown concepts remain
 (OTP-specific), but there's still no password-strength meter and no confirm-
 password field on sign-up — acceptable for the personal build.
+
+## Forward-looking: the persona is one-way (bites whenever a conversational agent is wanted)
+
+**What.** Nothing in the app can hold a conversation. The pipeline is
+strictly one-way — audio in, structured JSON out, rows written, done:
+- `GeminiClient` is `Future<CaptureAnalysis> analyzeCaptureAudio(File)` — a
+  single stateless call with a strict `responseSchema`. No turns, no history, no
+  free-text reply field.
+- Capture processing is fire-and-forget; no session or dialogue outlives a call.
+- There is no `conversations`/`messages` schema, and **no audio-output path at
+  all** (no TTS, no playback surface).
+- `docs/CAPTURE_DECOMPOSITION.md` §12 (auto-commit) deliberately pushes the
+  opposite way: the design target is to say nothing and file correctly in silence.
+
+**Why it matters.** "Sidekick talks back" is a plausible product direction, and
+the build plan never scoped it. Discovering the gap mid-P5/P7 — the first phases
+that generate persona text — would mean either a rushed retrofit or persona copy
+scattered across call sites that later needs unpicking.
+
+**What already helps.** Three pieces are unusually good groundwork:
+- The persona pref layer (`profiles.persona_response_language`, D2 cross-cutting
+  rule, `PersonaOrb`) — persona-generated text is already a first-class concept.
+- The D9 append-only `events` log — exactly the behavioural grounding a
+  responsive agent needs, and the reason it is being written before it is read.
+- Drafts-as-JSON (`CAPTURE_DECOMPOSITION.md` §7) is already a "here's what I
+  heard, correct me" exchange; making it spoken is a UI change, not a data-model
+  change.
+
+**Rough cost when it is built.** Its own phase, roughly P7-sized: a new additive
+migration for `conversations`/`messages` (`0001` is LOCKED); a second method on
+`GeminiClient` for multi-turn chat (the interface is frozen but may be *extended*
+— add, never change); an audio-output dependency + playback surface; and a
+conversational UI. **Do not smuggle any of this into P5.**
+
+**Cheap action to take NOW (P5/P7).** When those phases write persona copy, route
+it through a persona/response service rather than inlining prompt strings at each
+call site. That costs nothing today and is the difference between later *adding* a
+conversational layer and *refactoring every persona call site*.
