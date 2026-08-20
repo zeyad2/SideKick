@@ -51,6 +51,8 @@ final class AppColors {
     required this.onBackground,
     required this.surfaceVariant,
     required this.cardBorder,
+    required this.secondarySurface,
+    required this.secondaryOutline,
   });
 
   final Color surface;
@@ -101,6 +103,13 @@ final class AppColors {
   final Color onBackground;
   final Color surfaceVariant;
   final Color cardBorder;
+
+  /// The quiet teal fill behind a Fresh Start marker. Owned here rather than
+  /// composed with an alpha at the call site, so a second theme can restate it.
+  final Color secondarySurface;
+
+  /// The hairline that goes with [secondarySurface].
+  final Color secondaryOutline;
 
   ColorScheme toColorScheme() => ColorScheme(
     brightness: Brightness.dark,
@@ -207,5 +216,7 @@ final class AppColors {
     onBackground: onBackground,
     surfaceVariant: surfaceVariant,
     cardBorder: cardBorder,
+    secondarySurface: secondarySurface,
+    secondaryOutline: secondaryOutline,
   );
 }

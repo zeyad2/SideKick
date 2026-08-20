@@ -247,18 +247,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
   final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
   final DateTime? syncedAt;
   final String id;
   final String personaResponseLanguage;
   final String theme;
-
-  /// Additive client-only UI config (JSON blob). See SCHEMA.md §Preferences.
   final String prefs;
   const ProfileRow({
     required this.createdAt,
@@ -573,4965 +566,6 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   }
 }
 
-class $CapturesTable extends Captures
-    with TableInfo<$CapturesTable, CaptureRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $CapturesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _audioPathMeta = const VerificationMeta(
-    'audioPath',
-  );
-  @override
-  late final GeneratedColumn<String> audioPath = GeneratedColumn<String>(
-    'audio_path',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _rawTranscriptMeta = const VerificationMeta(
-    'rawTranscript',
-  );
-  @override
-  late final GeneratedColumn<String> rawTranscript = GeneratedColumn<String>(
-    'raw_transcript',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _llmTypeMeta = const VerificationMeta(
-    'llmType',
-  );
-  @override
-  late final GeneratedColumn<String> llmType = GeneratedColumn<String>(
-    'llm_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('uncategorized'),
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _detailsMeta = const VerificationMeta(
-    'details',
-  );
-  @override
-  late final GeneratedColumn<String> details = GeneratedColumn<String>(
-    'details',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _suggestedScheduleMeta = const VerificationMeta(
-    'suggestedSchedule',
-  );
-  @override
-  late final GeneratedColumn<String> suggestedSchedule =
-      GeneratedColumn<String>(
-        'suggested_schedule',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('pending'),
-  );
-  static const VerificationMeta _resultingTypeMeta = const VerificationMeta(
-    'resultingType',
-  );
-  @override
-  late final GeneratedColumn<String> resultingType = GeneratedColumn<String>(
-    'resulting_type',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _resultingIdMeta = const VerificationMeta(
-    'resultingId',
-  );
-  @override
-  late final GeneratedColumn<String> resultingId = GeneratedColumn<String>(
-    'resulting_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _proposedItemsMeta = const VerificationMeta(
-    'proposedItems',
-  );
-  @override
-  late final GeneratedColumn<String> proposedItems = GeneratedColumn<String>(
-    'proposed_items',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dispositionedItemIdsMeta =
-      const VerificationMeta('dispositionedItemIds');
-  @override
-  late final GeneratedColumn<String> dispositionedItemIds =
-      GeneratedColumn<String>(
-        'dispositioned_item_ids',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        defaultValue: const Constant('[]'),
-      );
-  static const VerificationMeta _autoCommittedAtMeta = const VerificationMeta(
-    'autoCommittedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> autoCommittedAt =
-      GeneratedColumn<DateTime>(
-        'auto_committed_at',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
-    'capturedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
-    'captured_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    audioPath,
-    rawTranscript,
-    llmType,
-    title,
-    details,
-    suggestedSchedule,
-    status,
-    resultingType,
-    resultingId,
-    proposedItems,
-    dispositionedItemIds,
-    autoCommittedAt,
-    capturedAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'captures';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<CaptureRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('audio_path')) {
-      context.handle(
-        _audioPathMeta,
-        audioPath.isAcceptableOrUnknown(data['audio_path']!, _audioPathMeta),
-      );
-    }
-    if (data.containsKey('raw_transcript')) {
-      context.handle(
-        _rawTranscriptMeta,
-        rawTranscript.isAcceptableOrUnknown(
-          data['raw_transcript']!,
-          _rawTranscriptMeta,
-        ),
-      );
-    }
-    if (data.containsKey('llm_type')) {
-      context.handle(
-        _llmTypeMeta,
-        llmType.isAcceptableOrUnknown(data['llm_type']!, _llmTypeMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    }
-    if (data.containsKey('details')) {
-      context.handle(
-        _detailsMeta,
-        details.isAcceptableOrUnknown(data['details']!, _detailsMeta),
-      );
-    }
-    if (data.containsKey('suggested_schedule')) {
-      context.handle(
-        _suggestedScheduleMeta,
-        suggestedSchedule.isAcceptableOrUnknown(
-          data['suggested_schedule']!,
-          _suggestedScheduleMeta,
-        ),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    if (data.containsKey('resulting_type')) {
-      context.handle(
-        _resultingTypeMeta,
-        resultingType.isAcceptableOrUnknown(
-          data['resulting_type']!,
-          _resultingTypeMeta,
-        ),
-      );
-    }
-    if (data.containsKey('resulting_id')) {
-      context.handle(
-        _resultingIdMeta,
-        resultingId.isAcceptableOrUnknown(
-          data['resulting_id']!,
-          _resultingIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('proposed_items')) {
-      context.handle(
-        _proposedItemsMeta,
-        proposedItems.isAcceptableOrUnknown(
-          data['proposed_items']!,
-          _proposedItemsMeta,
-        ),
-      );
-    }
-    if (data.containsKey('dispositioned_item_ids')) {
-      context.handle(
-        _dispositionedItemIdsMeta,
-        dispositionedItemIds.isAcceptableOrUnknown(
-          data['dispositioned_item_ids']!,
-          _dispositionedItemIdsMeta,
-        ),
-      );
-    }
-    if (data.containsKey('auto_committed_at')) {
-      context.handle(
-        _autoCommittedAtMeta,
-        autoCommittedAt.isAcceptableOrUnknown(
-          data['auto_committed_at']!,
-          _autoCommittedAtMeta,
-        ),
-      );
-    }
-    if (data.containsKey('captured_at')) {
-      context.handle(
-        _capturedAtMeta,
-        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  CaptureRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return CaptureRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      audioPath: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}audio_path'],
-      ),
-      rawTranscript: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}raw_transcript'],
-      ),
-      llmType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}llm_type'],
-      )!,
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      ),
-      details: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}details'],
-      ),
-      suggestedSchedule: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}suggested_schedule'],
-      ),
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-      resultingType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}resulting_type'],
-      ),
-      resultingId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}resulting_id'],
-      ),
-      proposedItems: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}proposed_items'],
-      ),
-      dispositionedItemIds: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}dispositioned_item_ids'],
-      )!,
-      autoCommittedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}auto_committed_at'],
-      ),
-      capturedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}captured_at'],
-      )!,
-    );
-  }
-
-  @override
-  $CapturesTable createAlias(String alias) {
-    return $CapturesTable(attachedDatabase, alias);
-  }
-}
-
-class CaptureRow extends DataClass implements Insertable<CaptureRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? audioPath;
-  final String? rawTranscript;
-  final String llmType;
-  final String? title;
-  final String? details;
-  final String? suggestedSchedule;
-  final String status;
-  final String? resultingType;
-  final String? resultingId;
-
-  /// Ordered JSON array of draft items (rant decomposition). Stored as TEXT
-  /// holding a JSON string; read whole, never queried. See
-  /// docs/CAPTURE_DECOMPOSITION.md §4. Mirrors `captures.proposed_items` (0004).
-  final String? proposedItems;
-
-  /// JSON array of stable draft ids already saved or explicitly dropped.
-  final String dispositionedItemIds;
-
-  /// Durable marker used to recover the recent auto-added safety net.
-  final DateTime? autoCommittedAt;
-  final DateTime capturedAt;
-  const CaptureRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.audioPath,
-    this.rawTranscript,
-    required this.llmType,
-    this.title,
-    this.details,
-    this.suggestedSchedule,
-    required this.status,
-    this.resultingType,
-    this.resultingId,
-    this.proposedItems,
-    required this.dispositionedItemIds,
-    this.autoCommittedAt,
-    required this.capturedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || audioPath != null) {
-      map['audio_path'] = Variable<String>(audioPath);
-    }
-    if (!nullToAbsent || rawTranscript != null) {
-      map['raw_transcript'] = Variable<String>(rawTranscript);
-    }
-    map['llm_type'] = Variable<String>(llmType);
-    if (!nullToAbsent || title != null) {
-      map['title'] = Variable<String>(title);
-    }
-    if (!nullToAbsent || details != null) {
-      map['details'] = Variable<String>(details);
-    }
-    if (!nullToAbsent || suggestedSchedule != null) {
-      map['suggested_schedule'] = Variable<String>(suggestedSchedule);
-    }
-    map['status'] = Variable<String>(status);
-    if (!nullToAbsent || resultingType != null) {
-      map['resulting_type'] = Variable<String>(resultingType);
-    }
-    if (!nullToAbsent || resultingId != null) {
-      map['resulting_id'] = Variable<String>(resultingId);
-    }
-    if (!nullToAbsent || proposedItems != null) {
-      map['proposed_items'] = Variable<String>(proposedItems);
-    }
-    map['dispositioned_item_ids'] = Variable<String>(dispositionedItemIds);
-    if (!nullToAbsent || autoCommittedAt != null) {
-      map['auto_committed_at'] = Variable<DateTime>(autoCommittedAt);
-    }
-    map['captured_at'] = Variable<DateTime>(capturedAt);
-    return map;
-  }
-
-  CapturesCompanion toCompanion(bool nullToAbsent) {
-    return CapturesCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      audioPath: audioPath == null && nullToAbsent
-          ? const Value.absent()
-          : Value(audioPath),
-      rawTranscript: rawTranscript == null && nullToAbsent
-          ? const Value.absent()
-          : Value(rawTranscript),
-      llmType: Value(llmType),
-      title: title == null && nullToAbsent
-          ? const Value.absent()
-          : Value(title),
-      details: details == null && nullToAbsent
-          ? const Value.absent()
-          : Value(details),
-      suggestedSchedule: suggestedSchedule == null && nullToAbsent
-          ? const Value.absent()
-          : Value(suggestedSchedule),
-      status: Value(status),
-      resultingType: resultingType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(resultingType),
-      resultingId: resultingId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(resultingId),
-      proposedItems: proposedItems == null && nullToAbsent
-          ? const Value.absent()
-          : Value(proposedItems),
-      dispositionedItemIds: Value(dispositionedItemIds),
-      autoCommittedAt: autoCommittedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(autoCommittedAt),
-      capturedAt: Value(capturedAt),
-    );
-  }
-
-  factory CaptureRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return CaptureRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      audioPath: serializer.fromJson<String?>(json['audioPath']),
-      rawTranscript: serializer.fromJson<String?>(json['rawTranscript']),
-      llmType: serializer.fromJson<String>(json['llmType']),
-      title: serializer.fromJson<String?>(json['title']),
-      details: serializer.fromJson<String?>(json['details']),
-      suggestedSchedule: serializer.fromJson<String?>(
-        json['suggestedSchedule'],
-      ),
-      status: serializer.fromJson<String>(json['status']),
-      resultingType: serializer.fromJson<String?>(json['resultingType']),
-      resultingId: serializer.fromJson<String?>(json['resultingId']),
-      proposedItems: serializer.fromJson<String?>(json['proposedItems']),
-      dispositionedItemIds: serializer.fromJson<String>(
-        json['dispositionedItemIds'],
-      ),
-      autoCommittedAt: serializer.fromJson<DateTime?>(json['autoCommittedAt']),
-      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'audioPath': serializer.toJson<String?>(audioPath),
-      'rawTranscript': serializer.toJson<String?>(rawTranscript),
-      'llmType': serializer.toJson<String>(llmType),
-      'title': serializer.toJson<String?>(title),
-      'details': serializer.toJson<String?>(details),
-      'suggestedSchedule': serializer.toJson<String?>(suggestedSchedule),
-      'status': serializer.toJson<String>(status),
-      'resultingType': serializer.toJson<String?>(resultingType),
-      'resultingId': serializer.toJson<String?>(resultingId),
-      'proposedItems': serializer.toJson<String?>(proposedItems),
-      'dispositionedItemIds': serializer.toJson<String>(dispositionedItemIds),
-      'autoCommittedAt': serializer.toJson<DateTime?>(autoCommittedAt),
-      'capturedAt': serializer.toJson<DateTime>(capturedAt),
-    };
-  }
-
-  CaptureRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> audioPath = const Value.absent(),
-    Value<String?> rawTranscript = const Value.absent(),
-    String? llmType,
-    Value<String?> title = const Value.absent(),
-    Value<String?> details = const Value.absent(),
-    Value<String?> suggestedSchedule = const Value.absent(),
-    String? status,
-    Value<String?> resultingType = const Value.absent(),
-    Value<String?> resultingId = const Value.absent(),
-    Value<String?> proposedItems = const Value.absent(),
-    String? dispositionedItemIds,
-    Value<DateTime?> autoCommittedAt = const Value.absent(),
-    DateTime? capturedAt,
-  }) => CaptureRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    audioPath: audioPath.present ? audioPath.value : this.audioPath,
-    rawTranscript: rawTranscript.present
-        ? rawTranscript.value
-        : this.rawTranscript,
-    llmType: llmType ?? this.llmType,
-    title: title.present ? title.value : this.title,
-    details: details.present ? details.value : this.details,
-    suggestedSchedule: suggestedSchedule.present
-        ? suggestedSchedule.value
-        : this.suggestedSchedule,
-    status: status ?? this.status,
-    resultingType: resultingType.present
-        ? resultingType.value
-        : this.resultingType,
-    resultingId: resultingId.present ? resultingId.value : this.resultingId,
-    proposedItems: proposedItems.present
-        ? proposedItems.value
-        : this.proposedItems,
-    dispositionedItemIds: dispositionedItemIds ?? this.dispositionedItemIds,
-    autoCommittedAt: autoCommittedAt.present
-        ? autoCommittedAt.value
-        : this.autoCommittedAt,
-    capturedAt: capturedAt ?? this.capturedAt,
-  );
-  CaptureRow copyWithCompanion(CapturesCompanion data) {
-    return CaptureRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      audioPath: data.audioPath.present ? data.audioPath.value : this.audioPath,
-      rawTranscript: data.rawTranscript.present
-          ? data.rawTranscript.value
-          : this.rawTranscript,
-      llmType: data.llmType.present ? data.llmType.value : this.llmType,
-      title: data.title.present ? data.title.value : this.title,
-      details: data.details.present ? data.details.value : this.details,
-      suggestedSchedule: data.suggestedSchedule.present
-          ? data.suggestedSchedule.value
-          : this.suggestedSchedule,
-      status: data.status.present ? data.status.value : this.status,
-      resultingType: data.resultingType.present
-          ? data.resultingType.value
-          : this.resultingType,
-      resultingId: data.resultingId.present
-          ? data.resultingId.value
-          : this.resultingId,
-      proposedItems: data.proposedItems.present
-          ? data.proposedItems.value
-          : this.proposedItems,
-      dispositionedItemIds: data.dispositionedItemIds.present
-          ? data.dispositionedItemIds.value
-          : this.dispositionedItemIds,
-      autoCommittedAt: data.autoCommittedAt.present
-          ? data.autoCommittedAt.value
-          : this.autoCommittedAt,
-      capturedAt: data.capturedAt.present
-          ? data.capturedAt.value
-          : this.capturedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('CaptureRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('audioPath: $audioPath, ')
-          ..write('rawTranscript: $rawTranscript, ')
-          ..write('llmType: $llmType, ')
-          ..write('title: $title, ')
-          ..write('details: $details, ')
-          ..write('suggestedSchedule: $suggestedSchedule, ')
-          ..write('status: $status, ')
-          ..write('resultingType: $resultingType, ')
-          ..write('resultingId: $resultingId, ')
-          ..write('proposedItems: $proposedItems, ')
-          ..write('dispositionedItemIds: $dispositionedItemIds, ')
-          ..write('autoCommittedAt: $autoCommittedAt, ')
-          ..write('capturedAt: $capturedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    audioPath,
-    rawTranscript,
-    llmType,
-    title,
-    details,
-    suggestedSchedule,
-    status,
-    resultingType,
-    resultingId,
-    proposedItems,
-    dispositionedItemIds,
-    autoCommittedAt,
-    capturedAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is CaptureRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.audioPath == this.audioPath &&
-          other.rawTranscript == this.rawTranscript &&
-          other.llmType == this.llmType &&
-          other.title == this.title &&
-          other.details == this.details &&
-          other.suggestedSchedule == this.suggestedSchedule &&
-          other.status == this.status &&
-          other.resultingType == this.resultingType &&
-          other.resultingId == this.resultingId &&
-          other.proposedItems == this.proposedItems &&
-          other.dispositionedItemIds == this.dispositionedItemIds &&
-          other.autoCommittedAt == this.autoCommittedAt &&
-          other.capturedAt == this.capturedAt);
-}
-
-class CapturesCompanion extends UpdateCompanion<CaptureRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> audioPath;
-  final Value<String?> rawTranscript;
-  final Value<String> llmType;
-  final Value<String?> title;
-  final Value<String?> details;
-  final Value<String?> suggestedSchedule;
-  final Value<String> status;
-  final Value<String?> resultingType;
-  final Value<String?> resultingId;
-  final Value<String?> proposedItems;
-  final Value<String> dispositionedItemIds;
-  final Value<DateTime?> autoCommittedAt;
-  final Value<DateTime> capturedAt;
-  final Value<int> rowid;
-  const CapturesCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.audioPath = const Value.absent(),
-    this.rawTranscript = const Value.absent(),
-    this.llmType = const Value.absent(),
-    this.title = const Value.absent(),
-    this.details = const Value.absent(),
-    this.suggestedSchedule = const Value.absent(),
-    this.status = const Value.absent(),
-    this.resultingType = const Value.absent(),
-    this.resultingId = const Value.absent(),
-    this.proposedItems = const Value.absent(),
-    this.dispositionedItemIds = const Value.absent(),
-    this.autoCommittedAt = const Value.absent(),
-    this.capturedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  CapturesCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.audioPath = const Value.absent(),
-    this.rawTranscript = const Value.absent(),
-    this.llmType = const Value.absent(),
-    this.title = const Value.absent(),
-    this.details = const Value.absent(),
-    this.suggestedSchedule = const Value.absent(),
-    this.status = const Value.absent(),
-    this.resultingType = const Value.absent(),
-    this.resultingId = const Value.absent(),
-    this.proposedItems = const Value.absent(),
-    this.dispositionedItemIds = const Value.absent(),
-    this.autoCommittedAt = const Value.absent(),
-    this.capturedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId);
-  static Insertable<CaptureRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? audioPath,
-    Expression<String>? rawTranscript,
-    Expression<String>? llmType,
-    Expression<String>? title,
-    Expression<String>? details,
-    Expression<String>? suggestedSchedule,
-    Expression<String>? status,
-    Expression<String>? resultingType,
-    Expression<String>? resultingId,
-    Expression<String>? proposedItems,
-    Expression<String>? dispositionedItemIds,
-    Expression<DateTime>? autoCommittedAt,
-    Expression<DateTime>? capturedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (audioPath != null) 'audio_path': audioPath,
-      if (rawTranscript != null) 'raw_transcript': rawTranscript,
-      if (llmType != null) 'llm_type': llmType,
-      if (title != null) 'title': title,
-      if (details != null) 'details': details,
-      if (suggestedSchedule != null) 'suggested_schedule': suggestedSchedule,
-      if (status != null) 'status': status,
-      if (resultingType != null) 'resulting_type': resultingType,
-      if (resultingId != null) 'resulting_id': resultingId,
-      if (proposedItems != null) 'proposed_items': proposedItems,
-      if (dispositionedItemIds != null)
-        'dispositioned_item_ids': dispositionedItemIds,
-      if (autoCommittedAt != null) 'auto_committed_at': autoCommittedAt,
-      if (capturedAt != null) 'captured_at': capturedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  CapturesCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? audioPath,
-    Value<String?>? rawTranscript,
-    Value<String>? llmType,
-    Value<String?>? title,
-    Value<String?>? details,
-    Value<String?>? suggestedSchedule,
-    Value<String>? status,
-    Value<String?>? resultingType,
-    Value<String?>? resultingId,
-    Value<String?>? proposedItems,
-    Value<String>? dispositionedItemIds,
-    Value<DateTime?>? autoCommittedAt,
-    Value<DateTime>? capturedAt,
-    Value<int>? rowid,
-  }) {
-    return CapturesCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      audioPath: audioPath ?? this.audioPath,
-      rawTranscript: rawTranscript ?? this.rawTranscript,
-      llmType: llmType ?? this.llmType,
-      title: title ?? this.title,
-      details: details ?? this.details,
-      suggestedSchedule: suggestedSchedule ?? this.suggestedSchedule,
-      status: status ?? this.status,
-      resultingType: resultingType ?? this.resultingType,
-      resultingId: resultingId ?? this.resultingId,
-      proposedItems: proposedItems ?? this.proposedItems,
-      dispositionedItemIds: dispositionedItemIds ?? this.dispositionedItemIds,
-      autoCommittedAt: autoCommittedAt ?? this.autoCommittedAt,
-      capturedAt: capturedAt ?? this.capturedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (audioPath.present) {
-      map['audio_path'] = Variable<String>(audioPath.value);
-    }
-    if (rawTranscript.present) {
-      map['raw_transcript'] = Variable<String>(rawTranscript.value);
-    }
-    if (llmType.present) {
-      map['llm_type'] = Variable<String>(llmType.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (details.present) {
-      map['details'] = Variable<String>(details.value);
-    }
-    if (suggestedSchedule.present) {
-      map['suggested_schedule'] = Variable<String>(suggestedSchedule.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (resultingType.present) {
-      map['resulting_type'] = Variable<String>(resultingType.value);
-    }
-    if (resultingId.present) {
-      map['resulting_id'] = Variable<String>(resultingId.value);
-    }
-    if (proposedItems.present) {
-      map['proposed_items'] = Variable<String>(proposedItems.value);
-    }
-    if (dispositionedItemIds.present) {
-      map['dispositioned_item_ids'] = Variable<String>(
-        dispositionedItemIds.value,
-      );
-    }
-    if (autoCommittedAt.present) {
-      map['auto_committed_at'] = Variable<DateTime>(autoCommittedAt.value);
-    }
-    if (capturedAt.present) {
-      map['captured_at'] = Variable<DateTime>(capturedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('CapturesCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('audioPath: $audioPath, ')
-          ..write('rawTranscript: $rawTranscript, ')
-          ..write('llmType: $llmType, ')
-          ..write('title: $title, ')
-          ..write('details: $details, ')
-          ..write('suggestedSchedule: $suggestedSchedule, ')
-          ..write('status: $status, ')
-          ..write('resultingType: $resultingType, ')
-          ..write('resultingId: $resultingId, ')
-          ..write('proposedItems: $proposedItems, ')
-          ..write('dispositionedItemIds: $dispositionedItemIds, ')
-          ..write('autoCommittedAt: $autoCommittedAt, ')
-          ..write('capturedAt: $capturedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $GoalsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _captureIdMeta = const VerificationMeta(
-    'captureId',
-  );
-  @override
-  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
-    'capture_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _whyMeta = const VerificationMeta('why');
-  @override
-  late final GeneratedColumn<String> why = GeneratedColumn<String>(
-    'why',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('active'),
-  );
-  static const VerificationMeta _targetDateMeta = const VerificationMeta(
-    'targetDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> targetDate = GeneratedColumn<DateTime>(
-    'target_date',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    title,
-    why,
-    status,
-    targetDate,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'goals';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<GoalRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('capture_id')) {
-      context.handle(
-        _captureIdMeta,
-        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('why')) {
-      context.handle(
-        _whyMeta,
-        why.isAcceptableOrUnknown(data['why']!, _whyMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    if (data.containsKey('target_date')) {
-      context.handle(
-        _targetDateMeta,
-        targetDate.isAcceptableOrUnknown(data['target_date']!, _targetDateMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  GoalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return GoalRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      captureId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}capture_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      why: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}why'],
-      ),
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-      targetDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}target_date'],
-      ),
-    );
-  }
-
-  @override
-  $GoalsTable createAlias(String alias) {
-    return $GoalsTable(attachedDatabase, alias);
-  }
-}
-
-class GoalRow extends DataClass implements Insertable<GoalRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-
-  /// Provenance link to the originating capture (rant decomposition). Mirrors
-  /// `goals.capture_id` (0004); nullable, SET NULL server-side. Local DB carries
-  /// no FK — the server enforces same-user ownership.
-  final String? captureId;
-  final String title;
-  final String? why;
-  final String status;
-  final DateTime? targetDate;
-  const GoalRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.captureId,
-    required this.title,
-    this.why,
-    required this.status,
-    this.targetDate,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || captureId != null) {
-      map['capture_id'] = Variable<String>(captureId);
-    }
-    map['title'] = Variable<String>(title);
-    if (!nullToAbsent || why != null) {
-      map['why'] = Variable<String>(why);
-    }
-    map['status'] = Variable<String>(status);
-    if (!nullToAbsent || targetDate != null) {
-      map['target_date'] = Variable<DateTime>(targetDate);
-    }
-    return map;
-  }
-
-  GoalsCompanion toCompanion(bool nullToAbsent) {
-    return GoalsCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      captureId: captureId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(captureId),
-      title: Value(title),
-      why: why == null && nullToAbsent ? const Value.absent() : Value(why),
-      status: Value(status),
-      targetDate: targetDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetDate),
-    );
-  }
-
-  factory GoalRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return GoalRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      captureId: serializer.fromJson<String?>(json['captureId']),
-      title: serializer.fromJson<String>(json['title']),
-      why: serializer.fromJson<String?>(json['why']),
-      status: serializer.fromJson<String>(json['status']),
-      targetDate: serializer.fromJson<DateTime?>(json['targetDate']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'captureId': serializer.toJson<String?>(captureId),
-      'title': serializer.toJson<String>(title),
-      'why': serializer.toJson<String?>(why),
-      'status': serializer.toJson<String>(status),
-      'targetDate': serializer.toJson<DateTime?>(targetDate),
-    };
-  }
-
-  GoalRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> captureId = const Value.absent(),
-    String? title,
-    Value<String?> why = const Value.absent(),
-    String? status,
-    Value<DateTime?> targetDate = const Value.absent(),
-  }) => GoalRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    captureId: captureId.present ? captureId.value : this.captureId,
-    title: title ?? this.title,
-    why: why.present ? why.value : this.why,
-    status: status ?? this.status,
-    targetDate: targetDate.present ? targetDate.value : this.targetDate,
-  );
-  GoalRow copyWithCompanion(GoalsCompanion data) {
-    return GoalRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      captureId: data.captureId.present ? data.captureId.value : this.captureId,
-      title: data.title.present ? data.title.value : this.title,
-      why: data.why.present ? data.why.value : this.why,
-      status: data.status.present ? data.status.value : this.status,
-      targetDate: data.targetDate.present
-          ? data.targetDate.value
-          : this.targetDate,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('GoalRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('title: $title, ')
-          ..write('why: $why, ')
-          ..write('status: $status, ')
-          ..write('targetDate: $targetDate')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    title,
-    why,
-    status,
-    targetDate,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is GoalRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.captureId == this.captureId &&
-          other.title == this.title &&
-          other.why == this.why &&
-          other.status == this.status &&
-          other.targetDate == this.targetDate);
-}
-
-class GoalsCompanion extends UpdateCompanion<GoalRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> captureId;
-  final Value<String> title;
-  final Value<String?> why;
-  final Value<String> status;
-  final Value<DateTime?> targetDate;
-  final Value<int> rowid;
-  const GoalsCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.captureId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.why = const Value.absent(),
-    this.status = const Value.absent(),
-    this.targetDate = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  GoalsCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.captureId = const Value.absent(),
-    required String title,
-    this.why = const Value.absent(),
-    this.status = const Value.absent(),
-    this.targetDate = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       title = Value(title);
-  static Insertable<GoalRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? captureId,
-    Expression<String>? title,
-    Expression<String>? why,
-    Expression<String>? status,
-    Expression<DateTime>? targetDate,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (captureId != null) 'capture_id': captureId,
-      if (title != null) 'title': title,
-      if (why != null) 'why': why,
-      if (status != null) 'status': status,
-      if (targetDate != null) 'target_date': targetDate,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  GoalsCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? captureId,
-    Value<String>? title,
-    Value<String?>? why,
-    Value<String>? status,
-    Value<DateTime?>? targetDate,
-    Value<int>? rowid,
-  }) {
-    return GoalsCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      captureId: captureId ?? this.captureId,
-      title: title ?? this.title,
-      why: why ?? this.why,
-      status: status ?? this.status,
-      targetDate: targetDate ?? this.targetDate,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (captureId.present) {
-      map['capture_id'] = Variable<String>(captureId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (why.present) {
-      map['why'] = Variable<String>(why.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (targetDate.present) {
-      map['target_date'] = Variable<DateTime>(targetDate.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('GoalsCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('title: $title, ')
-          ..write('why: $why, ')
-          ..write('status: $status, ')
-          ..write('targetDate: $targetDate, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $TasksTable extends Tasks with TableInfo<$TasksTable, TaskRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TasksTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _captureIdMeta = const VerificationMeta(
-    'captureId',
-  );
-  @override
-  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
-    'capture_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
-  @override
-  late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
-    'goal_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _detailsMeta = const VerificationMeta(
-    'details',
-  );
-  @override
-  late final GeneratedColumn<String> details = GeneratedColumn<String>(
-    'details',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('todo'),
-  );
-  static const VerificationMeta _nextActionMeta = const VerificationMeta(
-    'nextAction',
-  );
-  @override
-  late final GeneratedColumn<String> nextAction = GeneratedColumn<String>(
-    'next_action',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _scheduledAtMeta = const VerificationMeta(
-    'scheduledAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> scheduledAt = GeneratedColumn<DateTime>(
-    'scheduled_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _completedAtMeta = const VerificationMeta(
-    'completedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
-    'completed_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _lastActivityAtMeta = const VerificationMeta(
-    'lastActivityAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> lastActivityAt =
-      GeneratedColumn<DateTime>(
-        'last_activity_at',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-        defaultValue: currentDateAndTime,
-      );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    goalId,
-    title,
-    details,
-    status,
-    nextAction,
-    scheduledAt,
-    completedAt,
-    lastActivityAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tasks';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<TaskRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('capture_id')) {
-      context.handle(
-        _captureIdMeta,
-        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
-      );
-    }
-    if (data.containsKey('goal_id')) {
-      context.handle(
-        _goalIdMeta,
-        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('details')) {
-      context.handle(
-        _detailsMeta,
-        details.isAcceptableOrUnknown(data['details']!, _detailsMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    if (data.containsKey('next_action')) {
-      context.handle(
-        _nextActionMeta,
-        nextAction.isAcceptableOrUnknown(data['next_action']!, _nextActionMeta),
-      );
-    }
-    if (data.containsKey('scheduled_at')) {
-      context.handle(
-        _scheduledAtMeta,
-        scheduledAt.isAcceptableOrUnknown(
-          data['scheduled_at']!,
-          _scheduledAtMeta,
-        ),
-      );
-    }
-    if (data.containsKey('completed_at')) {
-      context.handle(
-        _completedAtMeta,
-        completedAt.isAcceptableOrUnknown(
-          data['completed_at']!,
-          _completedAtMeta,
-        ),
-      );
-    }
-    if (data.containsKey('last_activity_at')) {
-      context.handle(
-        _lastActivityAtMeta,
-        lastActivityAt.isAcceptableOrUnknown(
-          data['last_activity_at']!,
-          _lastActivityAtMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TaskRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TaskRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      captureId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}capture_id'],
-      ),
-      goalId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}goal_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      details: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}details'],
-      ),
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-      nextAction: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}next_action'],
-      ),
-      scheduledAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}scheduled_at'],
-      ),
-      completedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}completed_at'],
-      ),
-      lastActivityAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_activity_at'],
-      )!,
-    );
-  }
-
-  @override
-  $TasksTable createAlias(String alias) {
-    return $TasksTable(attachedDatabase, alias);
-  }
-}
-
-class TaskRow extends DataClass implements Insertable<TaskRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? captureId;
-  final String? goalId;
-  final String title;
-  final String? details;
-  final String status;
-  final String? nextAction;
-  final DateTime? scheduledAt;
-  final DateTime? completedAt;
-  final DateTime lastActivityAt;
-  const TaskRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.captureId,
-    this.goalId,
-    required this.title,
-    this.details,
-    required this.status,
-    this.nextAction,
-    this.scheduledAt,
-    this.completedAt,
-    required this.lastActivityAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || captureId != null) {
-      map['capture_id'] = Variable<String>(captureId);
-    }
-    if (!nullToAbsent || goalId != null) {
-      map['goal_id'] = Variable<String>(goalId);
-    }
-    map['title'] = Variable<String>(title);
-    if (!nullToAbsent || details != null) {
-      map['details'] = Variable<String>(details);
-    }
-    map['status'] = Variable<String>(status);
-    if (!nullToAbsent || nextAction != null) {
-      map['next_action'] = Variable<String>(nextAction);
-    }
-    if (!nullToAbsent || scheduledAt != null) {
-      map['scheduled_at'] = Variable<DateTime>(scheduledAt);
-    }
-    if (!nullToAbsent || completedAt != null) {
-      map['completed_at'] = Variable<DateTime>(completedAt);
-    }
-    map['last_activity_at'] = Variable<DateTime>(lastActivityAt);
-    return map;
-  }
-
-  TasksCompanion toCompanion(bool nullToAbsent) {
-    return TasksCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      captureId: captureId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(captureId),
-      goalId: goalId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(goalId),
-      title: Value(title),
-      details: details == null && nullToAbsent
-          ? const Value.absent()
-          : Value(details),
-      status: Value(status),
-      nextAction: nextAction == null && nullToAbsent
-          ? const Value.absent()
-          : Value(nextAction),
-      scheduledAt: scheduledAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scheduledAt),
-      completedAt: completedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(completedAt),
-      lastActivityAt: Value(lastActivityAt),
-    );
-  }
-
-  factory TaskRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TaskRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      captureId: serializer.fromJson<String?>(json['captureId']),
-      goalId: serializer.fromJson<String?>(json['goalId']),
-      title: serializer.fromJson<String>(json['title']),
-      details: serializer.fromJson<String?>(json['details']),
-      status: serializer.fromJson<String>(json['status']),
-      nextAction: serializer.fromJson<String?>(json['nextAction']),
-      scheduledAt: serializer.fromJson<DateTime?>(json['scheduledAt']),
-      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
-      lastActivityAt: serializer.fromJson<DateTime>(json['lastActivityAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'captureId': serializer.toJson<String?>(captureId),
-      'goalId': serializer.toJson<String?>(goalId),
-      'title': serializer.toJson<String>(title),
-      'details': serializer.toJson<String?>(details),
-      'status': serializer.toJson<String>(status),
-      'nextAction': serializer.toJson<String?>(nextAction),
-      'scheduledAt': serializer.toJson<DateTime?>(scheduledAt),
-      'completedAt': serializer.toJson<DateTime?>(completedAt),
-      'lastActivityAt': serializer.toJson<DateTime>(lastActivityAt),
-    };
-  }
-
-  TaskRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> captureId = const Value.absent(),
-    Value<String?> goalId = const Value.absent(),
-    String? title,
-    Value<String?> details = const Value.absent(),
-    String? status,
-    Value<String?> nextAction = const Value.absent(),
-    Value<DateTime?> scheduledAt = const Value.absent(),
-    Value<DateTime?> completedAt = const Value.absent(),
-    DateTime? lastActivityAt,
-  }) => TaskRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    captureId: captureId.present ? captureId.value : this.captureId,
-    goalId: goalId.present ? goalId.value : this.goalId,
-    title: title ?? this.title,
-    details: details.present ? details.value : this.details,
-    status: status ?? this.status,
-    nextAction: nextAction.present ? nextAction.value : this.nextAction,
-    scheduledAt: scheduledAt.present ? scheduledAt.value : this.scheduledAt,
-    completedAt: completedAt.present ? completedAt.value : this.completedAt,
-    lastActivityAt: lastActivityAt ?? this.lastActivityAt,
-  );
-  TaskRow copyWithCompanion(TasksCompanion data) {
-    return TaskRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      captureId: data.captureId.present ? data.captureId.value : this.captureId,
-      goalId: data.goalId.present ? data.goalId.value : this.goalId,
-      title: data.title.present ? data.title.value : this.title,
-      details: data.details.present ? data.details.value : this.details,
-      status: data.status.present ? data.status.value : this.status,
-      nextAction: data.nextAction.present
-          ? data.nextAction.value
-          : this.nextAction,
-      scheduledAt: data.scheduledAt.present
-          ? data.scheduledAt.value
-          : this.scheduledAt,
-      completedAt: data.completedAt.present
-          ? data.completedAt.value
-          : this.completedAt,
-      lastActivityAt: data.lastActivityAt.present
-          ? data.lastActivityAt.value
-          : this.lastActivityAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TaskRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('goalId: $goalId, ')
-          ..write('title: $title, ')
-          ..write('details: $details, ')
-          ..write('status: $status, ')
-          ..write('nextAction: $nextAction, ')
-          ..write('scheduledAt: $scheduledAt, ')
-          ..write('completedAt: $completedAt, ')
-          ..write('lastActivityAt: $lastActivityAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    goalId,
-    title,
-    details,
-    status,
-    nextAction,
-    scheduledAt,
-    completedAt,
-    lastActivityAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TaskRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.captureId == this.captureId &&
-          other.goalId == this.goalId &&
-          other.title == this.title &&
-          other.details == this.details &&
-          other.status == this.status &&
-          other.nextAction == this.nextAction &&
-          other.scheduledAt == this.scheduledAt &&
-          other.completedAt == this.completedAt &&
-          other.lastActivityAt == this.lastActivityAt);
-}
-
-class TasksCompanion extends UpdateCompanion<TaskRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> captureId;
-  final Value<String?> goalId;
-  final Value<String> title;
-  final Value<String?> details;
-  final Value<String> status;
-  final Value<String?> nextAction;
-  final Value<DateTime?> scheduledAt;
-  final Value<DateTime?> completedAt;
-  final Value<DateTime> lastActivityAt;
-  final Value<int> rowid;
-  const TasksCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.captureId = const Value.absent(),
-    this.goalId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.details = const Value.absent(),
-    this.status = const Value.absent(),
-    this.nextAction = const Value.absent(),
-    this.scheduledAt = const Value.absent(),
-    this.completedAt = const Value.absent(),
-    this.lastActivityAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TasksCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.captureId = const Value.absent(),
-    this.goalId = const Value.absent(),
-    required String title,
-    this.details = const Value.absent(),
-    this.status = const Value.absent(),
-    this.nextAction = const Value.absent(),
-    this.scheduledAt = const Value.absent(),
-    this.completedAt = const Value.absent(),
-    this.lastActivityAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       title = Value(title);
-  static Insertable<TaskRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? captureId,
-    Expression<String>? goalId,
-    Expression<String>? title,
-    Expression<String>? details,
-    Expression<String>? status,
-    Expression<String>? nextAction,
-    Expression<DateTime>? scheduledAt,
-    Expression<DateTime>? completedAt,
-    Expression<DateTime>? lastActivityAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (captureId != null) 'capture_id': captureId,
-      if (goalId != null) 'goal_id': goalId,
-      if (title != null) 'title': title,
-      if (details != null) 'details': details,
-      if (status != null) 'status': status,
-      if (nextAction != null) 'next_action': nextAction,
-      if (scheduledAt != null) 'scheduled_at': scheduledAt,
-      if (completedAt != null) 'completed_at': completedAt,
-      if (lastActivityAt != null) 'last_activity_at': lastActivityAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TasksCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? captureId,
-    Value<String?>? goalId,
-    Value<String>? title,
-    Value<String?>? details,
-    Value<String>? status,
-    Value<String?>? nextAction,
-    Value<DateTime?>? scheduledAt,
-    Value<DateTime?>? completedAt,
-    Value<DateTime>? lastActivityAt,
-    Value<int>? rowid,
-  }) {
-    return TasksCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      captureId: captureId ?? this.captureId,
-      goalId: goalId ?? this.goalId,
-      title: title ?? this.title,
-      details: details ?? this.details,
-      status: status ?? this.status,
-      nextAction: nextAction ?? this.nextAction,
-      scheduledAt: scheduledAt ?? this.scheduledAt,
-      completedAt: completedAt ?? this.completedAt,
-      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (captureId.present) {
-      map['capture_id'] = Variable<String>(captureId.value);
-    }
-    if (goalId.present) {
-      map['goal_id'] = Variable<String>(goalId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (details.present) {
-      map['details'] = Variable<String>(details.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (nextAction.present) {
-      map['next_action'] = Variable<String>(nextAction.value);
-    }
-    if (scheduledAt.present) {
-      map['scheduled_at'] = Variable<DateTime>(scheduledAt.value);
-    }
-    if (completedAt.present) {
-      map['completed_at'] = Variable<DateTime>(completedAt.value);
-    }
-    if (lastActivityAt.present) {
-      map['last_activity_at'] = Variable<DateTime>(lastActivityAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TasksCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('goalId: $goalId, ')
-          ..write('title: $title, ')
-          ..write('details: $details, ')
-          ..write('status: $status, ')
-          ..write('nextAction: $nextAction, ')
-          ..write('scheduledAt: $scheduledAt, ')
-          ..write('completedAt: $completedAt, ')
-          ..write('lastActivityAt: $lastActivityAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $NotesTable extends Notes with TableInfo<$NotesTable, NoteRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $NotesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _captureIdMeta = const VerificationMeta(
-    'captureId',
-  );
-  @override
-  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
-    'capture_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
-  @override
-  late final GeneratedColumn<String> body = GeneratedColumn<String>(
-    'body',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    title,
-    body,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'notes';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<NoteRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('capture_id')) {
-      context.handle(
-        _captureIdMeta,
-        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    }
-    if (data.containsKey('body')) {
-      context.handle(
-        _bodyMeta,
-        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  NoteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return NoteRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      captureId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}capture_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      ),
-      body: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}body'],
-      ),
-    );
-  }
-
-  @override
-  $NotesTable createAlias(String alias) {
-    return $NotesTable(attachedDatabase, alias);
-  }
-}
-
-class NoteRow extends DataClass implements Insertable<NoteRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? captureId;
-  final String? title;
-  final String? body;
-  const NoteRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.captureId,
-    this.title,
-    this.body,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || captureId != null) {
-      map['capture_id'] = Variable<String>(captureId);
-    }
-    if (!nullToAbsent || title != null) {
-      map['title'] = Variable<String>(title);
-    }
-    if (!nullToAbsent || body != null) {
-      map['body'] = Variable<String>(body);
-    }
-    return map;
-  }
-
-  NotesCompanion toCompanion(bool nullToAbsent) {
-    return NotesCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      captureId: captureId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(captureId),
-      title: title == null && nullToAbsent
-          ? const Value.absent()
-          : Value(title),
-      body: body == null && nullToAbsent ? const Value.absent() : Value(body),
-    );
-  }
-
-  factory NoteRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return NoteRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      captureId: serializer.fromJson<String?>(json['captureId']),
-      title: serializer.fromJson<String?>(json['title']),
-      body: serializer.fromJson<String?>(json['body']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'captureId': serializer.toJson<String?>(captureId),
-      'title': serializer.toJson<String?>(title),
-      'body': serializer.toJson<String?>(body),
-    };
-  }
-
-  NoteRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> captureId = const Value.absent(),
-    Value<String?> title = const Value.absent(),
-    Value<String?> body = const Value.absent(),
-  }) => NoteRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    captureId: captureId.present ? captureId.value : this.captureId,
-    title: title.present ? title.value : this.title,
-    body: body.present ? body.value : this.body,
-  );
-  NoteRow copyWithCompanion(NotesCompanion data) {
-    return NoteRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      captureId: data.captureId.present ? data.captureId.value : this.captureId,
-      title: data.title.present ? data.title.value : this.title,
-      body: data.body.present ? data.body.value : this.body,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('NoteRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('title: $title, ')
-          ..write('body: $body')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    title,
-    body,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is NoteRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.captureId == this.captureId &&
-          other.title == this.title &&
-          other.body == this.body);
-}
-
-class NotesCompanion extends UpdateCompanion<NoteRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> captureId;
-  final Value<String?> title;
-  final Value<String?> body;
-  final Value<int> rowid;
-  const NotesCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.captureId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.body = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  NotesCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.captureId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.body = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId);
-  static Insertable<NoteRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? captureId,
-    Expression<String>? title,
-    Expression<String>? body,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (captureId != null) 'capture_id': captureId,
-      if (title != null) 'title': title,
-      if (body != null) 'body': body,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  NotesCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? captureId,
-    Value<String?>? title,
-    Value<String?>? body,
-    Value<int>? rowid,
-  }) {
-    return NotesCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      captureId: captureId ?? this.captureId,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (captureId.present) {
-      map['capture_id'] = Variable<String>(captureId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (body.present) {
-      map['body'] = Variable<String>(body.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('NotesCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('title: $title, ')
-          ..write('body: $body, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $HabitsTable extends Habits with TableInfo<$HabitsTable, HabitRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $HabitsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _captureIdMeta = const VerificationMeta(
-    'captureId',
-  );
-  @override
-  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
-    'capture_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
-  @override
-  late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
-    'goal_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _frequencyConfigMeta = const VerificationMeta(
-    'frequencyConfig',
-  );
-  @override
-  late final GeneratedColumn<String> frequencyConfig = GeneratedColumn<String>(
-    'frequency_config',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _levelConfigMeta = const VerificationMeta(
-    'levelConfig',
-  );
-  @override
-  late final GeneratedColumn<String> levelConfig = GeneratedColumn<String>(
-    'level_config',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _anchorDescriptionMeta = const VerificationMeta(
-    'anchorDescription',
-  );
-  @override
-  late final GeneratedColumn<String> anchorDescription =
-      GeneratedColumn<String>(
-        'anchor_description',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _resetActiveMeta = const VerificationMeta(
-    'resetActive',
-  );
-  @override
-  late final GeneratedColumn<bool> resetActive = GeneratedColumn<bool>(
-    'reset_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("reset_active" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _resetStartedAtMeta = const VerificationMeta(
-    'resetStartedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> resetStartedAt =
-      GeneratedColumn<DateTime>(
-        'reset_started_at',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _archivedMeta = const VerificationMeta(
-    'archived',
-  );
-  @override
-  late final GeneratedColumn<bool> archived = GeneratedColumn<bool>(
-    'archived',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("archived" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    goalId,
-    title,
-    frequencyConfig,
-    levelConfig,
-    anchorDescription,
-    resetActive,
-    resetStartedAt,
-    archived,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'habits';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<HabitRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('capture_id')) {
-      context.handle(
-        _captureIdMeta,
-        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
-      );
-    }
-    if (data.containsKey('goal_id')) {
-      context.handle(
-        _goalIdMeta,
-        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
-      );
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('frequency_config')) {
-      context.handle(
-        _frequencyConfigMeta,
-        frequencyConfig.isAcceptableOrUnknown(
-          data['frequency_config']!,
-          _frequencyConfigMeta,
-        ),
-      );
-    }
-    if (data.containsKey('level_config')) {
-      context.handle(
-        _levelConfigMeta,
-        levelConfig.isAcceptableOrUnknown(
-          data['level_config']!,
-          _levelConfigMeta,
-        ),
-      );
-    }
-    if (data.containsKey('anchor_description')) {
-      context.handle(
-        _anchorDescriptionMeta,
-        anchorDescription.isAcceptableOrUnknown(
-          data['anchor_description']!,
-          _anchorDescriptionMeta,
-        ),
-      );
-    }
-    if (data.containsKey('reset_active')) {
-      context.handle(
-        _resetActiveMeta,
-        resetActive.isAcceptableOrUnknown(
-          data['reset_active']!,
-          _resetActiveMeta,
-        ),
-      );
-    }
-    if (data.containsKey('reset_started_at')) {
-      context.handle(
-        _resetStartedAtMeta,
-        resetStartedAt.isAcceptableOrUnknown(
-          data['reset_started_at']!,
-          _resetStartedAtMeta,
-        ),
-      );
-    }
-    if (data.containsKey('archived')) {
-      context.handle(
-        _archivedMeta,
-        archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  HabitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return HabitRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      captureId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}capture_id'],
-      ),
-      goalId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}goal_id'],
-      ),
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      frequencyConfig: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}frequency_config'],
-      ),
-      levelConfig: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}level_config'],
-      ),
-      anchorDescription: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}anchor_description'],
-      ),
-      resetActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}reset_active'],
-      )!,
-      resetStartedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}reset_started_at'],
-      ),
-      archived: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}archived'],
-      )!,
-    );
-  }
-
-  @override
-  $HabitsTable createAlias(String alias) {
-    return $HabitsTable(attachedDatabase, alias);
-  }
-}
-
-class HabitRow extends DataClass implements Insertable<HabitRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? captureId;
-  final String? goalId;
-  final String title;
-  final String? frequencyConfig;
-  final String? levelConfig;
-  final String? anchorDescription;
-  final bool resetActive;
-  final DateTime? resetStartedAt;
-  final bool archived;
-  const HabitRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.captureId,
-    this.goalId,
-    required this.title,
-    this.frequencyConfig,
-    this.levelConfig,
-    this.anchorDescription,
-    required this.resetActive,
-    this.resetStartedAt,
-    required this.archived,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || captureId != null) {
-      map['capture_id'] = Variable<String>(captureId);
-    }
-    if (!nullToAbsent || goalId != null) {
-      map['goal_id'] = Variable<String>(goalId);
-    }
-    map['title'] = Variable<String>(title);
-    if (!nullToAbsent || frequencyConfig != null) {
-      map['frequency_config'] = Variable<String>(frequencyConfig);
-    }
-    if (!nullToAbsent || levelConfig != null) {
-      map['level_config'] = Variable<String>(levelConfig);
-    }
-    if (!nullToAbsent || anchorDescription != null) {
-      map['anchor_description'] = Variable<String>(anchorDescription);
-    }
-    map['reset_active'] = Variable<bool>(resetActive);
-    if (!nullToAbsent || resetStartedAt != null) {
-      map['reset_started_at'] = Variable<DateTime>(resetStartedAt);
-    }
-    map['archived'] = Variable<bool>(archived);
-    return map;
-  }
-
-  HabitsCompanion toCompanion(bool nullToAbsent) {
-    return HabitsCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      captureId: captureId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(captureId),
-      goalId: goalId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(goalId),
-      title: Value(title),
-      frequencyConfig: frequencyConfig == null && nullToAbsent
-          ? const Value.absent()
-          : Value(frequencyConfig),
-      levelConfig: levelConfig == null && nullToAbsent
-          ? const Value.absent()
-          : Value(levelConfig),
-      anchorDescription: anchorDescription == null && nullToAbsent
-          ? const Value.absent()
-          : Value(anchorDescription),
-      resetActive: Value(resetActive),
-      resetStartedAt: resetStartedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(resetStartedAt),
-      archived: Value(archived),
-    );
-  }
-
-  factory HabitRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return HabitRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      captureId: serializer.fromJson<String?>(json['captureId']),
-      goalId: serializer.fromJson<String?>(json['goalId']),
-      title: serializer.fromJson<String>(json['title']),
-      frequencyConfig: serializer.fromJson<String?>(json['frequencyConfig']),
-      levelConfig: serializer.fromJson<String?>(json['levelConfig']),
-      anchorDescription: serializer.fromJson<String?>(
-        json['anchorDescription'],
-      ),
-      resetActive: serializer.fromJson<bool>(json['resetActive']),
-      resetStartedAt: serializer.fromJson<DateTime?>(json['resetStartedAt']),
-      archived: serializer.fromJson<bool>(json['archived']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'captureId': serializer.toJson<String?>(captureId),
-      'goalId': serializer.toJson<String?>(goalId),
-      'title': serializer.toJson<String>(title),
-      'frequencyConfig': serializer.toJson<String?>(frequencyConfig),
-      'levelConfig': serializer.toJson<String?>(levelConfig),
-      'anchorDescription': serializer.toJson<String?>(anchorDescription),
-      'resetActive': serializer.toJson<bool>(resetActive),
-      'resetStartedAt': serializer.toJson<DateTime?>(resetStartedAt),
-      'archived': serializer.toJson<bool>(archived),
-    };
-  }
-
-  HabitRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> captureId = const Value.absent(),
-    Value<String?> goalId = const Value.absent(),
-    String? title,
-    Value<String?> frequencyConfig = const Value.absent(),
-    Value<String?> levelConfig = const Value.absent(),
-    Value<String?> anchorDescription = const Value.absent(),
-    bool? resetActive,
-    Value<DateTime?> resetStartedAt = const Value.absent(),
-    bool? archived,
-  }) => HabitRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    captureId: captureId.present ? captureId.value : this.captureId,
-    goalId: goalId.present ? goalId.value : this.goalId,
-    title: title ?? this.title,
-    frequencyConfig: frequencyConfig.present
-        ? frequencyConfig.value
-        : this.frequencyConfig,
-    levelConfig: levelConfig.present ? levelConfig.value : this.levelConfig,
-    anchorDescription: anchorDescription.present
-        ? anchorDescription.value
-        : this.anchorDescription,
-    resetActive: resetActive ?? this.resetActive,
-    resetStartedAt: resetStartedAt.present
-        ? resetStartedAt.value
-        : this.resetStartedAt,
-    archived: archived ?? this.archived,
-  );
-  HabitRow copyWithCompanion(HabitsCompanion data) {
-    return HabitRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      captureId: data.captureId.present ? data.captureId.value : this.captureId,
-      goalId: data.goalId.present ? data.goalId.value : this.goalId,
-      title: data.title.present ? data.title.value : this.title,
-      frequencyConfig: data.frequencyConfig.present
-          ? data.frequencyConfig.value
-          : this.frequencyConfig,
-      levelConfig: data.levelConfig.present
-          ? data.levelConfig.value
-          : this.levelConfig,
-      anchorDescription: data.anchorDescription.present
-          ? data.anchorDescription.value
-          : this.anchorDescription,
-      resetActive: data.resetActive.present
-          ? data.resetActive.value
-          : this.resetActive,
-      resetStartedAt: data.resetStartedAt.present
-          ? data.resetStartedAt.value
-          : this.resetStartedAt,
-      archived: data.archived.present ? data.archived.value : this.archived,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('HabitRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('goalId: $goalId, ')
-          ..write('title: $title, ')
-          ..write('frequencyConfig: $frequencyConfig, ')
-          ..write('levelConfig: $levelConfig, ')
-          ..write('anchorDescription: $anchorDescription, ')
-          ..write('resetActive: $resetActive, ')
-          ..write('resetStartedAt: $resetStartedAt, ')
-          ..write('archived: $archived')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    captureId,
-    goalId,
-    title,
-    frequencyConfig,
-    levelConfig,
-    anchorDescription,
-    resetActive,
-    resetStartedAt,
-    archived,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is HabitRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.captureId == this.captureId &&
-          other.goalId == this.goalId &&
-          other.title == this.title &&
-          other.frequencyConfig == this.frequencyConfig &&
-          other.levelConfig == this.levelConfig &&
-          other.anchorDescription == this.anchorDescription &&
-          other.resetActive == this.resetActive &&
-          other.resetStartedAt == this.resetStartedAt &&
-          other.archived == this.archived);
-}
-
-class HabitsCompanion extends UpdateCompanion<HabitRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> captureId;
-  final Value<String?> goalId;
-  final Value<String> title;
-  final Value<String?> frequencyConfig;
-  final Value<String?> levelConfig;
-  final Value<String?> anchorDescription;
-  final Value<bool> resetActive;
-  final Value<DateTime?> resetStartedAt;
-  final Value<bool> archived;
-  final Value<int> rowid;
-  const HabitsCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.captureId = const Value.absent(),
-    this.goalId = const Value.absent(),
-    this.title = const Value.absent(),
-    this.frequencyConfig = const Value.absent(),
-    this.levelConfig = const Value.absent(),
-    this.anchorDescription = const Value.absent(),
-    this.resetActive = const Value.absent(),
-    this.resetStartedAt = const Value.absent(),
-    this.archived = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  HabitsCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.captureId = const Value.absent(),
-    this.goalId = const Value.absent(),
-    required String title,
-    this.frequencyConfig = const Value.absent(),
-    this.levelConfig = const Value.absent(),
-    this.anchorDescription = const Value.absent(),
-    this.resetActive = const Value.absent(),
-    this.resetStartedAt = const Value.absent(),
-    this.archived = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       title = Value(title);
-  static Insertable<HabitRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? captureId,
-    Expression<String>? goalId,
-    Expression<String>? title,
-    Expression<String>? frequencyConfig,
-    Expression<String>? levelConfig,
-    Expression<String>? anchorDescription,
-    Expression<bool>? resetActive,
-    Expression<DateTime>? resetStartedAt,
-    Expression<bool>? archived,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (captureId != null) 'capture_id': captureId,
-      if (goalId != null) 'goal_id': goalId,
-      if (title != null) 'title': title,
-      if (frequencyConfig != null) 'frequency_config': frequencyConfig,
-      if (levelConfig != null) 'level_config': levelConfig,
-      if (anchorDescription != null) 'anchor_description': anchorDescription,
-      if (resetActive != null) 'reset_active': resetActive,
-      if (resetStartedAt != null) 'reset_started_at': resetStartedAt,
-      if (archived != null) 'archived': archived,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  HabitsCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? captureId,
-    Value<String?>? goalId,
-    Value<String>? title,
-    Value<String?>? frequencyConfig,
-    Value<String?>? levelConfig,
-    Value<String?>? anchorDescription,
-    Value<bool>? resetActive,
-    Value<DateTime?>? resetStartedAt,
-    Value<bool>? archived,
-    Value<int>? rowid,
-  }) {
-    return HabitsCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      captureId: captureId ?? this.captureId,
-      goalId: goalId ?? this.goalId,
-      title: title ?? this.title,
-      frequencyConfig: frequencyConfig ?? this.frequencyConfig,
-      levelConfig: levelConfig ?? this.levelConfig,
-      anchorDescription: anchorDescription ?? this.anchorDescription,
-      resetActive: resetActive ?? this.resetActive,
-      resetStartedAt: resetStartedAt ?? this.resetStartedAt,
-      archived: archived ?? this.archived,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (captureId.present) {
-      map['capture_id'] = Variable<String>(captureId.value);
-    }
-    if (goalId.present) {
-      map['goal_id'] = Variable<String>(goalId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (frequencyConfig.present) {
-      map['frequency_config'] = Variable<String>(frequencyConfig.value);
-    }
-    if (levelConfig.present) {
-      map['level_config'] = Variable<String>(levelConfig.value);
-    }
-    if (anchorDescription.present) {
-      map['anchor_description'] = Variable<String>(anchorDescription.value);
-    }
-    if (resetActive.present) {
-      map['reset_active'] = Variable<bool>(resetActive.value);
-    }
-    if (resetStartedAt.present) {
-      map['reset_started_at'] = Variable<DateTime>(resetStartedAt.value);
-    }
-    if (archived.present) {
-      map['archived'] = Variable<bool>(archived.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('HabitsCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('captureId: $captureId, ')
-          ..write('goalId: $goalId, ')
-          ..write('title: $title, ')
-          ..write('frequencyConfig: $frequencyConfig, ')
-          ..write('levelConfig: $levelConfig, ')
-          ..write('anchorDescription: $anchorDescription, ')
-          ..write('resetActive: $resetActive, ')
-          ..write('resetStartedAt: $resetStartedAt, ')
-          ..write('archived: $archived, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $HabitCompletionsTable extends HabitCompletions
-    with TableInfo<$HabitCompletionsTable, HabitCompletionRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $HabitCompletionsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _habitIdMeta = const VerificationMeta(
-    'habitId',
-  );
-  @override
-  late final GeneratedColumn<String> habitId = GeneratedColumn<String>(
-    'habit_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _levelMeta = const VerificationMeta('level');
-  @override
-  late final GeneratedColumn<String> level = GeneratedColumn<String>(
-    'level',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _energyModeMeta = const VerificationMeta(
-    'energyMode',
-  );
-  @override
-  late final GeneratedColumn<String> energyMode = GeneratedColumn<String>(
-    'energy_mode',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _completedAtMeta = const VerificationMeta(
-    'completedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
-    'completed_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    habitId,
-    level,
-    energyMode,
-    completedAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'habit_completions';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<HabitCompletionRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('habit_id')) {
-      context.handle(
-        _habitIdMeta,
-        habitId.isAcceptableOrUnknown(data['habit_id']!, _habitIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_habitIdMeta);
-    }
-    if (data.containsKey('level')) {
-      context.handle(
-        _levelMeta,
-        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_levelMeta);
-    }
-    if (data.containsKey('energy_mode')) {
-      context.handle(
-        _energyModeMeta,
-        energyMode.isAcceptableOrUnknown(data['energy_mode']!, _energyModeMeta),
-      );
-    }
-    if (data.containsKey('completed_at')) {
-      context.handle(
-        _completedAtMeta,
-        completedAt.isAcceptableOrUnknown(
-          data['completed_at']!,
-          _completedAtMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  HabitCompletionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return HabitCompletionRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      habitId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}habit_id'],
-      )!,
-      level: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}level'],
-      )!,
-      energyMode: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}energy_mode'],
-      ),
-      completedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}completed_at'],
-      )!,
-    );
-  }
-
-  @override
-  $HabitCompletionsTable createAlias(String alias) {
-    return $HabitCompletionsTable(attachedDatabase, alias);
-  }
-}
-
-class HabitCompletionRow extends DataClass
-    implements Insertable<HabitCompletionRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String habitId;
-  final String level;
-  final String? energyMode;
-  final DateTime completedAt;
-  const HabitCompletionRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    required this.habitId,
-    required this.level,
-    this.energyMode,
-    required this.completedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    map['habit_id'] = Variable<String>(habitId);
-    map['level'] = Variable<String>(level);
-    if (!nullToAbsent || energyMode != null) {
-      map['energy_mode'] = Variable<String>(energyMode);
-    }
-    map['completed_at'] = Variable<DateTime>(completedAt);
-    return map;
-  }
-
-  HabitCompletionsCompanion toCompanion(bool nullToAbsent) {
-    return HabitCompletionsCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      habitId: Value(habitId),
-      level: Value(level),
-      energyMode: energyMode == null && nullToAbsent
-          ? const Value.absent()
-          : Value(energyMode),
-      completedAt: Value(completedAt),
-    );
-  }
-
-  factory HabitCompletionRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return HabitCompletionRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      habitId: serializer.fromJson<String>(json['habitId']),
-      level: serializer.fromJson<String>(json['level']),
-      energyMode: serializer.fromJson<String?>(json['energyMode']),
-      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'habitId': serializer.toJson<String>(habitId),
-      'level': serializer.toJson<String>(level),
-      'energyMode': serializer.toJson<String?>(energyMode),
-      'completedAt': serializer.toJson<DateTime>(completedAt),
-    };
-  }
-
-  HabitCompletionRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    String? habitId,
-    String? level,
-    Value<String?> energyMode = const Value.absent(),
-    DateTime? completedAt,
-  }) => HabitCompletionRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    habitId: habitId ?? this.habitId,
-    level: level ?? this.level,
-    energyMode: energyMode.present ? energyMode.value : this.energyMode,
-    completedAt: completedAt ?? this.completedAt,
-  );
-  HabitCompletionRow copyWithCompanion(HabitCompletionsCompanion data) {
-    return HabitCompletionRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      habitId: data.habitId.present ? data.habitId.value : this.habitId,
-      level: data.level.present ? data.level.value : this.level,
-      energyMode: data.energyMode.present
-          ? data.energyMode.value
-          : this.energyMode,
-      completedAt: data.completedAt.present
-          ? data.completedAt.value
-          : this.completedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('HabitCompletionRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('habitId: $habitId, ')
-          ..write('level: $level, ')
-          ..write('energyMode: $energyMode, ')
-          ..write('completedAt: $completedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    habitId,
-    level,
-    energyMode,
-    completedAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is HabitCompletionRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.habitId == this.habitId &&
-          other.level == this.level &&
-          other.energyMode == this.energyMode &&
-          other.completedAt == this.completedAt);
-}
-
-class HabitCompletionsCompanion extends UpdateCompanion<HabitCompletionRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String> habitId;
-  final Value<String> level;
-  final Value<String?> energyMode;
-  final Value<DateTime> completedAt;
-  final Value<int> rowid;
-  const HabitCompletionsCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.habitId = const Value.absent(),
-    this.level = const Value.absent(),
-    this.energyMode = const Value.absent(),
-    this.completedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  HabitCompletionsCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    required String habitId,
-    required String level,
-    this.energyMode = const Value.absent(),
-    this.completedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       habitId = Value(habitId),
-       level = Value(level);
-  static Insertable<HabitCompletionRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? habitId,
-    Expression<String>? level,
-    Expression<String>? energyMode,
-    Expression<DateTime>? completedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (habitId != null) 'habit_id': habitId,
-      if (level != null) 'level': level,
-      if (energyMode != null) 'energy_mode': energyMode,
-      if (completedAt != null) 'completed_at': completedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  HabitCompletionsCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String>? habitId,
-    Value<String>? level,
-    Value<String?>? energyMode,
-    Value<DateTime>? completedAt,
-    Value<int>? rowid,
-  }) {
-    return HabitCompletionsCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      habitId: habitId ?? this.habitId,
-      level: level ?? this.level,
-      energyMode: energyMode ?? this.energyMode,
-      completedAt: completedAt ?? this.completedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (habitId.present) {
-      map['habit_id'] = Variable<String>(habitId.value);
-    }
-    if (level.present) {
-      map['level'] = Variable<String>(level.value);
-    }
-    if (energyMode.present) {
-      map['energy_mode'] = Variable<String>(energyMode.value);
-    }
-    if (completedAt.present) {
-      map['completed_at'] = Variable<DateTime>(completedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('HabitCompletionsCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('habitId: $habitId, ')
-          ..write('level: $level, ')
-          ..write('energyMode: $energyMode, ')
-          ..write('completedAt: $completedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -5818,12 +852,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
   final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
   final DateTime? syncedAt;
   final String id;
   final String userId;
@@ -6179,12 +1208,12 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   }
 }
 
-class $FocusSessionsTable extends FocusSessions
-    with TableInfo<$FocusSessionsTable, FocusSessionRow> {
+class $CapturesTable extends Captures
+    with TableInfo<$CapturesTable, CaptureRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $FocusSessionsTable(this.attachedDatabase, [this._alias]);
+  $CapturesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -6262,58 +1291,822 @@ class $FocusSessionsTable extends FocusSessions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
   @override
-  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
-    'task_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _taskLabelMeta = const VerificationMeta(
-    'taskLabel',
-  );
-  @override
-  late final GeneratedColumn<String> taskLabel = GeneratedColumn<String>(
-    'task_label',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _durationMinutesMeta = const VerificationMeta(
-    'durationMinutes',
-  );
-  @override
-  late final GeneratedColumn<int> durationMinutes = GeneratedColumn<int>(
-    'duration_minutes',
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _startedAtMeta = const VerificationMeta(
-    'startedAt',
+  static const VerificationMeta _inputTextMeta = const VerificationMeta(
+    'inputText',
   );
   @override
-  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
-    'started_at',
+  late final GeneratedColumn<String> inputText = GeneratedColumn<String>(
+    'input_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _audioPathMeta = const VerificationMeta(
+    'audioPath',
+  );
+  @override
+  late final GeneratedColumn<String> audioPath = GeneratedColumn<String>(
+    'audio_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawTranscriptMeta = const VerificationMeta(
+    'rawTranscript',
+  );
+  @override
+  late final GeneratedColumn<String> rawTranscript = GeneratedColumn<String>(
+    'raw_transcript',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _errorMeta = const VerificationMeta('error');
+  @override
+  late final GeneratedColumn<String> error = GeneratedColumn<String>(
+    'error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
-  static const VerificationMeta _endedAtMeta = const VerificationMeta(
-    'endedAt',
+  @override
+  List<GeneratedColumn> get $columns => [
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    source,
+    inputText,
+    audioPath,
+    rawTranscript,
+    status,
+    error,
+    capturedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'captures';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CaptureRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('input_text')) {
+      context.handle(
+        _inputTextMeta,
+        inputText.isAcceptableOrUnknown(data['input_text']!, _inputTextMeta),
+      );
+    }
+    if (data.containsKey('audio_path')) {
+      context.handle(
+        _audioPathMeta,
+        audioPath.isAcceptableOrUnknown(data['audio_path']!, _audioPathMeta),
+      );
+    }
+    if (data.containsKey('raw_transcript')) {
+      context.handle(
+        _rawTranscriptMeta,
+        rawTranscript.isAcceptableOrUnknown(
+          data['raw_transcript']!,
+          _rawTranscriptMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('error')) {
+      context.handle(
+        _errorMeta,
+        error.isAcceptableOrUnknown(data['error']!, _errorMeta),
+      );
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CaptureRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CaptureRow(
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      inputText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}input_text'],
+      ),
+      audioPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_path'],
+      ),
+      rawTranscript: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_transcript'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      error: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error'],
+      ),
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CapturesTable createAlias(String alias) {
+    return $CapturesTable(attachedDatabase, alias);
+  }
+}
+
+class CaptureRow extends DataClass implements Insertable<CaptureRow> {
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final DateTime? syncedAt;
+  final String id;
+  final String userId;
+  final String source;
+  final String? inputText;
+  final String? audioPath;
+  final String? rawTranscript;
+  final String status;
+  final String? error;
+  final DateTime capturedAt;
+  const CaptureRow({
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.syncedAt,
+    required this.id,
+    required this.userId,
+    required this.source,
+    this.inputText,
+    this.audioPath,
+    this.rawTranscript,
+    required this.status,
+    this.error,
+    required this.capturedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || inputText != null) {
+      map['input_text'] = Variable<String>(inputText);
+    }
+    if (!nullToAbsent || audioPath != null) {
+      map['audio_path'] = Variable<String>(audioPath);
+    }
+    if (!nullToAbsent || rawTranscript != null) {
+      map['raw_transcript'] = Variable<String>(rawTranscript);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || error != null) {
+      map['error'] = Variable<String>(error);
+    }
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    return map;
+  }
+
+  CapturesCompanion toCompanion(bool nullToAbsent) {
+    return CapturesCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      id: Value(id),
+      userId: Value(userId),
+      source: Value(source),
+      inputText: inputText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inputText),
+      audioPath: audioPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioPath),
+      rawTranscript: rawTranscript == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawTranscript),
+      status: Value(status),
+      error: error == null && nullToAbsent
+          ? const Value.absent()
+          : Value(error),
+      capturedAt: Value(capturedAt),
+    );
+  }
+
+  factory CaptureRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CaptureRow(
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      source: serializer.fromJson<String>(json['source']),
+      inputText: serializer.fromJson<String?>(json['inputText']),
+      audioPath: serializer.fromJson<String?>(json['audioPath']),
+      rawTranscript: serializer.fromJson<String?>(json['rawTranscript']),
+      status: serializer.fromJson<String>(json['status']),
+      error: serializer.fromJson<String?>(json['error']),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'source': serializer.toJson<String>(source),
+      'inputText': serializer.toJson<String?>(inputText),
+      'audioPath': serializer.toJson<String?>(audioPath),
+      'rawTranscript': serializer.toJson<String?>(rawTranscript),
+      'status': serializer.toJson<String>(status),
+      'error': serializer.toJson<String?>(error),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+    };
+  }
+
+  CaptureRow copyWith({
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? id,
+    String? userId,
+    String? source,
+    Value<String?> inputText = const Value.absent(),
+    Value<String?> audioPath = const Value.absent(),
+    Value<String?> rawTranscript = const Value.absent(),
+    String? status,
+    Value<String?> error = const Value.absent(),
+    DateTime? capturedAt,
+  }) => CaptureRow(
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    source: source ?? this.source,
+    inputText: inputText.present ? inputText.value : this.inputText,
+    audioPath: audioPath.present ? audioPath.value : this.audioPath,
+    rawTranscript: rawTranscript.present
+        ? rawTranscript.value
+        : this.rawTranscript,
+    status: status ?? this.status,
+    error: error.present ? error.value : this.error,
+    capturedAt: capturedAt ?? this.capturedAt,
+  );
+  CaptureRow copyWithCompanion(CapturesCompanion data) {
+    return CaptureRow(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      source: data.source.present ? data.source.value : this.source,
+      inputText: data.inputText.present ? data.inputText.value : this.inputText,
+      audioPath: data.audioPath.present ? data.audioPath.value : this.audioPath,
+      rawTranscript: data.rawTranscript.present
+          ? data.rawTranscript.value
+          : this.rawTranscript,
+      status: data.status.present ? data.status.value : this.status,
+      error: data.error.present ? data.error.value : this.error,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CaptureRow(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('source: $source, ')
+          ..write('inputText: $inputText, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('rawTranscript: $rawTranscript, ')
+          ..write('status: $status, ')
+          ..write('error: $error, ')
+          ..write('capturedAt: $capturedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    source,
+    inputText,
+    audioPath,
+    rawTranscript,
+    status,
+    error,
+    capturedAt,
   );
   @override
-  late final GeneratedColumn<DateTime> endedAt = GeneratedColumn<DateTime>(
-    'ended_at',
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CaptureRow &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.syncedAt == this.syncedAt &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.source == this.source &&
+          other.inputText == this.inputText &&
+          other.audioPath == this.audioPath &&
+          other.rawTranscript == this.rawTranscript &&
+          other.status == this.status &&
+          other.error == this.error &&
+          other.capturedAt == this.capturedAt);
+}
+
+class CapturesCompanion extends UpdateCompanion<CaptureRow> {
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<DateTime?> syncedAt;
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String> source;
+  final Value<String?> inputText;
+  final Value<String?> audioPath;
+  final Value<String?> rawTranscript;
+  final Value<String> status;
+  final Value<String?> error;
+  final Value<DateTime> capturedAt;
+  final Value<int> rowid;
+  const CapturesCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.source = const Value.absent(),
+    this.inputText = const Value.absent(),
+    this.audioPath = const Value.absent(),
+    this.rawTranscript = const Value.absent(),
+    this.status = const Value.absent(),
+    this.error = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CapturesCompanion.insert({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String id,
+    required String userId,
+    required String source,
+    this.inputText = const Value.absent(),
+    this.audioPath = const Value.absent(),
+    this.rawTranscript = const Value.absent(),
+    this.status = const Value.absent(),
+    this.error = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       userId = Value(userId),
+       source = Value(source);
+  static Insertable<CaptureRow> custom({
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String>? source,
+    Expression<String>? inputText,
+    Expression<String>? audioPath,
+    Expression<String>? rawTranscript,
+    Expression<String>? status,
+    Expression<String>? error,
+    Expression<DateTime>? capturedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (source != null) 'source': source,
+      if (inputText != null) 'input_text': inputText,
+      if (audioPath != null) 'audio_path': audioPath,
+      if (rawTranscript != null) 'raw_transcript': rawTranscript,
+      if (status != null) 'status': status,
+      if (error != null) 'error': error,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CapturesCompanion copyWith({
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<DateTime?>? syncedAt,
+    Value<String>? id,
+    Value<String>? userId,
+    Value<String>? source,
+    Value<String?>? inputText,
+    Value<String?>? audioPath,
+    Value<String?>? rawTranscript,
+    Value<String>? status,
+    Value<String?>? error,
+    Value<DateTime>? capturedAt,
+    Value<int>? rowid,
+  }) {
+    return CapturesCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      syncedAt: syncedAt ?? this.syncedAt,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      source: source ?? this.source,
+      inputText: inputText ?? this.inputText,
+      audioPath: audioPath ?? this.audioPath,
+      rawTranscript: rawTranscript ?? this.rawTranscript,
+      status: status ?? this.status,
+      error: error ?? this.error,
+      capturedAt: capturedAt ?? this.capturedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (inputText.present) {
+      map['input_text'] = Variable<String>(inputText.value);
+    }
+    if (audioPath.present) {
+      map['audio_path'] = Variable<String>(audioPath.value);
+    }
+    if (rawTranscript.present) {
+      map['raw_transcript'] = Variable<String>(rawTranscript.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (error.present) {
+      map['error'] = Variable<String>(error.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CapturesCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('source: $source, ')
+          ..write('inputText: $inputText, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('rawTranscript: $rawTranscript, ')
+          ..write('status: $status, ')
+          ..write('error: $error, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskRemindersTable extends TaskReminders
+    with TableInfo<$TaskRemindersTable, TaskReminderRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskRemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
     aliasedName,
     true,
     type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detailsMeta = const VerificationMeta(
+    'details',
+  );
+  @override
+  late final GeneratedColumn<String> details = GeneratedColumn<String>(
+    'details',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
@@ -6326,1497 +2119,37 @@ class $FocusSessionsTable extends FocusSessions
     requiredDuringInsert: false,
     defaultValue: const Constant('active'),
   );
-  static const VerificationMeta _blockingEnabledMeta = const VerificationMeta(
-    'blockingEnabled',
-  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
   @override
-  late final GeneratedColumn<bool> blockingEnabled = GeneratedColumn<bool>(
-    'blocking_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("blocking_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _blockingModeMeta = const VerificationMeta(
-    'blockingMode',
-  );
-  @override
-  late final GeneratedColumn<String> blockingMode = GeneratedColumn<String>(
-    'blocking_mode',
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
     aliasedName,
     false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('soft'),
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _blockAttemptsMeta = const VerificationMeta(
-    'blockAttempts',
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
   );
   @override
-  late final GeneratedColumn<int> blockAttempts = GeneratedColumn<int>(
-    'block_attempts',
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.double,
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _capturesDuringMeta = const VerificationMeta(
-    'capturesDuring',
+  static const VerificationMeta _triggerTypeMeta = const VerificationMeta(
+    'triggerType',
   );
   @override
-  late final GeneratedColumn<String> capturesDuring = GeneratedColumn<String>(
-    'captures_during',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('[]'),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    taskId,
-    taskLabel,
-    durationMinutes,
-    startedAt,
-    endedAt,
-    status,
-    blockingEnabled,
-    blockingMode,
-    blockAttempts,
-    capturesDuring,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'focus_sessions';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<FocusSessionRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('task_id')) {
-      context.handle(
-        _taskIdMeta,
-        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
-      );
-    }
-    if (data.containsKey('task_label')) {
-      context.handle(
-        _taskLabelMeta,
-        taskLabel.isAcceptableOrUnknown(data['task_label']!, _taskLabelMeta),
-      );
-    }
-    if (data.containsKey('duration_minutes')) {
-      context.handle(
-        _durationMinutesMeta,
-        durationMinutes.isAcceptableOrUnknown(
-          data['duration_minutes']!,
-          _durationMinutesMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_durationMinutesMeta);
-    }
-    if (data.containsKey('started_at')) {
-      context.handle(
-        _startedAtMeta,
-        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
-      );
-    }
-    if (data.containsKey('ended_at')) {
-      context.handle(
-        _endedAtMeta,
-        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    if (data.containsKey('blocking_enabled')) {
-      context.handle(
-        _blockingEnabledMeta,
-        blockingEnabled.isAcceptableOrUnknown(
-          data['blocking_enabled']!,
-          _blockingEnabledMeta,
-        ),
-      );
-    }
-    if (data.containsKey('blocking_mode')) {
-      context.handle(
-        _blockingModeMeta,
-        blockingMode.isAcceptableOrUnknown(
-          data['blocking_mode']!,
-          _blockingModeMeta,
-        ),
-      );
-    }
-    if (data.containsKey('block_attempts')) {
-      context.handle(
-        _blockAttemptsMeta,
-        blockAttempts.isAcceptableOrUnknown(
-          data['block_attempts']!,
-          _blockAttemptsMeta,
-        ),
-      );
-    }
-    if (data.containsKey('captures_during')) {
-      context.handle(
-        _capturesDuringMeta,
-        capturesDuring.isAcceptableOrUnknown(
-          data['captures_during']!,
-          _capturesDuringMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  FocusSessionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return FocusSessionRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      taskId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}task_id'],
-      ),
-      taskLabel: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}task_label'],
-      ),
-      durationMinutes: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}duration_minutes'],
-      )!,
-      startedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}started_at'],
-      )!,
-      endedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}ended_at'],
-      ),
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-      blockingEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}blocking_enabled'],
-      )!,
-      blockingMode: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}blocking_mode'],
-      )!,
-      blockAttempts: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}block_attempts'],
-      )!,
-      capturesDuring: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}captures_during'],
-      )!,
-    );
-  }
-
-  @override
-  $FocusSessionsTable createAlias(String alias) {
-    return $FocusSessionsTable(attachedDatabase, alias);
-  }
-}
-
-class FocusSessionRow extends DataClass implements Insertable<FocusSessionRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? taskId;
-  final String? taskLabel;
-  final int durationMinutes;
-  final DateTime startedAt;
-  final DateTime? endedAt;
-  final String status;
-  final bool blockingEnabled;
-  final String blockingMode;
-  final int blockAttempts;
-  final String capturesDuring;
-  const FocusSessionRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.taskId,
-    this.taskLabel,
-    required this.durationMinutes,
-    required this.startedAt,
-    this.endedAt,
-    required this.status,
-    required this.blockingEnabled,
-    required this.blockingMode,
-    required this.blockAttempts,
-    required this.capturesDuring,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || taskId != null) {
-      map['task_id'] = Variable<String>(taskId);
-    }
-    if (!nullToAbsent || taskLabel != null) {
-      map['task_label'] = Variable<String>(taskLabel);
-    }
-    map['duration_minutes'] = Variable<int>(durationMinutes);
-    map['started_at'] = Variable<DateTime>(startedAt);
-    if (!nullToAbsent || endedAt != null) {
-      map['ended_at'] = Variable<DateTime>(endedAt);
-    }
-    map['status'] = Variable<String>(status);
-    map['blocking_enabled'] = Variable<bool>(blockingEnabled);
-    map['blocking_mode'] = Variable<String>(blockingMode);
-    map['block_attempts'] = Variable<int>(blockAttempts);
-    map['captures_during'] = Variable<String>(capturesDuring);
-    return map;
-  }
-
-  FocusSessionsCompanion toCompanion(bool nullToAbsent) {
-    return FocusSessionsCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      taskId: taskId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(taskId),
-      taskLabel: taskLabel == null && nullToAbsent
-          ? const Value.absent()
-          : Value(taskLabel),
-      durationMinutes: Value(durationMinutes),
-      startedAt: Value(startedAt),
-      endedAt: endedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endedAt),
-      status: Value(status),
-      blockingEnabled: Value(blockingEnabled),
-      blockingMode: Value(blockingMode),
-      blockAttempts: Value(blockAttempts),
-      capturesDuring: Value(capturesDuring),
-    );
-  }
-
-  factory FocusSessionRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return FocusSessionRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      taskId: serializer.fromJson<String?>(json['taskId']),
-      taskLabel: serializer.fromJson<String?>(json['taskLabel']),
-      durationMinutes: serializer.fromJson<int>(json['durationMinutes']),
-      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
-      endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
-      status: serializer.fromJson<String>(json['status']),
-      blockingEnabled: serializer.fromJson<bool>(json['blockingEnabled']),
-      blockingMode: serializer.fromJson<String>(json['blockingMode']),
-      blockAttempts: serializer.fromJson<int>(json['blockAttempts']),
-      capturesDuring: serializer.fromJson<String>(json['capturesDuring']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'taskId': serializer.toJson<String?>(taskId),
-      'taskLabel': serializer.toJson<String?>(taskLabel),
-      'durationMinutes': serializer.toJson<int>(durationMinutes),
-      'startedAt': serializer.toJson<DateTime>(startedAt),
-      'endedAt': serializer.toJson<DateTime?>(endedAt),
-      'status': serializer.toJson<String>(status),
-      'blockingEnabled': serializer.toJson<bool>(blockingEnabled),
-      'blockingMode': serializer.toJson<String>(blockingMode),
-      'blockAttempts': serializer.toJson<int>(blockAttempts),
-      'capturesDuring': serializer.toJson<String>(capturesDuring),
-    };
-  }
-
-  FocusSessionRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> taskId = const Value.absent(),
-    Value<String?> taskLabel = const Value.absent(),
-    int? durationMinutes,
-    DateTime? startedAt,
-    Value<DateTime?> endedAt = const Value.absent(),
-    String? status,
-    bool? blockingEnabled,
-    String? blockingMode,
-    int? blockAttempts,
-    String? capturesDuring,
-  }) => FocusSessionRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    taskId: taskId.present ? taskId.value : this.taskId,
-    taskLabel: taskLabel.present ? taskLabel.value : this.taskLabel,
-    durationMinutes: durationMinutes ?? this.durationMinutes,
-    startedAt: startedAt ?? this.startedAt,
-    endedAt: endedAt.present ? endedAt.value : this.endedAt,
-    status: status ?? this.status,
-    blockingEnabled: blockingEnabled ?? this.blockingEnabled,
-    blockingMode: blockingMode ?? this.blockingMode,
-    blockAttempts: blockAttempts ?? this.blockAttempts,
-    capturesDuring: capturesDuring ?? this.capturesDuring,
-  );
-  FocusSessionRow copyWithCompanion(FocusSessionsCompanion data) {
-    return FocusSessionRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      taskId: data.taskId.present ? data.taskId.value : this.taskId,
-      taskLabel: data.taskLabel.present ? data.taskLabel.value : this.taskLabel,
-      durationMinutes: data.durationMinutes.present
-          ? data.durationMinutes.value
-          : this.durationMinutes,
-      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
-      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
-      status: data.status.present ? data.status.value : this.status,
-      blockingEnabled: data.blockingEnabled.present
-          ? data.blockingEnabled.value
-          : this.blockingEnabled,
-      blockingMode: data.blockingMode.present
-          ? data.blockingMode.value
-          : this.blockingMode,
-      blockAttempts: data.blockAttempts.present
-          ? data.blockAttempts.value
-          : this.blockAttempts,
-      capturesDuring: data.capturesDuring.present
-          ? data.capturesDuring.value
-          : this.capturesDuring,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('FocusSessionRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('taskId: $taskId, ')
-          ..write('taskLabel: $taskLabel, ')
-          ..write('durationMinutes: $durationMinutes, ')
-          ..write('startedAt: $startedAt, ')
-          ..write('endedAt: $endedAt, ')
-          ..write('status: $status, ')
-          ..write('blockingEnabled: $blockingEnabled, ')
-          ..write('blockingMode: $blockingMode, ')
-          ..write('blockAttempts: $blockAttempts, ')
-          ..write('capturesDuring: $capturesDuring')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    taskId,
-    taskLabel,
-    durationMinutes,
-    startedAt,
-    endedAt,
-    status,
-    blockingEnabled,
-    blockingMode,
-    blockAttempts,
-    capturesDuring,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is FocusSessionRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.taskId == this.taskId &&
-          other.taskLabel == this.taskLabel &&
-          other.durationMinutes == this.durationMinutes &&
-          other.startedAt == this.startedAt &&
-          other.endedAt == this.endedAt &&
-          other.status == this.status &&
-          other.blockingEnabled == this.blockingEnabled &&
-          other.blockingMode == this.blockingMode &&
-          other.blockAttempts == this.blockAttempts &&
-          other.capturesDuring == this.capturesDuring);
-}
-
-class FocusSessionsCompanion extends UpdateCompanion<FocusSessionRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> taskId;
-  final Value<String?> taskLabel;
-  final Value<int> durationMinutes;
-  final Value<DateTime> startedAt;
-  final Value<DateTime?> endedAt;
-  final Value<String> status;
-  final Value<bool> blockingEnabled;
-  final Value<String> blockingMode;
-  final Value<int> blockAttempts;
-  final Value<String> capturesDuring;
-  final Value<int> rowid;
-  const FocusSessionsCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.taskId = const Value.absent(),
-    this.taskLabel = const Value.absent(),
-    this.durationMinutes = const Value.absent(),
-    this.startedAt = const Value.absent(),
-    this.endedAt = const Value.absent(),
-    this.status = const Value.absent(),
-    this.blockingEnabled = const Value.absent(),
-    this.blockingMode = const Value.absent(),
-    this.blockAttempts = const Value.absent(),
-    this.capturesDuring = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  FocusSessionsCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.taskId = const Value.absent(),
-    this.taskLabel = const Value.absent(),
-    required int durationMinutes,
-    this.startedAt = const Value.absent(),
-    this.endedAt = const Value.absent(),
-    this.status = const Value.absent(),
-    this.blockingEnabled = const Value.absent(),
-    this.blockingMode = const Value.absent(),
-    this.blockAttempts = const Value.absent(),
-    this.capturesDuring = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       durationMinutes = Value(durationMinutes);
-  static Insertable<FocusSessionRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? taskId,
-    Expression<String>? taskLabel,
-    Expression<int>? durationMinutes,
-    Expression<DateTime>? startedAt,
-    Expression<DateTime>? endedAt,
-    Expression<String>? status,
-    Expression<bool>? blockingEnabled,
-    Expression<String>? blockingMode,
-    Expression<int>? blockAttempts,
-    Expression<String>? capturesDuring,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (taskId != null) 'task_id': taskId,
-      if (taskLabel != null) 'task_label': taskLabel,
-      if (durationMinutes != null) 'duration_minutes': durationMinutes,
-      if (startedAt != null) 'started_at': startedAt,
-      if (endedAt != null) 'ended_at': endedAt,
-      if (status != null) 'status': status,
-      if (blockingEnabled != null) 'blocking_enabled': blockingEnabled,
-      if (blockingMode != null) 'blocking_mode': blockingMode,
-      if (blockAttempts != null) 'block_attempts': blockAttempts,
-      if (capturesDuring != null) 'captures_during': capturesDuring,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  FocusSessionsCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? taskId,
-    Value<String?>? taskLabel,
-    Value<int>? durationMinutes,
-    Value<DateTime>? startedAt,
-    Value<DateTime?>? endedAt,
-    Value<String>? status,
-    Value<bool>? blockingEnabled,
-    Value<String>? blockingMode,
-    Value<int>? blockAttempts,
-    Value<String>? capturesDuring,
-    Value<int>? rowid,
-  }) {
-    return FocusSessionsCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      taskId: taskId ?? this.taskId,
-      taskLabel: taskLabel ?? this.taskLabel,
-      durationMinutes: durationMinutes ?? this.durationMinutes,
-      startedAt: startedAt ?? this.startedAt,
-      endedAt: endedAt ?? this.endedAt,
-      status: status ?? this.status,
-      blockingEnabled: blockingEnabled ?? this.blockingEnabled,
-      blockingMode: blockingMode ?? this.blockingMode,
-      blockAttempts: blockAttempts ?? this.blockAttempts,
-      capturesDuring: capturesDuring ?? this.capturesDuring,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (taskId.present) {
-      map['task_id'] = Variable<String>(taskId.value);
-    }
-    if (taskLabel.present) {
-      map['task_label'] = Variable<String>(taskLabel.value);
-    }
-    if (durationMinutes.present) {
-      map['duration_minutes'] = Variable<int>(durationMinutes.value);
-    }
-    if (startedAt.present) {
-      map['started_at'] = Variable<DateTime>(startedAt.value);
-    }
-    if (endedAt.present) {
-      map['ended_at'] = Variable<DateTime>(endedAt.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (blockingEnabled.present) {
-      map['blocking_enabled'] = Variable<bool>(blockingEnabled.value);
-    }
-    if (blockingMode.present) {
-      map['blocking_mode'] = Variable<String>(blockingMode.value);
-    }
-    if (blockAttempts.present) {
-      map['block_attempts'] = Variable<int>(blockAttempts.value);
-    }
-    if (capturesDuring.present) {
-      map['captures_during'] = Variable<String>(capturesDuring.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('FocusSessionsCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('taskId: $taskId, ')
-          ..write('taskLabel: $taskLabel, ')
-          ..write('durationMinutes: $durationMinutes, ')
-          ..write('startedAt: $startedAt, ')
-          ..write('endedAt: $endedAt, ')
-          ..write('status: $status, ')
-          ..write('blockingEnabled: $blockingEnabled, ')
-          ..write('blockingMode: $blockingMode, ')
-          ..write('blockAttempts: $blockAttempts, ')
-          ..write('capturesDuring: $capturesDuring, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $VibeChecksTable extends VibeChecks
-    with TableInfo<$VibeChecksTable, VibeCheckRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $VibeChecksTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
+  late final GeneratedColumn<String> triggerType = GeneratedColumn<String>(
+    'trigger_type',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _focusSessionIdMeta = const VerificationMeta(
-    'focusSessionId',
-  );
-  @override
-  late final GeneratedColumn<String> focusSessionId = GeneratedColumn<String>(
-    'focus_session_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _valueMeta = const VerificationMeta('value');
-  @override
-  late final GeneratedColumn<int> value = GeneratedColumn<int>(
-    'value',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    focusSessionId,
-    value,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'vibe_checks';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<VibeCheckRow> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(
-        _deletedAtMeta,
-        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
-      );
-    }
-    if (data.containsKey('dirty')) {
-      context.handle(
-        _dirtyMeta,
-        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
-    }
-    if (data.containsKey('focus_session_id')) {
-      context.handle(
-        _focusSessionIdMeta,
-        focusSessionId.isAcceptableOrUnknown(
-          data['focus_session_id']!,
-          _focusSessionIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('value')) {
-      context.handle(
-        _valueMeta,
-        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_valueMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  VibeCheckRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return VibeCheckRow(
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      deletedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}deleted_at'],
-      ),
-      dirty: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}dirty'],
-      )!,
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}synced_at'],
-      ),
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      )!,
-      focusSessionId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}focus_session_id'],
-      ),
-      value: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}value'],
-      )!,
-    );
-  }
-
-  @override
-  $VibeChecksTable createAlias(String alias) {
-    return $VibeChecksTable(attachedDatabase, alias);
-  }
-}
-
-class VibeCheckRow extends DataClass implements Insertable<VibeCheckRow> {
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
-  final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
-  final DateTime? syncedAt;
-  final String id;
-  final String userId;
-  final String? focusSessionId;
-  final int value;
-  const VibeCheckRow({
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-    required this.dirty,
-    this.syncedAt,
-    required this.id,
-    required this.userId,
-    this.focusSessionId,
-    required this.value,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    map['dirty'] = Variable<bool>(dirty);
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<DateTime>(syncedAt);
-    }
-    map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
-    if (!nullToAbsent || focusSessionId != null) {
-      map['focus_session_id'] = Variable<String>(focusSessionId);
-    }
-    map['value'] = Variable<int>(value);
-    return map;
-  }
-
-  VibeChecksCompanion toCompanion(bool nullToAbsent) {
-    return VibeChecksCompanion(
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-      dirty: Value(dirty),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      id: Value(id),
-      userId: Value(userId),
-      focusSessionId: focusSessionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(focusSessionId),
-      value: Value(value),
-    );
-  }
-
-  factory VibeCheckRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return VibeCheckRow(
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      dirty: serializer.fromJson<bool>(json['dirty']),
-      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
-      id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
-      focusSessionId: serializer.fromJson<String?>(json['focusSessionId']),
-      value: serializer.fromJson<int>(json['value']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'dirty': serializer.toJson<bool>(dirty),
-      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
-      'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
-      'focusSessionId': serializer.toJson<String?>(focusSessionId),
-      'value': serializer.toJson<int>(value),
-    };
-  }
-
-  VibeCheckRow copyWith({
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    Value<DateTime?> deletedAt = const Value.absent(),
-    bool? dirty,
-    Value<DateTime?> syncedAt = const Value.absent(),
-    String? id,
-    String? userId,
-    Value<String?> focusSessionId = const Value.absent(),
-    int? value,
-  }) => VibeCheckRow(
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    dirty: dirty ?? this.dirty,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    focusSessionId: focusSessionId.present
-        ? focusSessionId.value
-        : this.focusSessionId,
-    value: value ?? this.value,
-  );
-  VibeCheckRow copyWithCompanion(VibeChecksCompanion data) {
-    return VibeCheckRow(
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      dirty: data.dirty.present ? data.dirty.value : this.dirty,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      focusSessionId: data.focusSessionId.present
-          ? data.focusSessionId.value
-          : this.focusSessionId,
-      value: data.value.present ? data.value.value : this.value,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('VibeCheckRow(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('focusSessionId: $focusSessionId, ')
-          ..write('value: $value')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    createdAt,
-    updatedAt,
-    deletedAt,
-    dirty,
-    syncedAt,
-    id,
-    userId,
-    focusSessionId,
-    value,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is VibeCheckRow &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt &&
-          other.dirty == this.dirty &&
-          other.syncedAt == this.syncedAt &&
-          other.id == this.id &&
-          other.userId == this.userId &&
-          other.focusSessionId == this.focusSessionId &&
-          other.value == this.value);
-}
-
-class VibeChecksCompanion extends UpdateCompanion<VibeCheckRow> {
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<bool> dirty;
-  final Value<DateTime?> syncedAt;
-  final Value<String> id;
-  final Value<String> userId;
-  final Value<String?> focusSessionId;
-  final Value<int> value;
-  final Value<int> rowid;
-  const VibeChecksCompanion({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.id = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.focusSessionId = const Value.absent(),
-    this.value = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  VibeChecksCompanion.insert({
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.dirty = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    required String id,
-    required String userId,
-    this.focusSessionId = const Value.absent(),
-    required int value,
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       userId = Value(userId),
-       value = Value(value);
-  static Insertable<VibeCheckRow> custom({
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<bool>? dirty,
-    Expression<DateTime>? syncedAt,
-    Expression<String>? id,
-    Expression<String>? userId,
-    Expression<String>? focusSessionId,
-    Expression<int>? value,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (dirty != null) 'dirty': dirty,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
-      if (focusSessionId != null) 'focus_session_id': focusSessionId,
-      if (value != null) 'value': value,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  VibeChecksCompanion copyWith({
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<DateTime?>? deletedAt,
-    Value<bool>? dirty,
-    Value<DateTime?>? syncedAt,
-    Value<String>? id,
-    Value<String>? userId,
-    Value<String?>? focusSessionId,
-    Value<int>? value,
-    Value<int>? rowid,
-  }) {
-    return VibeChecksCompanion(
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      dirty: dirty ?? this.dirty,
-      syncedAt: syncedAt ?? this.syncedAt,
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      focusSessionId: focusSessionId ?? this.focusSessionId,
-      value: value ?? this.value,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (dirty.present) {
-      map['dirty'] = Variable<bool>(dirty.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<DateTime>(syncedAt.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (focusSessionId.present) {
-      map['focus_session_id'] = Variable<String>(focusSessionId.value);
-    }
-    if (value.present) {
-      map['value'] = Variable<int>(value.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('VibeChecksCompanion(')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('dirty: $dirty, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('id: $id, ')
-          ..write('userId: $userId, ')
-          ..write('focusSessionId: $focusSessionId, ')
-          ..write('value: $value, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $RemindersTable extends Reminders
-    with TableInfo<$RemindersTable, ReminderRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $RemindersTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
-    'deletedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-    'deleted_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
-  @override
-  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
-    'dirty',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("dirty" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _reminderTypeMeta = const VerificationMeta(
-    'reminderType',
-  );
-  @override
-  late final GeneratedColumn<String> reminderType = GeneratedColumn<String>(
-    'reminder_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
-  @override
-  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
-    'task_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _habitIdMeta = const VerificationMeta(
-    'habitId',
-  );
-  @override
-  late final GeneratedColumn<String> habitId = GeneratedColumn<String>(
-    'habit_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
   );
   static const VerificationMeta _scheduledAtMeta = const VerificationMeta(
     'scheduledAt',
@@ -7824,28 +2157,6 @@ class $RemindersTable extends Reminders
   @override
   late final GeneratedColumn<DateTime> scheduledAt = GeneratedColumn<DateTime>(
     'scheduled_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _recurrenceMeta = const VerificationMeta(
-    'recurrence',
-  );
-  @override
-  late final GeneratedColumn<String> recurrence = GeneratedColumn<String>(
-    'recurrence',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _snoozeUntilMeta = const VerificationMeta(
-    'snoozeUntil',
-  );
-  @override
-  late final GeneratedColumn<DateTime> snoozeUntil = GeneratedColumn<DateTime>(
-    'snooze_until',
     aliasedName,
     true,
     type: DriftSqlType.dateTime,
@@ -7883,26 +2194,50 @@ class $RemindersTable extends Reminders
     true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultValue: const Constant(60),
   );
-  static const VerificationMeta _copyMeta = const VerificationMeta('copy');
+  static const VerificationMeta _autoCommitDeadlineAtMeta =
+      const VerificationMeta('autoCommitDeadlineAt');
   @override
-  late final GeneratedColumn<String> copy = GeneratedColumn<String>(
-    'copy',
+  late final GeneratedColumn<DateTime> autoCommitDeadlineAt =
+      GeneratedColumn<DateTime>(
+        'auto_commit_deadline_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _captureIdMeta = const VerificationMeta(
+    'captureId',
+  );
+  @override
+  late final GeneratedColumn<String> captureId = GeneratedColumn<String>(
+    'capture_id',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  static const VerificationMeta _aiExplanationMeta = const VerificationMeta(
+    'aiExplanation',
+  );
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
+  late final GeneratedColumn<String> aiExplanation = GeneratedColumn<String>(
+    'ai_explanation',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant('scheduled'),
+  );
+  static const VerificationMeta _aiContextMeta = const VerificationMeta(
+    'aiContext',
+  );
+  @override
+  late final GeneratedColumn<String> aiContext = GeneratedColumn<String>(
+    'ai_context',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -7913,26 +2248,29 @@ class $RemindersTable extends Reminders
     syncedAt,
     id,
     userId,
-    reminderType,
-    taskId,
-    habitId,
+    title,
+    details,
+    status,
+    source,
+    confidence,
+    triggerType,
     scheduledAt,
-    recurrence,
-    snoozeUntil,
     placeId,
     geofenceTransition,
     dwellSeconds,
-    copy,
-    status,
+    autoCommitDeadlineAt,
+    captureId,
+    aiExplanation,
+    aiContext,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'reminders';
+  static const String $name = 'task_reminders';
   @override
   VerificationContext validateIntegrity(
-    Insertable<ReminderRow> instance, {
+    Insertable<TaskReminderRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -7980,28 +2318,50 @@ class $RemindersTable extends Reminders
     } else if (isInserting) {
       context.missing(_userIdMeta);
     }
-    if (data.containsKey('reminder_type')) {
+    if (data.containsKey('title')) {
       context.handle(
-        _reminderTypeMeta,
-        reminderType.isAcceptableOrUnknown(
-          data['reminder_type']!,
-          _reminderTypeMeta,
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('details')) {
+      context.handle(
+        _detailsMeta,
+        details.isAcceptableOrUnknown(data['details']!, _detailsMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    }
+    if (data.containsKey('trigger_type')) {
+      context.handle(
+        _triggerTypeMeta,
+        triggerType.isAcceptableOrUnknown(
+          data['trigger_type']!,
+          _triggerTypeMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_reminderTypeMeta);
-    }
-    if (data.containsKey('task_id')) {
-      context.handle(
-        _taskIdMeta,
-        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
-      );
-    }
-    if (data.containsKey('habit_id')) {
-      context.handle(
-        _habitIdMeta,
-        habitId.isAcceptableOrUnknown(data['habit_id']!, _habitIdMeta),
-      );
+      context.missing(_triggerTypeMeta);
     }
     if (data.containsKey('scheduled_at')) {
       context.handle(
@@ -8009,21 +2369,6 @@ class $RemindersTable extends Reminders
         scheduledAt.isAcceptableOrUnknown(
           data['scheduled_at']!,
           _scheduledAtMeta,
-        ),
-      );
-    }
-    if (data.containsKey('recurrence')) {
-      context.handle(
-        _recurrenceMeta,
-        recurrence.isAcceptableOrUnknown(data['recurrence']!, _recurrenceMeta),
-      );
-    }
-    if (data.containsKey('snooze_until')) {
-      context.handle(
-        _snoozeUntilMeta,
-        snoozeUntil.isAcceptableOrUnknown(
-          data['snooze_until']!,
-          _snoozeUntilMeta,
         ),
       );
     }
@@ -8051,16 +2396,34 @@ class $RemindersTable extends Reminders
         ),
       );
     }
-    if (data.containsKey('copy')) {
+    if (data.containsKey('auto_commit_deadline_at')) {
       context.handle(
-        _copyMeta,
-        copy.isAcceptableOrUnknown(data['copy']!, _copyMeta),
+        _autoCommitDeadlineAtMeta,
+        autoCommitDeadlineAt.isAcceptableOrUnknown(
+          data['auto_commit_deadline_at']!,
+          _autoCommitDeadlineAtMeta,
+        ),
       );
     }
-    if (data.containsKey('status')) {
+    if (data.containsKey('capture_id')) {
       context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+        _captureIdMeta,
+        captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
+      );
+    }
+    if (data.containsKey('ai_explanation')) {
+      context.handle(
+        _aiExplanationMeta,
+        aiExplanation.isAcceptableOrUnknown(
+          data['ai_explanation']!,
+          _aiExplanationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ai_context')) {
+      context.handle(
+        _aiContextMeta,
+        aiContext.isAcceptableOrUnknown(data['ai_context']!, _aiContextMeta),
       );
     }
     return context;
@@ -8069,9 +2432,9 @@ class $RemindersTable extends Reminders
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ReminderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TaskReminderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ReminderRow(
+    return TaskReminderRow(
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -8100,29 +2463,33 @@ class $RemindersTable extends Reminders
         DriftSqlType.string,
         data['${effectivePrefix}user_id'],
       )!,
-      reminderType: attachedDatabase.typeMapping.read(
+      title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}reminder_type'],
+        data['${effectivePrefix}title'],
       )!,
-      taskId: attachedDatabase.typeMapping.read(
+      details: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}task_id'],
+        data['${effectivePrefix}details'],
       ),
-      habitId: attachedDatabase.typeMapping.read(
+      status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}habit_id'],
-      ),
+        data['${effectivePrefix}status'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      triggerType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}trigger_type'],
+      )!,
       scheduledAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}scheduled_at'],
-      ),
-      recurrence: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}recurrence'],
-      ),
-      snoozeUntil: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}snooze_until'],
       ),
       placeId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -8136,48 +2503,54 @@ class $RemindersTable extends Reminders
         DriftSqlType.int,
         data['${effectivePrefix}dwell_seconds'],
       ),
-      copy: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}copy'],
+      autoCommitDeadlineAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}auto_commit_deadline_at'],
       ),
-      status: attachedDatabase.typeMapping.read(
+      captureId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
+        data['${effectivePrefix}capture_id'],
+      ),
+      aiExplanation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ai_explanation'],
+      ),
+      aiContext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ai_context'],
+      ),
     );
   }
 
   @override
-  $RemindersTable createAlias(String alias) {
-    return $RemindersTable(attachedDatabase, alias);
+  $TaskRemindersTable createAlias(String alias) {
+    return $TaskRemindersTable(attachedDatabase, alias);
   }
 }
 
-class ReminderRow extends DataClass implements Insertable<ReminderRow> {
+class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
   final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
   final DateTime? syncedAt;
   final String id;
   final String userId;
-  final String reminderType;
-  final String? taskId;
-  final String? habitId;
+  final String title;
+  final String? details;
+  final String status;
+  final String source;
+  final double confidence;
+  final String triggerType;
   final DateTime? scheduledAt;
-  final String? recurrence;
-  final DateTime? snoozeUntil;
   final String? placeId;
   final String? geofenceTransition;
   final int? dwellSeconds;
-  final String? copy;
-  final String status;
-  const ReminderRow({
+  final DateTime? autoCommitDeadlineAt;
+  final String? captureId;
+  final String? aiExplanation;
+  final String? aiContext;
+  const TaskReminderRow({
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -8185,17 +2558,20 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     this.syncedAt,
     required this.id,
     required this.userId,
-    required this.reminderType,
-    this.taskId,
-    this.habitId,
+    required this.title,
+    this.details,
+    required this.status,
+    required this.source,
+    required this.confidence,
+    required this.triggerType,
     this.scheduledAt,
-    this.recurrence,
-    this.snoozeUntil,
     this.placeId,
     this.geofenceTransition,
     this.dwellSeconds,
-    this.copy,
-    required this.status,
+    this.autoCommitDeadlineAt,
+    this.captureId,
+    this.aiExplanation,
+    this.aiContext,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8211,21 +2587,16 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     }
     map['id'] = Variable<String>(id);
     map['user_id'] = Variable<String>(userId);
-    map['reminder_type'] = Variable<String>(reminderType);
-    if (!nullToAbsent || taskId != null) {
-      map['task_id'] = Variable<String>(taskId);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || details != null) {
+      map['details'] = Variable<String>(details);
     }
-    if (!nullToAbsent || habitId != null) {
-      map['habit_id'] = Variable<String>(habitId);
-    }
+    map['status'] = Variable<String>(status);
+    map['source'] = Variable<String>(source);
+    map['confidence'] = Variable<double>(confidence);
+    map['trigger_type'] = Variable<String>(triggerType);
     if (!nullToAbsent || scheduledAt != null) {
       map['scheduled_at'] = Variable<DateTime>(scheduledAt);
-    }
-    if (!nullToAbsent || recurrence != null) {
-      map['recurrence'] = Variable<String>(recurrence);
-    }
-    if (!nullToAbsent || snoozeUntil != null) {
-      map['snooze_until'] = Variable<DateTime>(snoozeUntil);
     }
     if (!nullToAbsent || placeId != null) {
       map['place_id'] = Variable<String>(placeId);
@@ -8236,15 +2607,23 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     if (!nullToAbsent || dwellSeconds != null) {
       map['dwell_seconds'] = Variable<int>(dwellSeconds);
     }
-    if (!nullToAbsent || copy != null) {
-      map['copy'] = Variable<String>(copy);
+    if (!nullToAbsent || autoCommitDeadlineAt != null) {
+      map['auto_commit_deadline_at'] = Variable<DateTime>(autoCommitDeadlineAt);
     }
-    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || captureId != null) {
+      map['capture_id'] = Variable<String>(captureId);
+    }
+    if (!nullToAbsent || aiExplanation != null) {
+      map['ai_explanation'] = Variable<String>(aiExplanation);
+    }
+    if (!nullToAbsent || aiContext != null) {
+      map['ai_context'] = Variable<String>(aiContext);
+    }
     return map;
   }
 
-  RemindersCompanion toCompanion(bool nullToAbsent) {
-    return RemindersCompanion(
+  TaskRemindersCompanion toCompanion(bool nullToAbsent) {
+    return TaskRemindersCompanion(
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -8256,22 +2635,17 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           : Value(syncedAt),
       id: Value(id),
       userId: Value(userId),
-      reminderType: Value(reminderType),
-      taskId: taskId == null && nullToAbsent
+      title: Value(title),
+      details: details == null && nullToAbsent
           ? const Value.absent()
-          : Value(taskId),
-      habitId: habitId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(habitId),
+          : Value(details),
+      status: Value(status),
+      source: Value(source),
+      confidence: Value(confidence),
+      triggerType: Value(triggerType),
       scheduledAt: scheduledAt == null && nullToAbsent
           ? const Value.absent()
           : Value(scheduledAt),
-      recurrence: recurrence == null && nullToAbsent
-          ? const Value.absent()
-          : Value(recurrence),
-      snoozeUntil: snoozeUntil == null && nullToAbsent
-          ? const Value.absent()
-          : Value(snoozeUntil),
       placeId: placeId == null && nullToAbsent
           ? const Value.absent()
           : Value(placeId),
@@ -8281,17 +2655,27 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       dwellSeconds: dwellSeconds == null && nullToAbsent
           ? const Value.absent()
           : Value(dwellSeconds),
-      copy: copy == null && nullToAbsent ? const Value.absent() : Value(copy),
-      status: Value(status),
+      autoCommitDeadlineAt: autoCommitDeadlineAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(autoCommitDeadlineAt),
+      captureId: captureId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(captureId),
+      aiExplanation: aiExplanation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiExplanation),
+      aiContext: aiContext == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiContext),
     );
   }
 
-  factory ReminderRow.fromJson(
+  factory TaskReminderRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ReminderRow(
+    return TaskReminderRow(
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -8299,19 +2683,24 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<String>(json['userId']),
-      reminderType: serializer.fromJson<String>(json['reminderType']),
-      taskId: serializer.fromJson<String?>(json['taskId']),
-      habitId: serializer.fromJson<String?>(json['habitId']),
+      title: serializer.fromJson<String>(json['title']),
+      details: serializer.fromJson<String?>(json['details']),
+      status: serializer.fromJson<String>(json['status']),
+      source: serializer.fromJson<String>(json['source']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      triggerType: serializer.fromJson<String>(json['triggerType']),
       scheduledAt: serializer.fromJson<DateTime?>(json['scheduledAt']),
-      recurrence: serializer.fromJson<String?>(json['recurrence']),
-      snoozeUntil: serializer.fromJson<DateTime?>(json['snoozeUntil']),
       placeId: serializer.fromJson<String?>(json['placeId']),
       geofenceTransition: serializer.fromJson<String?>(
         json['geofenceTransition'],
       ),
       dwellSeconds: serializer.fromJson<int?>(json['dwellSeconds']),
-      copy: serializer.fromJson<String?>(json['copy']),
-      status: serializer.fromJson<String>(json['status']),
+      autoCommitDeadlineAt: serializer.fromJson<DateTime?>(
+        json['autoCommitDeadlineAt'],
+      ),
+      captureId: serializer.fromJson<String?>(json['captureId']),
+      aiExplanation: serializer.fromJson<String?>(json['aiExplanation']),
+      aiContext: serializer.fromJson<String?>(json['aiContext']),
     );
   }
   @override
@@ -8325,21 +2714,26 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       'syncedAt': serializer.toJson<DateTime?>(syncedAt),
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<String>(userId),
-      'reminderType': serializer.toJson<String>(reminderType),
-      'taskId': serializer.toJson<String?>(taskId),
-      'habitId': serializer.toJson<String?>(habitId),
+      'title': serializer.toJson<String>(title),
+      'details': serializer.toJson<String?>(details),
+      'status': serializer.toJson<String>(status),
+      'source': serializer.toJson<String>(source),
+      'confidence': serializer.toJson<double>(confidence),
+      'triggerType': serializer.toJson<String>(triggerType),
       'scheduledAt': serializer.toJson<DateTime?>(scheduledAt),
-      'recurrence': serializer.toJson<String?>(recurrence),
-      'snoozeUntil': serializer.toJson<DateTime?>(snoozeUntil),
       'placeId': serializer.toJson<String?>(placeId),
       'geofenceTransition': serializer.toJson<String?>(geofenceTransition),
       'dwellSeconds': serializer.toJson<int?>(dwellSeconds),
-      'copy': serializer.toJson<String?>(copy),
-      'status': serializer.toJson<String>(status),
+      'autoCommitDeadlineAt': serializer.toJson<DateTime?>(
+        autoCommitDeadlineAt,
+      ),
+      'captureId': serializer.toJson<String?>(captureId),
+      'aiExplanation': serializer.toJson<String?>(aiExplanation),
+      'aiContext': serializer.toJson<String?>(aiContext),
     };
   }
 
-  ReminderRow copyWith({
+  TaskReminderRow copyWith({
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
@@ -8347,18 +2741,21 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     Value<DateTime?> syncedAt = const Value.absent(),
     String? id,
     String? userId,
-    String? reminderType,
-    Value<String?> taskId = const Value.absent(),
-    Value<String?> habitId = const Value.absent(),
+    String? title,
+    Value<String?> details = const Value.absent(),
+    String? status,
+    String? source,
+    double? confidence,
+    String? triggerType,
     Value<DateTime?> scheduledAt = const Value.absent(),
-    Value<String?> recurrence = const Value.absent(),
-    Value<DateTime?> snoozeUntil = const Value.absent(),
     Value<String?> placeId = const Value.absent(),
     Value<String?> geofenceTransition = const Value.absent(),
     Value<int?> dwellSeconds = const Value.absent(),
-    Value<String?> copy = const Value.absent(),
-    String? status,
-  }) => ReminderRow(
+    Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
+    Value<String?> captureId = const Value.absent(),
+    Value<String?> aiExplanation = const Value.absent(),
+    Value<String?> aiContext = const Value.absent(),
+  }) => TaskReminderRow(
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -8366,22 +2763,29 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
     id: id ?? this.id,
     userId: userId ?? this.userId,
-    reminderType: reminderType ?? this.reminderType,
-    taskId: taskId.present ? taskId.value : this.taskId,
-    habitId: habitId.present ? habitId.value : this.habitId,
+    title: title ?? this.title,
+    details: details.present ? details.value : this.details,
+    status: status ?? this.status,
+    source: source ?? this.source,
+    confidence: confidence ?? this.confidence,
+    triggerType: triggerType ?? this.triggerType,
     scheduledAt: scheduledAt.present ? scheduledAt.value : this.scheduledAt,
-    recurrence: recurrence.present ? recurrence.value : this.recurrence,
-    snoozeUntil: snoozeUntil.present ? snoozeUntil.value : this.snoozeUntil,
     placeId: placeId.present ? placeId.value : this.placeId,
     geofenceTransition: geofenceTransition.present
         ? geofenceTransition.value
         : this.geofenceTransition,
     dwellSeconds: dwellSeconds.present ? dwellSeconds.value : this.dwellSeconds,
-    copy: copy.present ? copy.value : this.copy,
-    status: status ?? this.status,
+    autoCommitDeadlineAt: autoCommitDeadlineAt.present
+        ? autoCommitDeadlineAt.value
+        : this.autoCommitDeadlineAt,
+    captureId: captureId.present ? captureId.value : this.captureId,
+    aiExplanation: aiExplanation.present
+        ? aiExplanation.value
+        : this.aiExplanation,
+    aiContext: aiContext.present ? aiContext.value : this.aiContext,
   );
-  ReminderRow copyWithCompanion(RemindersCompanion data) {
-    return ReminderRow(
+  TaskReminderRow copyWithCompanion(TaskRemindersCompanion data) {
+    return TaskReminderRow(
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -8389,20 +2793,19 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
       id: data.id.present ? data.id.value : this.id,
       userId: data.userId.present ? data.userId.value : this.userId,
-      reminderType: data.reminderType.present
-          ? data.reminderType.value
-          : this.reminderType,
-      taskId: data.taskId.present ? data.taskId.value : this.taskId,
-      habitId: data.habitId.present ? data.habitId.value : this.habitId,
+      title: data.title.present ? data.title.value : this.title,
+      details: data.details.present ? data.details.value : this.details,
+      status: data.status.present ? data.status.value : this.status,
+      source: data.source.present ? data.source.value : this.source,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      triggerType: data.triggerType.present
+          ? data.triggerType.value
+          : this.triggerType,
       scheduledAt: data.scheduledAt.present
           ? data.scheduledAt.value
           : this.scheduledAt,
-      recurrence: data.recurrence.present
-          ? data.recurrence.value
-          : this.recurrence,
-      snoozeUntil: data.snoozeUntil.present
-          ? data.snoozeUntil.value
-          : this.snoozeUntil,
       placeId: data.placeId.present ? data.placeId.value : this.placeId,
       geofenceTransition: data.geofenceTransition.present
           ? data.geofenceTransition.value
@@ -8410,14 +2813,20 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       dwellSeconds: data.dwellSeconds.present
           ? data.dwellSeconds.value
           : this.dwellSeconds,
-      copy: data.copy.present ? data.copy.value : this.copy,
-      status: data.status.present ? data.status.value : this.status,
+      autoCommitDeadlineAt: data.autoCommitDeadlineAt.present
+          ? data.autoCommitDeadlineAt.value
+          : this.autoCommitDeadlineAt,
+      captureId: data.captureId.present ? data.captureId.value : this.captureId,
+      aiExplanation: data.aiExplanation.present
+          ? data.aiExplanation.value
+          : this.aiExplanation,
+      aiContext: data.aiContext.present ? data.aiContext.value : this.aiContext,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('ReminderRow(')
+    return (StringBuffer('TaskReminderRow(')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -8425,23 +2834,26 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
-          ..write('reminderType: $reminderType, ')
-          ..write('taskId: $taskId, ')
-          ..write('habitId: $habitId, ')
+          ..write('title: $title, ')
+          ..write('details: $details, ')
+          ..write('status: $status, ')
+          ..write('source: $source, ')
+          ..write('confidence: $confidence, ')
+          ..write('triggerType: $triggerType, ')
           ..write('scheduledAt: $scheduledAt, ')
-          ..write('recurrence: $recurrence, ')
-          ..write('snoozeUntil: $snoozeUntil, ')
           ..write('placeId: $placeId, ')
           ..write('geofenceTransition: $geofenceTransition, ')
           ..write('dwellSeconds: $dwellSeconds, ')
-          ..write('copy: $copy, ')
-          ..write('status: $status')
+          ..write('autoCommitDeadlineAt: $autoCommitDeadlineAt, ')
+          ..write('captureId: $captureId, ')
+          ..write('aiExplanation: $aiExplanation, ')
+          ..write('aiContext: $aiContext')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     createdAt,
     updatedAt,
     deletedAt,
@@ -8449,22 +2861,25 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     syncedAt,
     id,
     userId,
-    reminderType,
-    taskId,
-    habitId,
+    title,
+    details,
+    status,
+    source,
+    confidence,
+    triggerType,
     scheduledAt,
-    recurrence,
-    snoozeUntil,
     placeId,
     geofenceTransition,
     dwellSeconds,
-    copy,
-    status,
-  );
+    autoCommitDeadlineAt,
+    captureId,
+    aiExplanation,
+    aiContext,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ReminderRow &&
+      (other is TaskReminderRow &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -8472,20 +2887,23 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           other.syncedAt == this.syncedAt &&
           other.id == this.id &&
           other.userId == this.userId &&
-          other.reminderType == this.reminderType &&
-          other.taskId == this.taskId &&
-          other.habitId == this.habitId &&
+          other.title == this.title &&
+          other.details == this.details &&
+          other.status == this.status &&
+          other.source == this.source &&
+          other.confidence == this.confidence &&
+          other.triggerType == this.triggerType &&
           other.scheduledAt == this.scheduledAt &&
-          other.recurrence == this.recurrence &&
-          other.snoozeUntil == this.snoozeUntil &&
           other.placeId == this.placeId &&
           other.geofenceTransition == this.geofenceTransition &&
           other.dwellSeconds == this.dwellSeconds &&
-          other.copy == this.copy &&
-          other.status == this.status);
+          other.autoCommitDeadlineAt == this.autoCommitDeadlineAt &&
+          other.captureId == this.captureId &&
+          other.aiExplanation == this.aiExplanation &&
+          other.aiContext == this.aiContext);
 }
 
-class RemindersCompanion extends UpdateCompanion<ReminderRow> {
+class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -8493,19 +2911,22 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   final Value<DateTime?> syncedAt;
   final Value<String> id;
   final Value<String> userId;
-  final Value<String> reminderType;
-  final Value<String?> taskId;
-  final Value<String?> habitId;
+  final Value<String> title;
+  final Value<String?> details;
+  final Value<String> status;
+  final Value<String> source;
+  final Value<double> confidence;
+  final Value<String> triggerType;
   final Value<DateTime?> scheduledAt;
-  final Value<String?> recurrence;
-  final Value<DateTime?> snoozeUntil;
   final Value<String?> placeId;
   final Value<String?> geofenceTransition;
   final Value<int?> dwellSeconds;
-  final Value<String?> copy;
-  final Value<String> status;
+  final Value<DateTime?> autoCommitDeadlineAt;
+  final Value<String?> captureId;
+  final Value<String?> aiExplanation;
+  final Value<String?> aiContext;
   final Value<int> rowid;
-  const RemindersCompanion({
+  const TaskRemindersCompanion({
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -8513,20 +2934,23 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.syncedAt = const Value.absent(),
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
-    this.reminderType = const Value.absent(),
-    this.taskId = const Value.absent(),
-    this.habitId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.details = const Value.absent(),
+    this.status = const Value.absent(),
+    this.source = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.triggerType = const Value.absent(),
     this.scheduledAt = const Value.absent(),
-    this.recurrence = const Value.absent(),
-    this.snoozeUntil = const Value.absent(),
     this.placeId = const Value.absent(),
     this.geofenceTransition = const Value.absent(),
     this.dwellSeconds = const Value.absent(),
-    this.copy = const Value.absent(),
-    this.status = const Value.absent(),
+    this.autoCommitDeadlineAt = const Value.absent(),
+    this.captureId = const Value.absent(),
+    this.aiExplanation = const Value.absent(),
+    this.aiContext = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  RemindersCompanion.insert({
+  TaskRemindersCompanion.insert({
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -8534,22 +2958,27 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.syncedAt = const Value.absent(),
     required String id,
     required String userId,
-    required String reminderType,
-    this.taskId = const Value.absent(),
-    this.habitId = const Value.absent(),
+    required String title,
+    this.details = const Value.absent(),
+    this.status = const Value.absent(),
+    required String source,
+    this.confidence = const Value.absent(),
+    required String triggerType,
     this.scheduledAt = const Value.absent(),
-    this.recurrence = const Value.absent(),
-    this.snoozeUntil = const Value.absent(),
     this.placeId = const Value.absent(),
     this.geofenceTransition = const Value.absent(),
     this.dwellSeconds = const Value.absent(),
-    this.copy = const Value.absent(),
-    this.status = const Value.absent(),
+    this.autoCommitDeadlineAt = const Value.absent(),
+    this.captureId = const Value.absent(),
+    this.aiExplanation = const Value.absent(),
+    this.aiContext = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
-       reminderType = Value(reminderType);
-  static Insertable<ReminderRow> custom({
+       title = Value(title),
+       source = Value(source),
+       triggerType = Value(triggerType);
+  static Insertable<TaskReminderRow> custom({
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -8557,17 +2986,20 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Expression<DateTime>? syncedAt,
     Expression<String>? id,
     Expression<String>? userId,
-    Expression<String>? reminderType,
-    Expression<String>? taskId,
-    Expression<String>? habitId,
+    Expression<String>? title,
+    Expression<String>? details,
+    Expression<String>? status,
+    Expression<String>? source,
+    Expression<double>? confidence,
+    Expression<String>? triggerType,
     Expression<DateTime>? scheduledAt,
-    Expression<String>? recurrence,
-    Expression<DateTime>? snoozeUntil,
     Expression<String>? placeId,
     Expression<String>? geofenceTransition,
     Expression<int>? dwellSeconds,
-    Expression<String>? copy,
-    Expression<String>? status,
+    Expression<DateTime>? autoCommitDeadlineAt,
+    Expression<String>? captureId,
+    Expression<String>? aiExplanation,
+    Expression<String>? aiContext,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8578,22 +3010,26 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       if (syncedAt != null) 'synced_at': syncedAt,
       if (id != null) 'id': id,
       if (userId != null) 'user_id': userId,
-      if (reminderType != null) 'reminder_type': reminderType,
-      if (taskId != null) 'task_id': taskId,
-      if (habitId != null) 'habit_id': habitId,
+      if (title != null) 'title': title,
+      if (details != null) 'details': details,
+      if (status != null) 'status': status,
+      if (source != null) 'source': source,
+      if (confidence != null) 'confidence': confidence,
+      if (triggerType != null) 'trigger_type': triggerType,
       if (scheduledAt != null) 'scheduled_at': scheduledAt,
-      if (recurrence != null) 'recurrence': recurrence,
-      if (snoozeUntil != null) 'snooze_until': snoozeUntil,
       if (placeId != null) 'place_id': placeId,
       if (geofenceTransition != null) 'geofence_transition': geofenceTransition,
       if (dwellSeconds != null) 'dwell_seconds': dwellSeconds,
-      if (copy != null) 'copy': copy,
-      if (status != null) 'status': status,
+      if (autoCommitDeadlineAt != null)
+        'auto_commit_deadline_at': autoCommitDeadlineAt,
+      if (captureId != null) 'capture_id': captureId,
+      if (aiExplanation != null) 'ai_explanation': aiExplanation,
+      if (aiContext != null) 'ai_context': aiContext,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  RemindersCompanion copyWith({
+  TaskRemindersCompanion copyWith({
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
@@ -8601,20 +3037,23 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Value<DateTime?>? syncedAt,
     Value<String>? id,
     Value<String>? userId,
-    Value<String>? reminderType,
-    Value<String?>? taskId,
-    Value<String?>? habitId,
+    Value<String>? title,
+    Value<String?>? details,
+    Value<String>? status,
+    Value<String>? source,
+    Value<double>? confidence,
+    Value<String>? triggerType,
     Value<DateTime?>? scheduledAt,
-    Value<String?>? recurrence,
-    Value<DateTime?>? snoozeUntil,
     Value<String?>? placeId,
     Value<String?>? geofenceTransition,
     Value<int?>? dwellSeconds,
-    Value<String?>? copy,
-    Value<String>? status,
+    Value<DateTime?>? autoCommitDeadlineAt,
+    Value<String?>? captureId,
+    Value<String?>? aiExplanation,
+    Value<String?>? aiContext,
     Value<int>? rowid,
   }) {
-    return RemindersCompanion(
+    return TaskRemindersCompanion(
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -8622,17 +3061,20 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       syncedAt: syncedAt ?? this.syncedAt,
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      reminderType: reminderType ?? this.reminderType,
-      taskId: taskId ?? this.taskId,
-      habitId: habitId ?? this.habitId,
+      title: title ?? this.title,
+      details: details ?? this.details,
+      status: status ?? this.status,
+      source: source ?? this.source,
+      confidence: confidence ?? this.confidence,
+      triggerType: triggerType ?? this.triggerType,
       scheduledAt: scheduledAt ?? this.scheduledAt,
-      recurrence: recurrence ?? this.recurrence,
-      snoozeUntil: snoozeUntil ?? this.snoozeUntil,
       placeId: placeId ?? this.placeId,
       geofenceTransition: geofenceTransition ?? this.geofenceTransition,
       dwellSeconds: dwellSeconds ?? this.dwellSeconds,
-      copy: copy ?? this.copy,
-      status: status ?? this.status,
+      autoCommitDeadlineAt: autoCommitDeadlineAt ?? this.autoCommitDeadlineAt,
+      captureId: captureId ?? this.captureId,
+      aiExplanation: aiExplanation ?? this.aiExplanation,
+      aiContext: aiContext ?? this.aiContext,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8661,23 +3103,26 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
     }
-    if (reminderType.present) {
-      map['reminder_type'] = Variable<String>(reminderType.value);
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
     }
-    if (taskId.present) {
-      map['task_id'] = Variable<String>(taskId.value);
+    if (details.present) {
+      map['details'] = Variable<String>(details.value);
     }
-    if (habitId.present) {
-      map['habit_id'] = Variable<String>(habitId.value);
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (triggerType.present) {
+      map['trigger_type'] = Variable<String>(triggerType.value);
     }
     if (scheduledAt.present) {
       map['scheduled_at'] = Variable<DateTime>(scheduledAt.value);
-    }
-    if (recurrence.present) {
-      map['recurrence'] = Variable<String>(recurrence.value);
-    }
-    if (snoozeUntil.present) {
-      map['snooze_until'] = Variable<DateTime>(snoozeUntil.value);
     }
     if (placeId.present) {
       map['place_id'] = Variable<String>(placeId.value);
@@ -8688,11 +3133,19 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     if (dwellSeconds.present) {
       map['dwell_seconds'] = Variable<int>(dwellSeconds.value);
     }
-    if (copy.present) {
-      map['copy'] = Variable<String>(copy.value);
+    if (autoCommitDeadlineAt.present) {
+      map['auto_commit_deadline_at'] = Variable<DateTime>(
+        autoCommitDeadlineAt.value,
+      );
     }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
+    if (captureId.present) {
+      map['capture_id'] = Variable<String>(captureId.value);
+    }
+    if (aiExplanation.present) {
+      map['ai_explanation'] = Variable<String>(aiExplanation.value);
+    }
+    if (aiContext.present) {
+      map['ai_context'] = Variable<String>(aiContext.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -8702,7 +3155,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
 
   @override
   String toString() {
-    return (StringBuffer('RemindersCompanion(')
+    return (StringBuffer('TaskRemindersCompanion(')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -8710,29 +3163,32 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
-          ..write('reminderType: $reminderType, ')
-          ..write('taskId: $taskId, ')
-          ..write('habitId: $habitId, ')
+          ..write('title: $title, ')
+          ..write('details: $details, ')
+          ..write('status: $status, ')
+          ..write('source: $source, ')
+          ..write('confidence: $confidence, ')
+          ..write('triggerType: $triggerType, ')
           ..write('scheduledAt: $scheduledAt, ')
-          ..write('recurrence: $recurrence, ')
-          ..write('snoozeUntil: $snoozeUntil, ')
           ..write('placeId: $placeId, ')
           ..write('geofenceTransition: $geofenceTransition, ')
           ..write('dwellSeconds: $dwellSeconds, ')
-          ..write('copy: $copy, ')
-          ..write('status: $status, ')
+          ..write('autoCommitDeadlineAt: $autoCommitDeadlineAt, ')
+          ..write('captureId: $captureId, ')
+          ..write('aiExplanation: $aiExplanation, ')
+          ..write('aiContext: $aiContext, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $BlockListTable extends BlockList
-    with TableInfo<$BlockListTable, BlockListRow> {
+class $ReminderEventsTable extends ReminderEvents
+    with TableInfo<$ReminderEventsTable, ReminderEventRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $BlockListTable(this.attachedDatabase, [this._alias]);
+  $ReminderEventsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -8810,38 +3266,51 @@ class $BlockListTable extends BlockList
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _platformMeta = const VerificationMeta(
-    'platform',
+  static const VerificationMeta _reminderIdMeta = const VerificationMeta(
+    'reminderId',
   );
   @override
-  late final GeneratedColumn<String> platform = GeneratedColumn<String>(
-    'platform',
+  late final GeneratedColumn<String> reminderId = GeneratedColumn<String>(
+    'reminder_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _appIdentifierMeta = const VerificationMeta(
-    'appIdentifier',
+  static const VerificationMeta _eventTypeMeta = const VerificationMeta(
+    'eventType',
   );
   @override
-  late final GeneratedColumn<String> appIdentifier = GeneratedColumn<String>(
-    'app_identifier',
+  late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
+    'event_type',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _appLabelMeta = const VerificationMeta(
-    'appLabel',
+  static const VerificationMeta _metadataMeta = const VerificationMeta(
+    'metadata',
   );
   @override
-  late final GeneratedColumn<String> appLabel = GeneratedColumn<String>(
-    'app_label',
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+    'metadata',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _occurredAtMeta = const VerificationMeta(
+    'occurredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> occurredAt = GeneratedColumn<DateTime>(
+    'occurred_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -8852,18 +3321,19 @@ class $BlockListTable extends BlockList
     syncedAt,
     id,
     userId,
-    platform,
-    appIdentifier,
-    appLabel,
+    reminderId,
+    eventType,
+    metadata,
+    occurredAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'block_list';
+  static const String $name = 'reminder_events';
   @override
   VerificationContext validateIntegrity(
-    Insertable<BlockListRow> instance, {
+    Insertable<ReminderEventRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -8911,29 +3381,32 @@ class $BlockListTable extends BlockList
     } else if (isInserting) {
       context.missing(_userIdMeta);
     }
-    if (data.containsKey('platform')) {
+    if (data.containsKey('reminder_id')) {
       context.handle(
-        _platformMeta,
-        platform.isAcceptableOrUnknown(data['platform']!, _platformMeta),
+        _reminderIdMeta,
+        reminderId.isAcceptableOrUnknown(data['reminder_id']!, _reminderIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_platformMeta);
+      context.missing(_reminderIdMeta);
     }
-    if (data.containsKey('app_identifier')) {
+    if (data.containsKey('event_type')) {
       context.handle(
-        _appIdentifierMeta,
-        appIdentifier.isAcceptableOrUnknown(
-          data['app_identifier']!,
-          _appIdentifierMeta,
-        ),
+        _eventTypeMeta,
+        eventType.isAcceptableOrUnknown(data['event_type']!, _eventTypeMeta),
       );
     } else if (isInserting) {
-      context.missing(_appIdentifierMeta);
+      context.missing(_eventTypeMeta);
     }
-    if (data.containsKey('app_label')) {
+    if (data.containsKey('metadata')) {
       context.handle(
-        _appLabelMeta,
-        appLabel.isAcceptableOrUnknown(data['app_label']!, _appLabelMeta),
+        _metadataMeta,
+        metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
+      );
+    }
+    if (data.containsKey('occurred_at')) {
+      context.handle(
+        _occurredAtMeta,
+        occurredAt.isAcceptableOrUnknown(data['occurred_at']!, _occurredAtMeta),
       );
     }
     return context;
@@ -8942,9 +3415,9 @@ class $BlockListTable extends BlockList
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  BlockListRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ReminderEventRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return BlockListRow(
+    return ReminderEventRow(
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -8973,44 +3446,45 @@ class $BlockListTable extends BlockList
         DriftSqlType.string,
         data['${effectivePrefix}user_id'],
       )!,
-      platform: attachedDatabase.typeMapping.read(
+      reminderId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}platform'],
+        data['${effectivePrefix}reminder_id'],
       )!,
-      appIdentifier: attachedDatabase.typeMapping.read(
+      eventType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}app_identifier'],
+        data['${effectivePrefix}event_type'],
       )!,
-      appLabel: attachedDatabase.typeMapping.read(
+      metadata: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}app_label'],
-      ),
+        data['${effectivePrefix}metadata'],
+      )!,
+      occurredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}occurred_at'],
+      )!,
     );
   }
 
   @override
-  $BlockListTable createAlias(String alias) {
-    return $BlockListTable(attachedDatabase, alias);
+  $ReminderEventsTable createAlias(String alias) {
+    return $ReminderEventsTable(attachedDatabase, alias);
   }
 }
 
-class BlockListRow extends DataClass implements Insertable<BlockListRow> {
+class ReminderEventRow extends DataClass
+    implements Insertable<ReminderEventRow> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
   final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
   final DateTime? syncedAt;
   final String id;
   final String userId;
-  final String platform;
-  final String appIdentifier;
-  final String? appLabel;
-  const BlockListRow({
+  final String reminderId;
+  final String eventType;
+  final String metadata;
+  final DateTime occurredAt;
+  const ReminderEventRow({
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -9018,9 +3492,10 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
     this.syncedAt,
     required this.id,
     required this.userId,
-    required this.platform,
-    required this.appIdentifier,
-    this.appLabel,
+    required this.reminderId,
+    required this.eventType,
+    required this.metadata,
+    required this.occurredAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9036,16 +3511,15 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
     }
     map['id'] = Variable<String>(id);
     map['user_id'] = Variable<String>(userId);
-    map['platform'] = Variable<String>(platform);
-    map['app_identifier'] = Variable<String>(appIdentifier);
-    if (!nullToAbsent || appLabel != null) {
-      map['app_label'] = Variable<String>(appLabel);
-    }
+    map['reminder_id'] = Variable<String>(reminderId);
+    map['event_type'] = Variable<String>(eventType);
+    map['metadata'] = Variable<String>(metadata);
+    map['occurred_at'] = Variable<DateTime>(occurredAt);
     return map;
   }
 
-  BlockListCompanion toCompanion(bool nullToAbsent) {
-    return BlockListCompanion(
+  ReminderEventsCompanion toCompanion(bool nullToAbsent) {
+    return ReminderEventsCompanion(
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -9057,20 +3531,19 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
           : Value(syncedAt),
       id: Value(id),
       userId: Value(userId),
-      platform: Value(platform),
-      appIdentifier: Value(appIdentifier),
-      appLabel: appLabel == null && nullToAbsent
-          ? const Value.absent()
-          : Value(appLabel),
+      reminderId: Value(reminderId),
+      eventType: Value(eventType),
+      metadata: Value(metadata),
+      occurredAt: Value(occurredAt),
     );
   }
 
-  factory BlockListRow.fromJson(
+  factory ReminderEventRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return BlockListRow(
+    return ReminderEventRow(
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -9078,9 +3551,10 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
       syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<String>(json['userId']),
-      platform: serializer.fromJson<String>(json['platform']),
-      appIdentifier: serializer.fromJson<String>(json['appIdentifier']),
-      appLabel: serializer.fromJson<String?>(json['appLabel']),
+      reminderId: serializer.fromJson<String>(json['reminderId']),
+      eventType: serializer.fromJson<String>(json['eventType']),
+      metadata: serializer.fromJson<String>(json['metadata']),
+      occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
     );
   }
   @override
@@ -9094,13 +3568,14 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
       'syncedAt': serializer.toJson<DateTime?>(syncedAt),
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<String>(userId),
-      'platform': serializer.toJson<String>(platform),
-      'appIdentifier': serializer.toJson<String>(appIdentifier),
-      'appLabel': serializer.toJson<String?>(appLabel),
+      'reminderId': serializer.toJson<String>(reminderId),
+      'eventType': serializer.toJson<String>(eventType),
+      'metadata': serializer.toJson<String>(metadata),
+      'occurredAt': serializer.toJson<DateTime>(occurredAt),
     };
   }
 
-  BlockListRow copyWith({
+  ReminderEventRow copyWith({
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
@@ -9108,10 +3583,11 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
     Value<DateTime?> syncedAt = const Value.absent(),
     String? id,
     String? userId,
-    String? platform,
-    String? appIdentifier,
-    Value<String?> appLabel = const Value.absent(),
-  }) => BlockListRow(
+    String? reminderId,
+    String? eventType,
+    String? metadata,
+    DateTime? occurredAt,
+  }) => ReminderEventRow(
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -9119,12 +3595,13 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
     syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
     id: id ?? this.id,
     userId: userId ?? this.userId,
-    platform: platform ?? this.platform,
-    appIdentifier: appIdentifier ?? this.appIdentifier,
-    appLabel: appLabel.present ? appLabel.value : this.appLabel,
+    reminderId: reminderId ?? this.reminderId,
+    eventType: eventType ?? this.eventType,
+    metadata: metadata ?? this.metadata,
+    occurredAt: occurredAt ?? this.occurredAt,
   );
-  BlockListRow copyWithCompanion(BlockListCompanion data) {
-    return BlockListRow(
+  ReminderEventRow copyWithCompanion(ReminderEventsCompanion data) {
+    return ReminderEventRow(
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -9132,17 +3609,20 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
       id: data.id.present ? data.id.value : this.id,
       userId: data.userId.present ? data.userId.value : this.userId,
-      platform: data.platform.present ? data.platform.value : this.platform,
-      appIdentifier: data.appIdentifier.present
-          ? data.appIdentifier.value
-          : this.appIdentifier,
-      appLabel: data.appLabel.present ? data.appLabel.value : this.appLabel,
+      reminderId: data.reminderId.present
+          ? data.reminderId.value
+          : this.reminderId,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+      occurredAt: data.occurredAt.present
+          ? data.occurredAt.value
+          : this.occurredAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('BlockListRow(')
+    return (StringBuffer('ReminderEventRow(')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -9150,9 +3630,10 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
-          ..write('platform: $platform, ')
-          ..write('appIdentifier: $appIdentifier, ')
-          ..write('appLabel: $appLabel')
+          ..write('reminderId: $reminderId, ')
+          ..write('eventType: $eventType, ')
+          ..write('metadata: $metadata, ')
+          ..write('occurredAt: $occurredAt')
           ..write(')'))
         .toString();
   }
@@ -9166,14 +3647,15 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
     syncedAt,
     id,
     userId,
-    platform,
-    appIdentifier,
-    appLabel,
+    reminderId,
+    eventType,
+    metadata,
+    occurredAt,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is BlockListRow &&
+      (other is ReminderEventRow &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -9181,12 +3663,13 @@ class BlockListRow extends DataClass implements Insertable<BlockListRow> {
           other.syncedAt == this.syncedAt &&
           other.id == this.id &&
           other.userId == this.userId &&
-          other.platform == this.platform &&
-          other.appIdentifier == this.appIdentifier &&
-          other.appLabel == this.appLabel);
+          other.reminderId == this.reminderId &&
+          other.eventType == this.eventType &&
+          other.metadata == this.metadata &&
+          other.occurredAt == this.occurredAt);
 }
 
-class BlockListCompanion extends UpdateCompanion<BlockListRow> {
+class ReminderEventsCompanion extends UpdateCompanion<ReminderEventRow> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -9194,11 +3677,12 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
   final Value<DateTime?> syncedAt;
   final Value<String> id;
   final Value<String> userId;
-  final Value<String> platform;
-  final Value<String> appIdentifier;
-  final Value<String?> appLabel;
+  final Value<String> reminderId;
+  final Value<String> eventType;
+  final Value<String> metadata;
+  final Value<DateTime> occurredAt;
   final Value<int> rowid;
-  const BlockListCompanion({
+  const ReminderEventsCompanion({
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -9206,12 +3690,13 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
     this.syncedAt = const Value.absent(),
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
-    this.platform = const Value.absent(),
-    this.appIdentifier = const Value.absent(),
-    this.appLabel = const Value.absent(),
+    this.reminderId = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.occurredAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  BlockListCompanion.insert({
+  ReminderEventsCompanion.insert({
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -9219,15 +3704,16 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
     this.syncedAt = const Value.absent(),
     required String id,
     required String userId,
-    required String platform,
-    required String appIdentifier,
-    this.appLabel = const Value.absent(),
+    required String reminderId,
+    required String eventType,
+    this.metadata = const Value.absent(),
+    this.occurredAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
-       platform = Value(platform),
-       appIdentifier = Value(appIdentifier);
-  static Insertable<BlockListRow> custom({
+       reminderId = Value(reminderId),
+       eventType = Value(eventType);
+  static Insertable<ReminderEventRow> custom({
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -9235,9 +3721,10 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
     Expression<DateTime>? syncedAt,
     Expression<String>? id,
     Expression<String>? userId,
-    Expression<String>? platform,
-    Expression<String>? appIdentifier,
-    Expression<String>? appLabel,
+    Expression<String>? reminderId,
+    Expression<String>? eventType,
+    Expression<String>? metadata,
+    Expression<DateTime>? occurredAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9248,14 +3735,15 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
       if (syncedAt != null) 'synced_at': syncedAt,
       if (id != null) 'id': id,
       if (userId != null) 'user_id': userId,
-      if (platform != null) 'platform': platform,
-      if (appIdentifier != null) 'app_identifier': appIdentifier,
-      if (appLabel != null) 'app_label': appLabel,
+      if (reminderId != null) 'reminder_id': reminderId,
+      if (eventType != null) 'event_type': eventType,
+      if (metadata != null) 'metadata': metadata,
+      if (occurredAt != null) 'occurred_at': occurredAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  BlockListCompanion copyWith({
+  ReminderEventsCompanion copyWith({
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
@@ -9263,12 +3751,13 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
     Value<DateTime?>? syncedAt,
     Value<String>? id,
     Value<String>? userId,
-    Value<String>? platform,
-    Value<String>? appIdentifier,
-    Value<String?>? appLabel,
+    Value<String>? reminderId,
+    Value<String>? eventType,
+    Value<String>? metadata,
+    Value<DateTime>? occurredAt,
     Value<int>? rowid,
   }) {
-    return BlockListCompanion(
+    return ReminderEventsCompanion(
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -9276,9 +3765,10 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
       syncedAt: syncedAt ?? this.syncedAt,
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      platform: platform ?? this.platform,
-      appIdentifier: appIdentifier ?? this.appIdentifier,
-      appLabel: appLabel ?? this.appLabel,
+      reminderId: reminderId ?? this.reminderId,
+      eventType: eventType ?? this.eventType,
+      metadata: metadata ?? this.metadata,
+      occurredAt: occurredAt ?? this.occurredAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9307,14 +3797,17 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
     }
-    if (platform.present) {
-      map['platform'] = Variable<String>(platform.value);
+    if (reminderId.present) {
+      map['reminder_id'] = Variable<String>(reminderId.value);
     }
-    if (appIdentifier.present) {
-      map['app_identifier'] = Variable<String>(appIdentifier.value);
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(eventType.value);
     }
-    if (appLabel.present) {
-      map['app_label'] = Variable<String>(appLabel.value);
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (occurredAt.present) {
+      map['occurred_at'] = Variable<DateTime>(occurredAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -9324,7 +3817,7 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
 
   @override
   String toString() {
-    return (StringBuffer('BlockListCompanion(')
+    return (StringBuffer('ReminderEventsCompanion(')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -9332,9 +3825,1212 @@ class BlockListCompanion extends UpdateCompanion<BlockListRow> {
           ..write('syncedAt: $syncedAt, ')
           ..write('id: $id, ')
           ..write('userId: $userId, ')
-          ..write('platform: $platform, ')
-          ..write('appIdentifier: $appIdentifier, ')
-          ..write('appLabel: $appLabel, ')
+          ..write('reminderId: $reminderId, ')
+          ..write('eventType: $eventType, ')
+          ..write('metadata: $metadata, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ConversationsTable extends Conversations
+    with TableInfo<$ConversationsTable, ConversationRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConversationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('open'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    title,
+    status,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conversations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ConversationRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConversationRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConversationRow(
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+    );
+  }
+
+  @override
+  $ConversationsTable createAlias(String alias) {
+    return $ConversationsTable(attachedDatabase, alias);
+  }
+}
+
+class ConversationRow extends DataClass implements Insertable<ConversationRow> {
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final DateTime? syncedAt;
+  final String id;
+  final String userId;
+  final String? title;
+  final String status;
+  const ConversationRow({
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.syncedAt,
+    required this.id,
+    required this.userId,
+    this.title,
+    required this.status,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    map['status'] = Variable<String>(status);
+    return map;
+  }
+
+  ConversationsCompanion toCompanion(bool nullToAbsent) {
+    return ConversationsCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      id: Value(id),
+      userId: Value(userId),
+      title: title == null && nullToAbsent
+          ? const Value.absent()
+          : Value(title),
+      status: Value(status),
+    );
+  }
+
+  factory ConversationRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConversationRow(
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      title: serializer.fromJson<String?>(json['title']),
+      status: serializer.fromJson<String>(json['status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'title': serializer.toJson<String?>(title),
+      'status': serializer.toJson<String>(status),
+    };
+  }
+
+  ConversationRow copyWith({
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? id,
+    String? userId,
+    Value<String?> title = const Value.absent(),
+    String? status,
+  }) => ConversationRow(
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    title: title.present ? title.value : this.title,
+    status: status ?? this.status,
+  );
+  ConversationRow copyWithCompanion(ConversationsCompanion data) {
+    return ConversationRow(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      title: data.title.present ? data.title.value : this.title,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationRow(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('title: $title, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    title,
+    status,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConversationRow &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.syncedAt == this.syncedAt &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.title == this.title &&
+          other.status == this.status);
+}
+
+class ConversationsCompanion extends UpdateCompanion<ConversationRow> {
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<DateTime?> syncedAt;
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String?> title;
+  final Value<String> status;
+  final Value<int> rowid;
+  const ConversationsCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ConversationsCompanion.insert({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String id,
+    required String userId,
+    this.title = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       userId = Value(userId);
+  static Insertable<ConversationRow> custom({
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String>? title,
+    Expression<String>? status,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (title != null) 'title': title,
+      if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ConversationsCompanion copyWith({
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<DateTime?>? syncedAt,
+    Value<String>? id,
+    Value<String>? userId,
+    Value<String?>? title,
+    Value<String>? status,
+    Value<int>? rowid,
+  }) {
+    return ConversationsCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      syncedAt: syncedAt ?? this.syncedAt,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationsCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('title: $title, ')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MessagesTable extends Messages
+    with TableInfo<$MessagesTable, MessageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conversationIdMeta = const VerificationMeta(
+    'conversationId',
+  );
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+    'conversation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _metadataMeta = const VerificationMeta(
+    'metadata',
+  );
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+    'metadata',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    conversationId,
+    role,
+    content,
+    metadata,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MessageRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+        _conversationIdMeta,
+        conversationId.isAcceptableOrUnknown(
+          data['conversation_id']!,
+          _conversationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_conversationIdMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('metadata')) {
+      context.handle(
+        _metadataMeta,
+        metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MessageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MessageRow(
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      conversationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conversation_id'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      metadata: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata'],
+      )!,
+    );
+  }
+
+  @override
+  $MessagesTable createAlias(String alias) {
+    return $MessagesTable(attachedDatabase, alias);
+  }
+}
+
+class MessageRow extends DataClass implements Insertable<MessageRow> {
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final bool dirty;
+  final DateTime? syncedAt;
+  final String id;
+  final String userId;
+  final String conversationId;
+  final String role;
+  final String content;
+  final String metadata;
+  const MessageRow({
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.dirty,
+    this.syncedAt,
+    required this.id,
+    required this.userId,
+    required this.conversationId,
+    required this.role,
+    required this.content,
+    required this.metadata,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['dirty'] = Variable<bool>(dirty);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['role'] = Variable<String>(role);
+    map['content'] = Variable<String>(content);
+    map['metadata'] = Variable<String>(metadata);
+    return map;
+  }
+
+  MessagesCompanion toCompanion(bool nullToAbsent) {
+    return MessagesCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      dirty: Value(dirty),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      id: Value(id),
+      userId: Value(userId),
+      conversationId: Value(conversationId),
+      role: Value(role),
+      content: Value(content),
+      metadata: Value(metadata),
+    );
+  }
+
+  factory MessageRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MessageRow(
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      role: serializer.fromJson<String>(json['role']),
+      content: serializer.fromJson<String>(json['content']),
+      metadata: serializer.fromJson<String>(json['metadata']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'dirty': serializer.toJson<bool>(dirty),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'role': serializer.toJson<String>(role),
+      'content': serializer.toJson<String>(content),
+      'metadata': serializer.toJson<String>(metadata),
+    };
+  }
+
+  MessageRow copyWith({
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    bool? dirty,
+    Value<DateTime?> syncedAt = const Value.absent(),
+    String? id,
+    String? userId,
+    String? conversationId,
+    String? role,
+    String? content,
+    String? metadata,
+  }) => MessageRow(
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    dirty: dirty ?? this.dirty,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    conversationId: conversationId ?? this.conversationId,
+    role: role ?? this.role,
+    content: content ?? this.content,
+    metadata: metadata ?? this.metadata,
+  );
+  MessageRow copyWithCompanion(MessagesCompanion data) {
+    return MessageRow(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      role: data.role.present ? data.role.value : this.role,
+      content: data.content.present ? data.content.value : this.content,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MessageRow(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('metadata: $metadata')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    createdAt,
+    updatedAt,
+    deletedAt,
+    dirty,
+    syncedAt,
+    id,
+    userId,
+    conversationId,
+    role,
+    content,
+    metadata,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MessageRow &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.dirty == this.dirty &&
+          other.syncedAt == this.syncedAt &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.conversationId == this.conversationId &&
+          other.role == this.role &&
+          other.content == this.content &&
+          other.metadata == this.metadata);
+}
+
+class MessagesCompanion extends UpdateCompanion<MessageRow> {
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<bool> dirty;
+  final Value<DateTime?> syncedAt;
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String> conversationId;
+  final Value<String> role;
+  final Value<String> content;
+  final Value<String> metadata;
+  final Value<int> rowid;
+  const MessagesCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.role = const Value.absent(),
+    this.content = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MessagesCompanion.insert({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    required String id,
+    required String userId,
+    required String conversationId,
+    required String role,
+    required String content,
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       userId = Value(userId),
+       conversationId = Value(conversationId),
+       role = Value(role),
+       content = Value(content);
+  static Insertable<MessageRow> custom({
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<bool>? dirty,
+    Expression<DateTime>? syncedAt,
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String>? conversationId,
+    Expression<String>? role,
+    Expression<String>? content,
+    Expression<String>? metadata,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (dirty != null) 'dirty': dirty,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (role != null) 'role': role,
+      if (content != null) 'content': content,
+      if (metadata != null) 'metadata': metadata,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MessagesCompanion copyWith({
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<bool>? dirty,
+    Value<DateTime?>? syncedAt,
+    Value<String>? id,
+    Value<String>? userId,
+    Value<String>? conversationId,
+    Value<String>? role,
+    Value<String>? content,
+    Value<String>? metadata,
+    Value<int>? rowid,
+  }) {
+    return MessagesCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      dirty: dirty ?? this.dirty,
+      syncedAt: syncedAt ?? this.syncedAt,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      conversationId: conversationId ?? this.conversationId,
+      role: role ?? this.role,
+      content: content ?? this.content,
+      metadata: metadata ?? this.metadata,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MessagesCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('dirty: $dirty, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('metadata: $metadata, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9652,12 +5348,7 @@ class EventRow extends DataClass implements Insertable<EventRow> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  /// Local-only: this row has un-pushed local changes. Cleared after a
-  /// successful push. Not present in the cloud schema.
   final bool dirty;
-
-  /// Local-only: when this device last pushed this row (`null` = never).
   final DateTime? syncedAt;
   final String id;
   final String userId;
@@ -10271,19 +5962,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
-  late final $CapturesTable captures = $CapturesTable(this);
-  late final $GoalsTable goals = $GoalsTable(this);
-  late final $TasksTable tasks = $TasksTable(this);
-  late final $NotesTable notes = $NotesTable(this);
-  late final $HabitsTable habits = $HabitsTable(this);
-  late final $HabitCompletionsTable habitCompletions = $HabitCompletionsTable(
-    this,
-  );
   late final $PlacesTable places = $PlacesTable(this);
-  late final $FocusSessionsTable focusSessions = $FocusSessionsTable(this);
-  late final $VibeChecksTable vibeChecks = $VibeChecksTable(this);
-  late final $RemindersTable reminders = $RemindersTable(this);
-  late final $BlockListTable blockList = $BlockListTable(this);
+  late final $CapturesTable captures = $CapturesTable(this);
+  late final $TaskRemindersTable taskReminders = $TaskRemindersTable(this);
+  late final $ReminderEventsTable reminderEvents = $ReminderEventsTable(this);
+  late final $ConversationsTable conversations = $ConversationsTable(this);
+  late final $MessagesTable messages = $MessagesTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
   @override
@@ -10292,17 +5976,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     profiles,
-    captures,
-    goals,
-    tasks,
-    notes,
-    habits,
-    habitCompletions,
     places,
-    focusSessions,
-    vibeChecks,
-    reminders,
-    blockList,
+    captures,
+    taskReminders,
+    reminderEvents,
+    conversations,
+    messages,
     events,
     syncMeta,
   ];
@@ -10584,2271 +6263,6 @@ typedef $$ProfilesTableProcessedTableManager =
       $$ProfilesTableUpdateCompanionBuilder,
       (ProfileRow, BaseReferences<_$AppDatabase, $ProfilesTable, ProfileRow>),
       ProfileRow,
-      PrefetchHooks Function()
-    >;
-typedef $$CapturesTableCreateCompanionBuilder =
-    CapturesCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      Value<String?> audioPath,
-      Value<String?> rawTranscript,
-      Value<String> llmType,
-      Value<String?> title,
-      Value<String?> details,
-      Value<String?> suggestedSchedule,
-      Value<String> status,
-      Value<String?> resultingType,
-      Value<String?> resultingId,
-      Value<String?> proposedItems,
-      Value<String> dispositionedItemIds,
-      Value<DateTime?> autoCommittedAt,
-      Value<DateTime> capturedAt,
-      Value<int> rowid,
-    });
-typedef $$CapturesTableUpdateCompanionBuilder =
-    CapturesCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String?> audioPath,
-      Value<String?> rawTranscript,
-      Value<String> llmType,
-      Value<String?> title,
-      Value<String?> details,
-      Value<String?> suggestedSchedule,
-      Value<String> status,
-      Value<String?> resultingType,
-      Value<String?> resultingId,
-      Value<String?> proposedItems,
-      Value<String> dispositionedItemIds,
-      Value<DateTime?> autoCommittedAt,
-      Value<DateTime> capturedAt,
-      Value<int> rowid,
-    });
-
-class $$CapturesTableFilterComposer
-    extends Composer<_$AppDatabase, $CapturesTable> {
-  $$CapturesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get audioPath => $composableBuilder(
-    column: $table.audioPath,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get rawTranscript => $composableBuilder(
-    column: $table.rawTranscript,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get llmType => $composableBuilder(
-    column: $table.llmType,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get details => $composableBuilder(
-    column: $table.details,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get suggestedSchedule => $composableBuilder(
-    column: $table.suggestedSchedule,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get resultingType => $composableBuilder(
-    column: $table.resultingType,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get resultingId => $composableBuilder(
-    column: $table.resultingId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get proposedItems => $composableBuilder(
-    column: $table.proposedItems,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get dispositionedItemIds => $composableBuilder(
-    column: $table.dispositionedItemIds,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get autoCommittedAt => $composableBuilder(
-    column: $table.autoCommittedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
-    column: $table.capturedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$CapturesTableOrderingComposer
-    extends Composer<_$AppDatabase, $CapturesTable> {
-  $$CapturesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get audioPath => $composableBuilder(
-    column: $table.audioPath,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get rawTranscript => $composableBuilder(
-    column: $table.rawTranscript,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get llmType => $composableBuilder(
-    column: $table.llmType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get details => $composableBuilder(
-    column: $table.details,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get suggestedSchedule => $composableBuilder(
-    column: $table.suggestedSchedule,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get resultingType => $composableBuilder(
-    column: $table.resultingType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get resultingId => $composableBuilder(
-    column: $table.resultingId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get proposedItems => $composableBuilder(
-    column: $table.proposedItems,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get dispositionedItemIds => $composableBuilder(
-    column: $table.dispositionedItemIds,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get autoCommittedAt => $composableBuilder(
-    column: $table.autoCommittedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
-    column: $table.capturedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$CapturesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CapturesTable> {
-  $$CapturesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get audioPath =>
-      $composableBuilder(column: $table.audioPath, builder: (column) => column);
-
-  GeneratedColumn<String> get rawTranscript => $composableBuilder(
-    column: $table.rawTranscript,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get llmType =>
-      $composableBuilder(column: $table.llmType, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get details =>
-      $composableBuilder(column: $table.details, builder: (column) => column);
-
-  GeneratedColumn<String> get suggestedSchedule => $composableBuilder(
-    column: $table.suggestedSchedule,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get resultingType => $composableBuilder(
-    column: $table.resultingType,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get resultingId => $composableBuilder(
-    column: $table.resultingId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get proposedItems => $composableBuilder(
-    column: $table.proposedItems,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get dispositionedItemIds => $composableBuilder(
-    column: $table.dispositionedItemIds,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get autoCommittedAt => $composableBuilder(
-    column: $table.autoCommittedAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
-    column: $table.capturedAt,
-    builder: (column) => column,
-  );
-}
-
-class $$CapturesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $CapturesTable,
-          CaptureRow,
-          $$CapturesTableFilterComposer,
-          $$CapturesTableOrderingComposer,
-          $$CapturesTableAnnotationComposer,
-          $$CapturesTableCreateCompanionBuilder,
-          $$CapturesTableUpdateCompanionBuilder,
-          (
-            CaptureRow,
-            BaseReferences<_$AppDatabase, $CapturesTable, CaptureRow>,
-          ),
-          CaptureRow,
-          PrefetchHooks Function()
-        > {
-  $$CapturesTableTableManager(_$AppDatabase db, $CapturesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$CapturesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CapturesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CapturesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> audioPath = const Value.absent(),
-                Value<String?> rawTranscript = const Value.absent(),
-                Value<String> llmType = const Value.absent(),
-                Value<String?> title = const Value.absent(),
-                Value<String?> details = const Value.absent(),
-                Value<String?> suggestedSchedule = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<String?> resultingType = const Value.absent(),
-                Value<String?> resultingId = const Value.absent(),
-                Value<String?> proposedItems = const Value.absent(),
-                Value<String> dispositionedItemIds = const Value.absent(),
-                Value<DateTime?> autoCommittedAt = const Value.absent(),
-                Value<DateTime> capturedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => CapturesCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                audioPath: audioPath,
-                rawTranscript: rawTranscript,
-                llmType: llmType,
-                title: title,
-                details: details,
-                suggestedSchedule: suggestedSchedule,
-                status: status,
-                resultingType: resultingType,
-                resultingId: resultingId,
-                proposedItems: proposedItems,
-                dispositionedItemIds: dispositionedItemIds,
-                autoCommittedAt: autoCommittedAt,
-                capturedAt: capturedAt,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> audioPath = const Value.absent(),
-                Value<String?> rawTranscript = const Value.absent(),
-                Value<String> llmType = const Value.absent(),
-                Value<String?> title = const Value.absent(),
-                Value<String?> details = const Value.absent(),
-                Value<String?> suggestedSchedule = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<String?> resultingType = const Value.absent(),
-                Value<String?> resultingId = const Value.absent(),
-                Value<String?> proposedItems = const Value.absent(),
-                Value<String> dispositionedItemIds = const Value.absent(),
-                Value<DateTime?> autoCommittedAt = const Value.absent(),
-                Value<DateTime> capturedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => CapturesCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                audioPath: audioPath,
-                rawTranscript: rawTranscript,
-                llmType: llmType,
-                title: title,
-                details: details,
-                suggestedSchedule: suggestedSchedule,
-                status: status,
-                resultingType: resultingType,
-                resultingId: resultingId,
-                proposedItems: proposedItems,
-                dispositionedItemIds: dispositionedItemIds,
-                autoCommittedAt: autoCommittedAt,
-                capturedAt: capturedAt,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$CapturesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $CapturesTable,
-      CaptureRow,
-      $$CapturesTableFilterComposer,
-      $$CapturesTableOrderingComposer,
-      $$CapturesTableAnnotationComposer,
-      $$CapturesTableCreateCompanionBuilder,
-      $$CapturesTableUpdateCompanionBuilder,
-      (CaptureRow, BaseReferences<_$AppDatabase, $CapturesTable, CaptureRow>),
-      CaptureRow,
-      PrefetchHooks Function()
-    >;
-typedef $$GoalsTableCreateCompanionBuilder =
-    GoalsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      Value<String?> captureId,
-      required String title,
-      Value<String?> why,
-      Value<String> status,
-      Value<DateTime?> targetDate,
-      Value<int> rowid,
-    });
-typedef $$GoalsTableUpdateCompanionBuilder =
-    GoalsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String?> captureId,
-      Value<String> title,
-      Value<String?> why,
-      Value<String> status,
-      Value<DateTime?> targetDate,
-      Value<int> rowid,
-    });
-
-class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
-  $$GoalsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get why => $composableBuilder(
-    column: $table.why,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get targetDate => $composableBuilder(
-    column: $table.targetDate,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$GoalsTableOrderingComposer
-    extends Composer<_$AppDatabase, $GoalsTable> {
-  $$GoalsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get why => $composableBuilder(
-    column: $table.why,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get targetDate => $composableBuilder(
-    column: $table.targetDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$GoalsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GoalsTable> {
-  $$GoalsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get captureId =>
-      $composableBuilder(column: $table.captureId, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get why =>
-      $composableBuilder(column: $table.why, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get targetDate => $composableBuilder(
-    column: $table.targetDate,
-    builder: (column) => column,
-  );
-}
-
-class $$GoalsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $GoalsTable,
-          GoalRow,
-          $$GoalsTableFilterComposer,
-          $$GoalsTableOrderingComposer,
-          $$GoalsTableAnnotationComposer,
-          $$GoalsTableCreateCompanionBuilder,
-          $$GoalsTableUpdateCompanionBuilder,
-          (GoalRow, BaseReferences<_$AppDatabase, $GoalsTable, GoalRow>),
-          GoalRow,
-          PrefetchHooks Function()
-        > {
-  $$GoalsTableTableManager(_$AppDatabase db, $GoalsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$GoalsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$GoalsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$GoalsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> captureId = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String?> why = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<DateTime?> targetDate = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => GoalsCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                title: title,
-                why: why,
-                status: status,
-                targetDate: targetDate,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> captureId = const Value.absent(),
-                required String title,
-                Value<String?> why = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<DateTime?> targetDate = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => GoalsCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                title: title,
-                why: why,
-                status: status,
-                targetDate: targetDate,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$GoalsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $GoalsTable,
-      GoalRow,
-      $$GoalsTableFilterComposer,
-      $$GoalsTableOrderingComposer,
-      $$GoalsTableAnnotationComposer,
-      $$GoalsTableCreateCompanionBuilder,
-      $$GoalsTableUpdateCompanionBuilder,
-      (GoalRow, BaseReferences<_$AppDatabase, $GoalsTable, GoalRow>),
-      GoalRow,
-      PrefetchHooks Function()
-    >;
-typedef $$TasksTableCreateCompanionBuilder =
-    TasksCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      Value<String?> captureId,
-      Value<String?> goalId,
-      required String title,
-      Value<String?> details,
-      Value<String> status,
-      Value<String?> nextAction,
-      Value<DateTime?> scheduledAt,
-      Value<DateTime?> completedAt,
-      Value<DateTime> lastActivityAt,
-      Value<int> rowid,
-    });
-typedef $$TasksTableUpdateCompanionBuilder =
-    TasksCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String?> captureId,
-      Value<String?> goalId,
-      Value<String> title,
-      Value<String?> details,
-      Value<String> status,
-      Value<String?> nextAction,
-      Value<DateTime?> scheduledAt,
-      Value<DateTime?> completedAt,
-      Value<DateTime> lastActivityAt,
-      Value<int> rowid,
-    });
-
-class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get goalId => $composableBuilder(
-    column: $table.goalId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get details => $composableBuilder(
-    column: $table.details,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get nextAction => $composableBuilder(
-    column: $table.nextAction,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get scheduledAt => $composableBuilder(
-    column: $table.scheduledAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get lastActivityAt => $composableBuilder(
-    column: $table.lastActivityAt,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$TasksTableOrderingComposer
-    extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get goalId => $composableBuilder(
-    column: $table.goalId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get details => $composableBuilder(
-    column: $table.details,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get nextAction => $composableBuilder(
-    column: $table.nextAction,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get scheduledAt => $composableBuilder(
-    column: $table.scheduledAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastActivityAt => $composableBuilder(
-    column: $table.lastActivityAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$TasksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get captureId =>
-      $composableBuilder(column: $table.captureId, builder: (column) => column);
-
-  GeneratedColumn<String> get goalId =>
-      $composableBuilder(column: $table.goalId, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get details =>
-      $composableBuilder(column: $table.details, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get nextAction => $composableBuilder(
-    column: $table.nextAction,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get scheduledAt => $composableBuilder(
-    column: $table.scheduledAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get lastActivityAt => $composableBuilder(
-    column: $table.lastActivityAt,
-    builder: (column) => column,
-  );
-}
-
-class $$TasksTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $TasksTable,
-          TaskRow,
-          $$TasksTableFilterComposer,
-          $$TasksTableOrderingComposer,
-          $$TasksTableAnnotationComposer,
-          $$TasksTableCreateCompanionBuilder,
-          $$TasksTableUpdateCompanionBuilder,
-          (TaskRow, BaseReferences<_$AppDatabase, $TasksTable, TaskRow>),
-          TaskRow,
-          PrefetchHooks Function()
-        > {
-  $$TasksTableTableManager(_$AppDatabase db, $TasksTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TasksTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TasksTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TasksTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> goalId = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String?> details = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<String?> nextAction = const Value.absent(),
-                Value<DateTime?> scheduledAt = const Value.absent(),
-                Value<DateTime?> completedAt = const Value.absent(),
-                Value<DateTime> lastActivityAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TasksCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                goalId: goalId,
-                title: title,
-                details: details,
-                status: status,
-                nextAction: nextAction,
-                scheduledAt: scheduledAt,
-                completedAt: completedAt,
-                lastActivityAt: lastActivityAt,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> goalId = const Value.absent(),
-                required String title,
-                Value<String?> details = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<String?> nextAction = const Value.absent(),
-                Value<DateTime?> scheduledAt = const Value.absent(),
-                Value<DateTime?> completedAt = const Value.absent(),
-                Value<DateTime> lastActivityAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TasksCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                goalId: goalId,
-                title: title,
-                details: details,
-                status: status,
-                nextAction: nextAction,
-                scheduledAt: scheduledAt,
-                completedAt: completedAt,
-                lastActivityAt: lastActivityAt,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$TasksTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $TasksTable,
-      TaskRow,
-      $$TasksTableFilterComposer,
-      $$TasksTableOrderingComposer,
-      $$TasksTableAnnotationComposer,
-      $$TasksTableCreateCompanionBuilder,
-      $$TasksTableUpdateCompanionBuilder,
-      (TaskRow, BaseReferences<_$AppDatabase, $TasksTable, TaskRow>),
-      TaskRow,
-      PrefetchHooks Function()
-    >;
-typedef $$NotesTableCreateCompanionBuilder =
-    NotesCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      Value<String?> captureId,
-      Value<String?> title,
-      Value<String?> body,
-      Value<int> rowid,
-    });
-typedef $$NotesTableUpdateCompanionBuilder =
-    NotesCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String?> captureId,
-      Value<String?> title,
-      Value<String?> body,
-      Value<int> rowid,
-    });
-
-class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$NotesTableOrderingComposer
-    extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$NotesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $NotesTable> {
-  $$NotesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get captureId =>
-      $composableBuilder(column: $table.captureId, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get body =>
-      $composableBuilder(column: $table.body, builder: (column) => column);
-}
-
-class $$NotesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $NotesTable,
-          NoteRow,
-          $$NotesTableFilterComposer,
-          $$NotesTableOrderingComposer,
-          $$NotesTableAnnotationComposer,
-          $$NotesTableCreateCompanionBuilder,
-          $$NotesTableUpdateCompanionBuilder,
-          (NoteRow, BaseReferences<_$AppDatabase, $NotesTable, NoteRow>),
-          NoteRow,
-          PrefetchHooks Function()
-        > {
-  $$NotesTableTableManager(_$AppDatabase db, $NotesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$NotesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$NotesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$NotesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> title = const Value.absent(),
-                Value<String?> body = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => NotesCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                title: title,
-                body: body,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> title = const Value.absent(),
-                Value<String?> body = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => NotesCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                title: title,
-                body: body,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$NotesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $NotesTable,
-      NoteRow,
-      $$NotesTableFilterComposer,
-      $$NotesTableOrderingComposer,
-      $$NotesTableAnnotationComposer,
-      $$NotesTableCreateCompanionBuilder,
-      $$NotesTableUpdateCompanionBuilder,
-      (NoteRow, BaseReferences<_$AppDatabase, $NotesTable, NoteRow>),
-      NoteRow,
-      PrefetchHooks Function()
-    >;
-typedef $$HabitsTableCreateCompanionBuilder =
-    HabitsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      Value<String?> captureId,
-      Value<String?> goalId,
-      required String title,
-      Value<String?> frequencyConfig,
-      Value<String?> levelConfig,
-      Value<String?> anchorDescription,
-      Value<bool> resetActive,
-      Value<DateTime?> resetStartedAt,
-      Value<bool> archived,
-      Value<int> rowid,
-    });
-typedef $$HabitsTableUpdateCompanionBuilder =
-    HabitsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String?> captureId,
-      Value<String?> goalId,
-      Value<String> title,
-      Value<String?> frequencyConfig,
-      Value<String?> levelConfig,
-      Value<String?> anchorDescription,
-      Value<bool> resetActive,
-      Value<DateTime?> resetStartedAt,
-      Value<bool> archived,
-      Value<int> rowid,
-    });
-
-class $$HabitsTableFilterComposer
-    extends Composer<_$AppDatabase, $HabitsTable> {
-  $$HabitsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get goalId => $composableBuilder(
-    column: $table.goalId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get frequencyConfig => $composableBuilder(
-    column: $table.frequencyConfig,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get levelConfig => $composableBuilder(
-    column: $table.levelConfig,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get anchorDescription => $composableBuilder(
-    column: $table.anchorDescription,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get resetActive => $composableBuilder(
-    column: $table.resetActive,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get resetStartedAt => $composableBuilder(
-    column: $table.resetStartedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get archived => $composableBuilder(
-    column: $table.archived,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$HabitsTableOrderingComposer
-    extends Composer<_$AppDatabase, $HabitsTable> {
-  $$HabitsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get captureId => $composableBuilder(
-    column: $table.captureId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get goalId => $composableBuilder(
-    column: $table.goalId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get frequencyConfig => $composableBuilder(
-    column: $table.frequencyConfig,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get levelConfig => $composableBuilder(
-    column: $table.levelConfig,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get anchorDescription => $composableBuilder(
-    column: $table.anchorDescription,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get resetActive => $composableBuilder(
-    column: $table.resetActive,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get resetStartedAt => $composableBuilder(
-    column: $table.resetStartedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get archived => $composableBuilder(
-    column: $table.archived,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$HabitsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $HabitsTable> {
-  $$HabitsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get captureId =>
-      $composableBuilder(column: $table.captureId, builder: (column) => column);
-
-  GeneratedColumn<String> get goalId =>
-      $composableBuilder(column: $table.goalId, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get frequencyConfig => $composableBuilder(
-    column: $table.frequencyConfig,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get levelConfig => $composableBuilder(
-    column: $table.levelConfig,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get anchorDescription => $composableBuilder(
-    column: $table.anchorDescription,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get resetActive => $composableBuilder(
-    column: $table.resetActive,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get resetStartedAt => $composableBuilder(
-    column: $table.resetStartedAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get archived =>
-      $composableBuilder(column: $table.archived, builder: (column) => column);
-}
-
-class $$HabitsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $HabitsTable,
-          HabitRow,
-          $$HabitsTableFilterComposer,
-          $$HabitsTableOrderingComposer,
-          $$HabitsTableAnnotationComposer,
-          $$HabitsTableCreateCompanionBuilder,
-          $$HabitsTableUpdateCompanionBuilder,
-          (HabitRow, BaseReferences<_$AppDatabase, $HabitsTable, HabitRow>),
-          HabitRow,
-          PrefetchHooks Function()
-        > {
-  $$HabitsTableTableManager(_$AppDatabase db, $HabitsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$HabitsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$HabitsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$HabitsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> goalId = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String?> frequencyConfig = const Value.absent(),
-                Value<String?> levelConfig = const Value.absent(),
-                Value<String?> anchorDescription = const Value.absent(),
-                Value<bool> resetActive = const Value.absent(),
-                Value<DateTime?> resetStartedAt = const Value.absent(),
-                Value<bool> archived = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => HabitsCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                goalId: goalId,
-                title: title,
-                frequencyConfig: frequencyConfig,
-                levelConfig: levelConfig,
-                anchorDescription: anchorDescription,
-                resetActive: resetActive,
-                resetStartedAt: resetStartedAt,
-                archived: archived,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> captureId = const Value.absent(),
-                Value<String?> goalId = const Value.absent(),
-                required String title,
-                Value<String?> frequencyConfig = const Value.absent(),
-                Value<String?> levelConfig = const Value.absent(),
-                Value<String?> anchorDescription = const Value.absent(),
-                Value<bool> resetActive = const Value.absent(),
-                Value<DateTime?> resetStartedAt = const Value.absent(),
-                Value<bool> archived = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => HabitsCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                captureId: captureId,
-                goalId: goalId,
-                title: title,
-                frequencyConfig: frequencyConfig,
-                levelConfig: levelConfig,
-                anchorDescription: anchorDescription,
-                resetActive: resetActive,
-                resetStartedAt: resetStartedAt,
-                archived: archived,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$HabitsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $HabitsTable,
-      HabitRow,
-      $$HabitsTableFilterComposer,
-      $$HabitsTableOrderingComposer,
-      $$HabitsTableAnnotationComposer,
-      $$HabitsTableCreateCompanionBuilder,
-      $$HabitsTableUpdateCompanionBuilder,
-      (HabitRow, BaseReferences<_$AppDatabase, $HabitsTable, HabitRow>),
-      HabitRow,
-      PrefetchHooks Function()
-    >;
-typedef $$HabitCompletionsTableCreateCompanionBuilder =
-    HabitCompletionsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      required String habitId,
-      required String level,
-      Value<String?> energyMode,
-      Value<DateTime> completedAt,
-      Value<int> rowid,
-    });
-typedef $$HabitCompletionsTableUpdateCompanionBuilder =
-    HabitCompletionsCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String> habitId,
-      Value<String> level,
-      Value<String?> energyMode,
-      Value<DateTime> completedAt,
-      Value<int> rowid,
-    });
-
-class $$HabitCompletionsTableFilterComposer
-    extends Composer<_$AppDatabase, $HabitCompletionsTable> {
-  $$HabitCompletionsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get habitId => $composableBuilder(
-    column: $table.habitId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get level => $composableBuilder(
-    column: $table.level,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get energyMode => $composableBuilder(
-    column: $table.energyMode,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$HabitCompletionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $HabitCompletionsTable> {
-  $$HabitCompletionsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get habitId => $composableBuilder(
-    column: $table.habitId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get level => $composableBuilder(
-    column: $table.level,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get energyMode => $composableBuilder(
-    column: $table.energyMode,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$HabitCompletionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $HabitCompletionsTable> {
-  $$HabitCompletionsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get habitId =>
-      $composableBuilder(column: $table.habitId, builder: (column) => column);
-
-  GeneratedColumn<String> get level =>
-      $composableBuilder(column: $table.level, builder: (column) => column);
-
-  GeneratedColumn<String> get energyMode => $composableBuilder(
-    column: $table.energyMode,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
-    column: $table.completedAt,
-    builder: (column) => column,
-  );
-}
-
-class $$HabitCompletionsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $HabitCompletionsTable,
-          HabitCompletionRow,
-          $$HabitCompletionsTableFilterComposer,
-          $$HabitCompletionsTableOrderingComposer,
-          $$HabitCompletionsTableAnnotationComposer,
-          $$HabitCompletionsTableCreateCompanionBuilder,
-          $$HabitCompletionsTableUpdateCompanionBuilder,
-          (
-            HabitCompletionRow,
-            BaseReferences<
-              _$AppDatabase,
-              $HabitCompletionsTable,
-              HabitCompletionRow
-            >,
-          ),
-          HabitCompletionRow,
-          PrefetchHooks Function()
-        > {
-  $$HabitCompletionsTableTableManager(
-    _$AppDatabase db,
-    $HabitCompletionsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$HabitCompletionsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$HabitCompletionsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$HabitCompletionsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String> habitId = const Value.absent(),
-                Value<String> level = const Value.absent(),
-                Value<String?> energyMode = const Value.absent(),
-                Value<DateTime> completedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => HabitCompletionsCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                habitId: habitId,
-                level: level,
-                energyMode: energyMode,
-                completedAt: completedAt,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                required String habitId,
-                required String level,
-                Value<String?> energyMode = const Value.absent(),
-                Value<DateTime> completedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => HabitCompletionsCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                habitId: habitId,
-                level: level,
-                energyMode: energyMode,
-                completedAt: completedAt,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$HabitCompletionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $HabitCompletionsTable,
-      HabitCompletionRow,
-      $$HabitCompletionsTableFilterComposer,
-      $$HabitCompletionsTableOrderingComposer,
-      $$HabitCompletionsTableAnnotationComposer,
-      $$HabitCompletionsTableCreateCompanionBuilder,
-      $$HabitCompletionsTableUpdateCompanionBuilder,
-      (
-        HabitCompletionRow,
-        BaseReferences<
-          _$AppDatabase,
-          $HabitCompletionsTable,
-          HabitCompletionRow
-        >,
-      ),
-      HabitCompletionRow,
       PrefetchHooks Function()
     >;
 typedef $$PlacesTableCreateCompanionBuilder =
@@ -13159,8 +6573,8 @@ typedef $$PlacesTableProcessedTableManager =
       PlaceRow,
       PrefetchHooks Function()
     >;
-typedef $$FocusSessionsTableCreateCompanionBuilder =
-    FocusSessionsCompanion Function({
+typedef $$CapturesTableCreateCompanionBuilder =
+    CapturesCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -13168,20 +6582,17 @@ typedef $$FocusSessionsTableCreateCompanionBuilder =
       Value<DateTime?> syncedAt,
       required String id,
       required String userId,
-      Value<String?> taskId,
-      Value<String?> taskLabel,
-      required int durationMinutes,
-      Value<DateTime> startedAt,
-      Value<DateTime?> endedAt,
+      required String source,
+      Value<String?> inputText,
+      Value<String?> audioPath,
+      Value<String?> rawTranscript,
       Value<String> status,
-      Value<bool> blockingEnabled,
-      Value<String> blockingMode,
-      Value<int> blockAttempts,
-      Value<String> capturesDuring,
+      Value<String?> error,
+      Value<DateTime> capturedAt,
       Value<int> rowid,
     });
-typedef $$FocusSessionsTableUpdateCompanionBuilder =
-    FocusSessionsCompanion Function({
+typedef $$CapturesTableUpdateCompanionBuilder =
+    CapturesCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -13189,22 +6600,19 @@ typedef $$FocusSessionsTableUpdateCompanionBuilder =
       Value<DateTime?> syncedAt,
       Value<String> id,
       Value<String> userId,
-      Value<String?> taskId,
-      Value<String?> taskLabel,
-      Value<int> durationMinutes,
-      Value<DateTime> startedAt,
-      Value<DateTime?> endedAt,
+      Value<String> source,
+      Value<String?> inputText,
+      Value<String?> audioPath,
+      Value<String?> rawTranscript,
       Value<String> status,
-      Value<bool> blockingEnabled,
-      Value<String> blockingMode,
-      Value<int> blockAttempts,
-      Value<String> capturesDuring,
+      Value<String?> error,
+      Value<DateTime> capturedAt,
       Value<int> rowid,
     });
 
-class $$FocusSessionsTableFilterComposer
-    extends Composer<_$AppDatabase, $FocusSessionsTable> {
-  $$FocusSessionsTableFilterComposer({
+class $$CapturesTableFilterComposer
+    extends Composer<_$AppDatabase, $CapturesTable> {
+  $$CapturesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -13246,28 +6654,23 @@ class $$FocusSessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get taskId => $composableBuilder(
-    column: $table.taskId,
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get taskLabel => $composableBuilder(
-    column: $table.taskLabel,
+  ColumnFilters<String> get inputText => $composableBuilder(
+    column: $table.inputText,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get durationMinutes => $composableBuilder(
-    column: $table.durationMinutes,
+  ColumnFilters<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get startedAt => $composableBuilder(
-    column: $table.startedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get endedAt => $composableBuilder(
-    column: $table.endedAt,
+  ColumnFilters<String> get rawTranscript => $composableBuilder(
+    column: $table.rawTranscript,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13276,30 +6679,20 @@ class $$FocusSessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get blockingEnabled => $composableBuilder(
-    column: $table.blockingEnabled,
+  ColumnFilters<String> get error => $composableBuilder(
+    column: $table.error,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get blockingMode => $composableBuilder(
-    column: $table.blockingMode,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get blockAttempts => $composableBuilder(
-    column: $table.blockAttempts,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get capturesDuring => $composableBuilder(
-    column: $table.capturesDuring,
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$FocusSessionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $FocusSessionsTable> {
-  $$FocusSessionsTableOrderingComposer({
+class $$CapturesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CapturesTable> {
+  $$CapturesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -13341,28 +6734,23 @@ class $$FocusSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get taskId => $composableBuilder(
-    column: $table.taskId,
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get taskLabel => $composableBuilder(
-    column: $table.taskLabel,
+  ColumnOrderings<String> get inputText => $composableBuilder(
+    column: $table.inputText,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get durationMinutes => $composableBuilder(
-    column: $table.durationMinutes,
+  ColumnOrderings<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
-    column: $table.startedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get endedAt => $composableBuilder(
-    column: $table.endedAt,
+  ColumnOrderings<String> get rawTranscript => $composableBuilder(
+    column: $table.rawTranscript,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13371,30 +6759,20 @@ class $$FocusSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get blockingEnabled => $composableBuilder(
-    column: $table.blockingEnabled,
+  ColumnOrderings<String> get error => $composableBuilder(
+    column: $table.error,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get blockingMode => $composableBuilder(
-    column: $table.blockingMode,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get blockAttempts => $composableBuilder(
-    column: $table.blockAttempts,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get capturesDuring => $composableBuilder(
-    column: $table.capturesDuring,
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$FocusSessionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $FocusSessionsTable> {
-  $$FocusSessionsTableAnnotationComposer({
+class $$CapturesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CapturesTable> {
+  $$CapturesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -13422,76 +6800,61 @@ class $$FocusSessionsTableAnnotationComposer
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
-  GeneratedColumn<String> get taskId =>
-      $composableBuilder(column: $table.taskId, builder: (column) => column);
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 
-  GeneratedColumn<String> get taskLabel =>
-      $composableBuilder(column: $table.taskLabel, builder: (column) => column);
+  GeneratedColumn<String> get inputText =>
+      $composableBuilder(column: $table.inputText, builder: (column) => column);
 
-  GeneratedColumn<int> get durationMinutes => $composableBuilder(
-    column: $table.durationMinutes,
+  GeneratedColumn<String> get audioPath =>
+      $composableBuilder(column: $table.audioPath, builder: (column) => column);
+
+  GeneratedColumn<String> get rawTranscript => $composableBuilder(
+    column: $table.rawTranscript,
     builder: (column) => column,
   );
-
-  GeneratedColumn<DateTime> get startedAt =>
-      $composableBuilder(column: $table.startedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get endedAt =>
-      $composableBuilder(column: $table.endedAt, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
-  GeneratedColumn<bool> get blockingEnabled => $composableBuilder(
-    column: $table.blockingEnabled,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get error =>
+      $composableBuilder(column: $table.error, builder: (column) => column);
 
-  GeneratedColumn<String> get blockingMode => $composableBuilder(
-    column: $table.blockingMode,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get blockAttempts => $composableBuilder(
-    column: $table.blockAttempts,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get capturesDuring => $composableBuilder(
-    column: $table.capturesDuring,
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
     builder: (column) => column,
   );
 }
 
-class $$FocusSessionsTableTableManager
+class $$CapturesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $FocusSessionsTable,
-          FocusSessionRow,
-          $$FocusSessionsTableFilterComposer,
-          $$FocusSessionsTableOrderingComposer,
-          $$FocusSessionsTableAnnotationComposer,
-          $$FocusSessionsTableCreateCompanionBuilder,
-          $$FocusSessionsTableUpdateCompanionBuilder,
+          $CapturesTable,
+          CaptureRow,
+          $$CapturesTableFilterComposer,
+          $$CapturesTableOrderingComposer,
+          $$CapturesTableAnnotationComposer,
+          $$CapturesTableCreateCompanionBuilder,
+          $$CapturesTableUpdateCompanionBuilder,
           (
-            FocusSessionRow,
-            BaseReferences<_$AppDatabase, $FocusSessionsTable, FocusSessionRow>,
+            CaptureRow,
+            BaseReferences<_$AppDatabase, $CapturesTable, CaptureRow>,
           ),
-          FocusSessionRow,
+          CaptureRow,
           PrefetchHooks Function()
         > {
-  $$FocusSessionsTableTableManager(_$AppDatabase db, $FocusSessionsTable table)
+  $$CapturesTableTableManager(_$AppDatabase db, $CapturesTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$FocusSessionsTableFilterComposer($db: db, $table: table),
+              $$CapturesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$FocusSessionsTableOrderingComposer($db: db, $table: table),
+              $$CapturesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$FocusSessionsTableAnnotationComposer($db: db, $table: table),
+              $$CapturesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<DateTime> createdAt = const Value.absent(),
@@ -13501,18 +6864,15 @@ class $$FocusSessionsTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> userId = const Value.absent(),
-                Value<String?> taskId = const Value.absent(),
-                Value<String?> taskLabel = const Value.absent(),
-                Value<int> durationMinutes = const Value.absent(),
-                Value<DateTime> startedAt = const Value.absent(),
-                Value<DateTime?> endedAt = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> inputText = const Value.absent(),
+                Value<String?> audioPath = const Value.absent(),
+                Value<String?> rawTranscript = const Value.absent(),
                 Value<String> status = const Value.absent(),
-                Value<bool> blockingEnabled = const Value.absent(),
-                Value<String> blockingMode = const Value.absent(),
-                Value<int> blockAttempts = const Value.absent(),
-                Value<String> capturesDuring = const Value.absent(),
+                Value<String?> error = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => FocusSessionsCompanion(
+              }) => CapturesCompanion(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -13520,16 +6880,13 @@ class $$FocusSessionsTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                taskId: taskId,
-                taskLabel: taskLabel,
-                durationMinutes: durationMinutes,
-                startedAt: startedAt,
-                endedAt: endedAt,
+                source: source,
+                inputText: inputText,
+                audioPath: audioPath,
+                rawTranscript: rawTranscript,
                 status: status,
-                blockingEnabled: blockingEnabled,
-                blockingMode: blockingMode,
-                blockAttempts: blockAttempts,
-                capturesDuring: capturesDuring,
+                error: error,
+                capturedAt: capturedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -13541,18 +6898,15 @@ class $$FocusSessionsTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 required String id,
                 required String userId,
-                Value<String?> taskId = const Value.absent(),
-                Value<String?> taskLabel = const Value.absent(),
-                required int durationMinutes,
-                Value<DateTime> startedAt = const Value.absent(),
-                Value<DateTime?> endedAt = const Value.absent(),
+                required String source,
+                Value<String?> inputText = const Value.absent(),
+                Value<String?> audioPath = const Value.absent(),
+                Value<String?> rawTranscript = const Value.absent(),
                 Value<String> status = const Value.absent(),
-                Value<bool> blockingEnabled = const Value.absent(),
-                Value<String> blockingMode = const Value.absent(),
-                Value<int> blockAttempts = const Value.absent(),
-                Value<String> capturesDuring = const Value.absent(),
+                Value<String?> error = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => FocusSessionsCompanion.insert(
+              }) => CapturesCompanion.insert(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -13560,16 +6914,13 @@ class $$FocusSessionsTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                taskId: taskId,
-                taskLabel: taskLabel,
-                durationMinutes: durationMinutes,
-                startedAt: startedAt,
-                endedAt: endedAt,
+                source: source,
+                inputText: inputText,
+                audioPath: audioPath,
+                rawTranscript: rawTranscript,
                 status: status,
-                blockingEnabled: blockingEnabled,
-                blockingMode: blockingMode,
-                blockAttempts: blockAttempts,
-                capturesDuring: capturesDuring,
+                error: error,
+                capturedAt: capturedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -13580,25 +6931,22 @@ class $$FocusSessionsTableTableManager
       );
 }
 
-typedef $$FocusSessionsTableProcessedTableManager =
+typedef $$CapturesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $FocusSessionsTable,
-      FocusSessionRow,
-      $$FocusSessionsTableFilterComposer,
-      $$FocusSessionsTableOrderingComposer,
-      $$FocusSessionsTableAnnotationComposer,
-      $$FocusSessionsTableCreateCompanionBuilder,
-      $$FocusSessionsTableUpdateCompanionBuilder,
-      (
-        FocusSessionRow,
-        BaseReferences<_$AppDatabase, $FocusSessionsTable, FocusSessionRow>,
-      ),
-      FocusSessionRow,
+      $CapturesTable,
+      CaptureRow,
+      $$CapturesTableFilterComposer,
+      $$CapturesTableOrderingComposer,
+      $$CapturesTableAnnotationComposer,
+      $$CapturesTableCreateCompanionBuilder,
+      $$CapturesTableUpdateCompanionBuilder,
+      (CaptureRow, BaseReferences<_$AppDatabase, $CapturesTable, CaptureRow>),
+      CaptureRow,
       PrefetchHooks Function()
     >;
-typedef $$VibeChecksTableCreateCompanionBuilder =
-    VibeChecksCompanion Function({
+typedef $$TaskRemindersTableCreateCompanionBuilder =
+    TaskRemindersCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -13606,12 +6954,24 @@ typedef $$VibeChecksTableCreateCompanionBuilder =
       Value<DateTime?> syncedAt,
       required String id,
       required String userId,
-      Value<String?> focusSessionId,
-      required int value,
+      required String title,
+      Value<String?> details,
+      Value<String> status,
+      required String source,
+      Value<double> confidence,
+      required String triggerType,
+      Value<DateTime?> scheduledAt,
+      Value<String?> placeId,
+      Value<String?> geofenceTransition,
+      Value<int?> dwellSeconds,
+      Value<DateTime?> autoCommitDeadlineAt,
+      Value<String?> captureId,
+      Value<String?> aiExplanation,
+      Value<String?> aiContext,
       Value<int> rowid,
     });
-typedef $$VibeChecksTableUpdateCompanionBuilder =
-    VibeChecksCompanion Function({
+typedef $$TaskRemindersTableUpdateCompanionBuilder =
+    TaskRemindersCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -13619,14 +6979,26 @@ typedef $$VibeChecksTableUpdateCompanionBuilder =
       Value<DateTime?> syncedAt,
       Value<String> id,
       Value<String> userId,
-      Value<String?> focusSessionId,
-      Value<int> value,
+      Value<String> title,
+      Value<String?> details,
+      Value<String> status,
+      Value<String> source,
+      Value<double> confidence,
+      Value<String> triggerType,
+      Value<DateTime?> scheduledAt,
+      Value<String?> placeId,
+      Value<String?> geofenceTransition,
+      Value<int?> dwellSeconds,
+      Value<DateTime?> autoCommitDeadlineAt,
+      Value<String?> captureId,
+      Value<String?> aiExplanation,
+      Value<String?> aiContext,
       Value<int> rowid,
     });
 
-class $$VibeChecksTableFilterComposer
-    extends Composer<_$AppDatabase, $VibeChecksTable> {
-  $$VibeChecksTableFilterComposer({
+class $$TaskRemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskRemindersTable> {
+  $$TaskRemindersTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -13668,329 +7040,38 @@ class $$VibeChecksTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get focusSessionId => $composableBuilder(
-    column: $table.focusSessionId,
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$VibeChecksTableOrderingComposer
-    extends Composer<_$AppDatabase, $VibeChecksTable> {
-  $$VibeChecksTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get focusSessionId => $composableBuilder(
-    column: $table.focusSessionId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$VibeChecksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $VibeChecksTable> {
-  $$VibeChecksTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get dirty =>
-      $composableBuilder(column: $table.dirty, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get focusSessionId => $composableBuilder(
-    column: $table.focusSessionId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => column);
-}
-
-class $$VibeChecksTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $VibeChecksTable,
-          VibeCheckRow,
-          $$VibeChecksTableFilterComposer,
-          $$VibeChecksTableOrderingComposer,
-          $$VibeChecksTableAnnotationComposer,
-          $$VibeChecksTableCreateCompanionBuilder,
-          $$VibeChecksTableUpdateCompanionBuilder,
-          (
-            VibeCheckRow,
-            BaseReferences<_$AppDatabase, $VibeChecksTable, VibeCheckRow>,
-          ),
-          VibeCheckRow,
-          PrefetchHooks Function()
-        > {
-  $$VibeChecksTableTableManager(_$AppDatabase db, $VibeChecksTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$VibeChecksTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$VibeChecksTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$VibeChecksTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
-                Value<String?> focusSessionId = const Value.absent(),
-                Value<int> value = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => VibeChecksCompanion(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                focusSessionId: focusSessionId,
-                value: value,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<DateTime?> deletedAt = const Value.absent(),
-                Value<bool> dirty = const Value.absent(),
-                Value<DateTime?> syncedAt = const Value.absent(),
-                required String id,
-                required String userId,
-                Value<String?> focusSessionId = const Value.absent(),
-                required int value,
-                Value<int> rowid = const Value.absent(),
-              }) => VibeChecksCompanion.insert(
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                deletedAt: deletedAt,
-                dirty: dirty,
-                syncedAt: syncedAt,
-                id: id,
-                userId: userId,
-                focusSessionId: focusSessionId,
-                value: value,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$VibeChecksTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $VibeChecksTable,
-      VibeCheckRow,
-      $$VibeChecksTableFilterComposer,
-      $$VibeChecksTableOrderingComposer,
-      $$VibeChecksTableAnnotationComposer,
-      $$VibeChecksTableCreateCompanionBuilder,
-      $$VibeChecksTableUpdateCompanionBuilder,
-      (
-        VibeCheckRow,
-        BaseReferences<_$AppDatabase, $VibeChecksTable, VibeCheckRow>,
-      ),
-      VibeCheckRow,
-      PrefetchHooks Function()
-    >;
-typedef $$RemindersTableCreateCompanionBuilder =
-    RemindersCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      required String id,
-      required String userId,
-      required String reminderType,
-      Value<String?> taskId,
-      Value<String?> habitId,
-      Value<DateTime?> scheduledAt,
-      Value<String?> recurrence,
-      Value<DateTime?> snoozeUntil,
-      Value<String?> placeId,
-      Value<String?> geofenceTransition,
-      Value<int?> dwellSeconds,
-      Value<String?> copy,
-      Value<String> status,
-      Value<int> rowid,
-    });
-typedef $$RemindersTableUpdateCompanionBuilder =
-    RemindersCompanion Function({
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<DateTime?> deletedAt,
-      Value<bool> dirty,
-      Value<DateTime?> syncedAt,
-      Value<String> id,
-      Value<String> userId,
-      Value<String> reminderType,
-      Value<String?> taskId,
-      Value<String?> habitId,
-      Value<DateTime?> scheduledAt,
-      Value<String?> recurrence,
-      Value<DateTime?> snoozeUntil,
-      Value<String?> placeId,
-      Value<String?> geofenceTransition,
-      Value<int?> dwellSeconds,
-      Value<String?> copy,
-      Value<String> status,
-      Value<int> rowid,
-    });
-
-class $$RemindersTableFilterComposer
-    extends Composer<_$AppDatabase, $RemindersTable> {
-  $$RemindersTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
+  ColumnFilters<String> get details => $composableBuilder(
+    column: $table.details,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-    column: $table.deletedAt,
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get dirty => $composableBuilder(
-    column: $table.dirty,
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get reminderType => $composableBuilder(
-    column: $table.reminderType,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get taskId => $composableBuilder(
-    column: $table.taskId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get habitId => $composableBuilder(
-    column: $table.habitId,
+  ColumnFilters<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
     builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get scheduledAt => $composableBuilder(
     column: $table.scheduledAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get recurrence => $composableBuilder(
-    column: $table.recurrence,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get snoozeUntil => $composableBuilder(
-    column: $table.snoozeUntil,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14009,20 +7090,30 @@ class $$RemindersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get copy => $composableBuilder(
-    column: $table.copy,
+  ColumnFilters<DateTime> get autoCommitDeadlineAt => $composableBuilder(
+    column: $table.autoCommitDeadlineAt,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnFilters<String> get captureId => $composableBuilder(
+    column: $table.captureId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aiExplanation => $composableBuilder(
+    column: $table.aiExplanation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aiContext => $composableBuilder(
+    column: $table.aiContext,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$RemindersTableOrderingComposer
-    extends Composer<_$AppDatabase, $RemindersTable> {
-  $$RemindersTableOrderingComposer({
+class $$TaskRemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskRemindersTable> {
+  $$TaskRemindersTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14064,33 +7155,38 @@ class $$RemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get reminderType => $composableBuilder(
-    column: $table.reminderType,
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get taskId => $composableBuilder(
-    column: $table.taskId,
+  ColumnOrderings<String> get details => $composableBuilder(
+    column: $table.details,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get habitId => $composableBuilder(
-    column: $table.habitId,
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
     builder: (column) => ColumnOrderings(column),
   );
 
   ColumnOrderings<DateTime> get scheduledAt => $composableBuilder(
     column: $table.scheduledAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get recurrence => $composableBuilder(
-    column: $table.recurrence,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get snoozeUntil => $composableBuilder(
-    column: $table.snoozeUntil,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14109,20 +7205,30 @@ class $$RemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get copy => $composableBuilder(
-    column: $table.copy,
+  ColumnOrderings<DateTime> get autoCommitDeadlineAt => $composableBuilder(
+    column: $table.autoCommitDeadlineAt,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<String> get captureId => $composableBuilder(
+    column: $table.captureId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get aiExplanation => $composableBuilder(
+    column: $table.aiExplanation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get aiContext => $composableBuilder(
+    column: $table.aiContext,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$RemindersTableAnnotationComposer
-    extends Composer<_$AppDatabase, $RemindersTable> {
-  $$RemindersTableAnnotationComposer({
+class $$TaskRemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskRemindersTable> {
+  $$TaskRemindersTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14150,29 +7256,30 @@ class $$RemindersTableAnnotationComposer
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
-  GeneratedColumn<String> get reminderType => $composableBuilder(
-    column: $table.reminderType,
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get details =>
+      $composableBuilder(column: $table.details, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get taskId =>
-      $composableBuilder(column: $table.taskId, builder: (column) => column);
-
-  GeneratedColumn<String> get habitId =>
-      $composableBuilder(column: $table.habitId, builder: (column) => column);
+  GeneratedColumn<String> get triggerType => $composableBuilder(
+    column: $table.triggerType,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get scheduledAt => $composableBuilder(
     column: $table.scheduledAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get recurrence => $composableBuilder(
-    column: $table.recurrence,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get snoozeUntil => $composableBuilder(
-    column: $table.snoozeUntil,
     builder: (column) => column,
   );
 
@@ -14189,42 +7296,52 @@ class $$RemindersTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get copy =>
-      $composableBuilder(column: $table.copy, builder: (column) => column);
+  GeneratedColumn<DateTime> get autoCommitDeadlineAt => $composableBuilder(
+    column: $table.autoCommitDeadlineAt,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<String> get captureId =>
+      $composableBuilder(column: $table.captureId, builder: (column) => column);
+
+  GeneratedColumn<String> get aiExplanation => $composableBuilder(
+    column: $table.aiExplanation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get aiContext =>
+      $composableBuilder(column: $table.aiContext, builder: (column) => column);
 }
 
-class $$RemindersTableTableManager
+class $$TaskRemindersTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $RemindersTable,
-          ReminderRow,
-          $$RemindersTableFilterComposer,
-          $$RemindersTableOrderingComposer,
-          $$RemindersTableAnnotationComposer,
-          $$RemindersTableCreateCompanionBuilder,
-          $$RemindersTableUpdateCompanionBuilder,
+          $TaskRemindersTable,
+          TaskReminderRow,
+          $$TaskRemindersTableFilterComposer,
+          $$TaskRemindersTableOrderingComposer,
+          $$TaskRemindersTableAnnotationComposer,
+          $$TaskRemindersTableCreateCompanionBuilder,
+          $$TaskRemindersTableUpdateCompanionBuilder,
           (
-            ReminderRow,
-            BaseReferences<_$AppDatabase, $RemindersTable, ReminderRow>,
+            TaskReminderRow,
+            BaseReferences<_$AppDatabase, $TaskRemindersTable, TaskReminderRow>,
           ),
-          ReminderRow,
+          TaskReminderRow,
           PrefetchHooks Function()
         > {
-  $$RemindersTableTableManager(_$AppDatabase db, $RemindersTable table)
+  $$TaskRemindersTableTableManager(_$AppDatabase db, $TaskRemindersTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$RemindersTableFilterComposer($db: db, $table: table),
+              $$TaskRemindersTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$RemindersTableOrderingComposer($db: db, $table: table),
+              $$TaskRemindersTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$RemindersTableAnnotationComposer($db: db, $table: table),
+              $$TaskRemindersTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<DateTime> createdAt = const Value.absent(),
@@ -14234,19 +7351,22 @@ class $$RemindersTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> userId = const Value.absent(),
-                Value<String> reminderType = const Value.absent(),
-                Value<String?> taskId = const Value.absent(),
-                Value<String?> habitId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> details = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> triggerType = const Value.absent(),
                 Value<DateTime?> scheduledAt = const Value.absent(),
-                Value<String?> recurrence = const Value.absent(),
-                Value<DateTime?> snoozeUntil = const Value.absent(),
                 Value<String?> placeId = const Value.absent(),
                 Value<String?> geofenceTransition = const Value.absent(),
                 Value<int?> dwellSeconds = const Value.absent(),
-                Value<String?> copy = const Value.absent(),
-                Value<String> status = const Value.absent(),
+                Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
+                Value<String?> captureId = const Value.absent(),
+                Value<String?> aiExplanation = const Value.absent(),
+                Value<String?> aiContext = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => RemindersCompanion(
+              }) => TaskRemindersCompanion(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -14254,17 +7374,20 @@ class $$RemindersTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                reminderType: reminderType,
-                taskId: taskId,
-                habitId: habitId,
+                title: title,
+                details: details,
+                status: status,
+                source: source,
+                confidence: confidence,
+                triggerType: triggerType,
                 scheduledAt: scheduledAt,
-                recurrence: recurrence,
-                snoozeUntil: snoozeUntil,
                 placeId: placeId,
                 geofenceTransition: geofenceTransition,
                 dwellSeconds: dwellSeconds,
-                copy: copy,
-                status: status,
+                autoCommitDeadlineAt: autoCommitDeadlineAt,
+                captureId: captureId,
+                aiExplanation: aiExplanation,
+                aiContext: aiContext,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -14276,19 +7399,22 @@ class $$RemindersTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 required String id,
                 required String userId,
-                required String reminderType,
-                Value<String?> taskId = const Value.absent(),
-                Value<String?> habitId = const Value.absent(),
+                required String title,
+                Value<String?> details = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                required String source,
+                Value<double> confidence = const Value.absent(),
+                required String triggerType,
                 Value<DateTime?> scheduledAt = const Value.absent(),
-                Value<String?> recurrence = const Value.absent(),
-                Value<DateTime?> snoozeUntil = const Value.absent(),
                 Value<String?> placeId = const Value.absent(),
                 Value<String?> geofenceTransition = const Value.absent(),
                 Value<int?> dwellSeconds = const Value.absent(),
-                Value<String?> copy = const Value.absent(),
-                Value<String> status = const Value.absent(),
+                Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
+                Value<String?> captureId = const Value.absent(),
+                Value<String?> aiExplanation = const Value.absent(),
+                Value<String?> aiContext = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => RemindersCompanion.insert(
+              }) => TaskRemindersCompanion.insert(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -14296,17 +7422,20 @@ class $$RemindersTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                reminderType: reminderType,
-                taskId: taskId,
-                habitId: habitId,
+                title: title,
+                details: details,
+                status: status,
+                source: source,
+                confidence: confidence,
+                triggerType: triggerType,
                 scheduledAt: scheduledAt,
-                recurrence: recurrence,
-                snoozeUntil: snoozeUntil,
                 placeId: placeId,
                 geofenceTransition: geofenceTransition,
                 dwellSeconds: dwellSeconds,
-                copy: copy,
-                status: status,
+                autoCommitDeadlineAt: autoCommitDeadlineAt,
+                captureId: captureId,
+                aiExplanation: aiExplanation,
+                aiContext: aiContext,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -14317,25 +7446,25 @@ class $$RemindersTableTableManager
       );
 }
 
-typedef $$RemindersTableProcessedTableManager =
+typedef $$TaskRemindersTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $RemindersTable,
-      ReminderRow,
-      $$RemindersTableFilterComposer,
-      $$RemindersTableOrderingComposer,
-      $$RemindersTableAnnotationComposer,
-      $$RemindersTableCreateCompanionBuilder,
-      $$RemindersTableUpdateCompanionBuilder,
+      $TaskRemindersTable,
+      TaskReminderRow,
+      $$TaskRemindersTableFilterComposer,
+      $$TaskRemindersTableOrderingComposer,
+      $$TaskRemindersTableAnnotationComposer,
+      $$TaskRemindersTableCreateCompanionBuilder,
+      $$TaskRemindersTableUpdateCompanionBuilder,
       (
-        ReminderRow,
-        BaseReferences<_$AppDatabase, $RemindersTable, ReminderRow>,
+        TaskReminderRow,
+        BaseReferences<_$AppDatabase, $TaskRemindersTable, TaskReminderRow>,
       ),
-      ReminderRow,
+      TaskReminderRow,
       PrefetchHooks Function()
     >;
-typedef $$BlockListTableCreateCompanionBuilder =
-    BlockListCompanion Function({
+typedef $$ReminderEventsTableCreateCompanionBuilder =
+    ReminderEventsCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -14343,13 +7472,14 @@ typedef $$BlockListTableCreateCompanionBuilder =
       Value<DateTime?> syncedAt,
       required String id,
       required String userId,
-      required String platform,
-      required String appIdentifier,
-      Value<String?> appLabel,
+      required String reminderId,
+      required String eventType,
+      Value<String> metadata,
+      Value<DateTime> occurredAt,
       Value<int> rowid,
     });
-typedef $$BlockListTableUpdateCompanionBuilder =
-    BlockListCompanion Function({
+typedef $$ReminderEventsTableUpdateCompanionBuilder =
+    ReminderEventsCompanion Function({
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -14357,15 +7487,16 @@ typedef $$BlockListTableUpdateCompanionBuilder =
       Value<DateTime?> syncedAt,
       Value<String> id,
       Value<String> userId,
-      Value<String> platform,
-      Value<String> appIdentifier,
-      Value<String?> appLabel,
+      Value<String> reminderId,
+      Value<String> eventType,
+      Value<String> metadata,
+      Value<DateTime> occurredAt,
       Value<int> rowid,
     });
 
-class $$BlockListTableFilterComposer
-    extends Composer<_$AppDatabase, $BlockListTable> {
-  $$BlockListTableFilterComposer({
+class $$ReminderEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReminderEventsTable> {
+  $$ReminderEventsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14407,25 +7538,30 @@ class $$BlockListTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get platform => $composableBuilder(
-    column: $table.platform,
+  ColumnFilters<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get appIdentifier => $composableBuilder(
-    column: $table.appIdentifier,
+  ColumnFilters<String> get eventType => $composableBuilder(
+    column: $table.eventType,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get appLabel => $composableBuilder(
-    column: $table.appLabel,
+  ColumnFilters<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$BlockListTableOrderingComposer
-    extends Composer<_$AppDatabase, $BlockListTable> {
-  $$BlockListTableOrderingComposer({
+class $$ReminderEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReminderEventsTable> {
+  $$ReminderEventsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14467,25 +7603,30 @@ class $$BlockListTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get platform => $composableBuilder(
-    column: $table.platform,
+  ColumnOrderings<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get appIdentifier => $composableBuilder(
-    column: $table.appIdentifier,
+  ColumnOrderings<String> get eventType => $composableBuilder(
+    column: $table.eventType,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get appLabel => $composableBuilder(
-    column: $table.appLabel,
+  ColumnOrderings<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$BlockListTableAnnotationComposer
-    extends Composer<_$AppDatabase, $BlockListTable> {
-  $$BlockListTableAnnotationComposer({
+class $$ReminderEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReminderEventsTable> {
+  $$ReminderEventsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -14513,47 +7654,58 @@ class $$BlockListTableAnnotationComposer
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
-  GeneratedColumn<String> get platform =>
-      $composableBuilder(column: $table.platform, builder: (column) => column);
-
-  GeneratedColumn<String> get appIdentifier => $composableBuilder(
-    column: $table.appIdentifier,
+  GeneratedColumn<String> get reminderId => $composableBuilder(
+    column: $table.reminderId,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get appLabel =>
-      $composableBuilder(column: $table.appLabel, builder: (column) => column);
+  GeneratedColumn<String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => column,
+  );
 }
 
-class $$BlockListTableTableManager
+class $$ReminderEventsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $BlockListTable,
-          BlockListRow,
-          $$BlockListTableFilterComposer,
-          $$BlockListTableOrderingComposer,
-          $$BlockListTableAnnotationComposer,
-          $$BlockListTableCreateCompanionBuilder,
-          $$BlockListTableUpdateCompanionBuilder,
+          $ReminderEventsTable,
+          ReminderEventRow,
+          $$ReminderEventsTableFilterComposer,
+          $$ReminderEventsTableOrderingComposer,
+          $$ReminderEventsTableAnnotationComposer,
+          $$ReminderEventsTableCreateCompanionBuilder,
+          $$ReminderEventsTableUpdateCompanionBuilder,
           (
-            BlockListRow,
-            BaseReferences<_$AppDatabase, $BlockListTable, BlockListRow>,
+            ReminderEventRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ReminderEventsTable,
+              ReminderEventRow
+            >,
           ),
-          BlockListRow,
+          ReminderEventRow,
           PrefetchHooks Function()
         > {
-  $$BlockListTableTableManager(_$AppDatabase db, $BlockListTable table)
-    : super(
+  $$ReminderEventsTableTableManager(
+    _$AppDatabase db,
+    $ReminderEventsTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$BlockListTableFilterComposer($db: db, $table: table),
+              $$ReminderEventsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$BlockListTableOrderingComposer($db: db, $table: table),
+              $$ReminderEventsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$BlockListTableAnnotationComposer($db: db, $table: table),
+              $$ReminderEventsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<DateTime> createdAt = const Value.absent(),
@@ -14563,11 +7715,12 @@ class $$BlockListTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> userId = const Value.absent(),
-                Value<String> platform = const Value.absent(),
-                Value<String> appIdentifier = const Value.absent(),
-                Value<String?> appLabel = const Value.absent(),
+                Value<String> reminderId = const Value.absent(),
+                Value<String> eventType = const Value.absent(),
+                Value<String> metadata = const Value.absent(),
+                Value<DateTime> occurredAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => BlockListCompanion(
+              }) => ReminderEventsCompanion(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -14575,9 +7728,10 @@ class $$BlockListTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                platform: platform,
-                appIdentifier: appIdentifier,
-                appLabel: appLabel,
+                reminderId: reminderId,
+                eventType: eventType,
+                metadata: metadata,
+                occurredAt: occurredAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -14589,11 +7743,12 @@ class $$BlockListTableTableManager
                 Value<DateTime?> syncedAt = const Value.absent(),
                 required String id,
                 required String userId,
-                required String platform,
-                required String appIdentifier,
-                Value<String?> appLabel = const Value.absent(),
+                required String reminderId,
+                required String eventType,
+                Value<String> metadata = const Value.absent(),
+                Value<DateTime> occurredAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => BlockListCompanion.insert(
+              }) => ReminderEventsCompanion.insert(
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -14601,9 +7756,10 @@ class $$BlockListTableTableManager
                 syncedAt: syncedAt,
                 id: id,
                 userId: userId,
-                platform: platform,
-                appIdentifier: appIdentifier,
-                appLabel: appLabel,
+                reminderId: reminderId,
+                eventType: eventType,
+                metadata: metadata,
+                occurredAt: occurredAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -14614,21 +7770,610 @@ class $$BlockListTableTableManager
       );
 }
 
-typedef $$BlockListTableProcessedTableManager =
+typedef $$ReminderEventsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $BlockListTable,
-      BlockListRow,
-      $$BlockListTableFilterComposer,
-      $$BlockListTableOrderingComposer,
-      $$BlockListTableAnnotationComposer,
-      $$BlockListTableCreateCompanionBuilder,
-      $$BlockListTableUpdateCompanionBuilder,
+      $ReminderEventsTable,
+      ReminderEventRow,
+      $$ReminderEventsTableFilterComposer,
+      $$ReminderEventsTableOrderingComposer,
+      $$ReminderEventsTableAnnotationComposer,
+      $$ReminderEventsTableCreateCompanionBuilder,
+      $$ReminderEventsTableUpdateCompanionBuilder,
       (
-        BlockListRow,
-        BaseReferences<_$AppDatabase, $BlockListTable, BlockListRow>,
+        ReminderEventRow,
+        BaseReferences<_$AppDatabase, $ReminderEventsTable, ReminderEventRow>,
       ),
-      BlockListRow,
+      ReminderEventRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ConversationsTableCreateCompanionBuilder =
+    ConversationsCompanion Function({
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<DateTime?> syncedAt,
+      required String id,
+      required String userId,
+      Value<String?> title,
+      Value<String> status,
+      Value<int> rowid,
+    });
+typedef $$ConversationsTableUpdateCompanionBuilder =
+    ConversationsCompanion Function({
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<DateTime?> syncedAt,
+      Value<String> id,
+      Value<String> userId,
+      Value<String?> title,
+      Value<String> status,
+      Value<int> rowid,
+    });
+
+class $$ConversationsTableFilterComposer
+    extends Composer<_$AppDatabase, $ConversationsTable> {
+  $$ConversationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ConversationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ConversationsTable> {
+  $$ConversationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ConversationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ConversationsTable> {
+  $$ConversationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+}
+
+class $$ConversationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ConversationsTable,
+          ConversationRow,
+          $$ConversationsTableFilterComposer,
+          $$ConversationsTableOrderingComposer,
+          $$ConversationsTableAnnotationComposer,
+          $$ConversationsTableCreateCompanionBuilder,
+          $$ConversationsTableUpdateCompanionBuilder,
+          (
+            ConversationRow,
+            BaseReferences<_$AppDatabase, $ConversationsTable, ConversationRow>,
+          ),
+          ConversationRow,
+          PrefetchHooks Function()
+        > {
+  $$ConversationsTableTableManager(_$AppDatabase db, $ConversationsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConversationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConversationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConversationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ConversationsCompanion(
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                syncedAt: syncedAt,
+                id: id,
+                userId: userId,
+                title: title,
+                status: status,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String id,
+                required String userId,
+                Value<String?> title = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ConversationsCompanion.insert(
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                syncedAt: syncedAt,
+                id: id,
+                userId: userId,
+                title: title,
+                status: status,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ConversationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ConversationsTable,
+      ConversationRow,
+      $$ConversationsTableFilterComposer,
+      $$ConversationsTableOrderingComposer,
+      $$ConversationsTableAnnotationComposer,
+      $$ConversationsTableCreateCompanionBuilder,
+      $$ConversationsTableUpdateCompanionBuilder,
+      (
+        ConversationRow,
+        BaseReferences<_$AppDatabase, $ConversationsTable, ConversationRow>,
+      ),
+      ConversationRow,
+      PrefetchHooks Function()
+    >;
+typedef $$MessagesTableCreateCompanionBuilder =
+    MessagesCompanion Function({
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<DateTime?> syncedAt,
+      required String id,
+      required String userId,
+      required String conversationId,
+      required String role,
+      required String content,
+      Value<String> metadata,
+      Value<int> rowid,
+    });
+typedef $$MessagesTableUpdateCompanionBuilder =
+    MessagesCompanion Function({
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<bool> dirty,
+      Value<DateTime?> syncedAt,
+      Value<String> id,
+      Value<String> userId,
+      Value<String> conversationId,
+      Value<String> role,
+      Value<String> content,
+      Value<String> metadata,
+      Value<int> rowid,
+    });
+
+class $$MessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MessagesTable> {
+  $$MessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get conversationId => $composableBuilder(
+    column: $table.conversationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+}
+
+class $$MessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MessagesTable,
+          MessageRow,
+          $$MessagesTableFilterComposer,
+          $$MessagesTableOrderingComposer,
+          $$MessagesTableAnnotationComposer,
+          $$MessagesTableCreateCompanionBuilder,
+          $$MessagesTableUpdateCompanionBuilder,
+          (
+            MessageRow,
+            BaseReferences<_$AppDatabase, $MessagesTable, MessageRow>,
+          ),
+          MessageRow,
+          PrefetchHooks Function()
+        > {
+  $$MessagesTableTableManager(_$AppDatabase db, $MessagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<String> userId = const Value.absent(),
+                Value<String> conversationId = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<String> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MessagesCompanion(
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                syncedAt: syncedAt,
+                id: id,
+                userId: userId,
+                conversationId: conversationId,
+                role: role,
+                content: content,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<DateTime?> syncedAt = const Value.absent(),
+                required String id,
+                required String userId,
+                required String conversationId,
+                required String role,
+                required String content,
+                Value<String> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MessagesCompanion.insert(
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                dirty: dirty,
+                syncedAt: syncedAt,
+                id: id,
+                userId: userId,
+                conversationId: conversationId,
+                role: role,
+                content: content,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MessagesTable,
+      MessageRow,
+      $$MessagesTableFilterComposer,
+      $$MessagesTableOrderingComposer,
+      $$MessagesTableAnnotationComposer,
+      $$MessagesTableCreateCompanionBuilder,
+      $$MessagesTableUpdateCompanionBuilder,
+      (MessageRow, BaseReferences<_$AppDatabase, $MessagesTable, MessageRow>),
+      MessageRow,
       PrefetchHooks Function()
     >;
 typedef $$EventsTableCreateCompanionBuilder =
@@ -15111,28 +8856,18 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ProfilesTableTableManager get profiles =>
       $$ProfilesTableTableManager(_db, _db.profiles);
-  $$CapturesTableTableManager get captures =>
-      $$CapturesTableTableManager(_db, _db.captures);
-  $$GoalsTableTableManager get goals =>
-      $$GoalsTableTableManager(_db, _db.goals);
-  $$TasksTableTableManager get tasks =>
-      $$TasksTableTableManager(_db, _db.tasks);
-  $$NotesTableTableManager get notes =>
-      $$NotesTableTableManager(_db, _db.notes);
-  $$HabitsTableTableManager get habits =>
-      $$HabitsTableTableManager(_db, _db.habits);
-  $$HabitCompletionsTableTableManager get habitCompletions =>
-      $$HabitCompletionsTableTableManager(_db, _db.habitCompletions);
   $$PlacesTableTableManager get places =>
       $$PlacesTableTableManager(_db, _db.places);
-  $$FocusSessionsTableTableManager get focusSessions =>
-      $$FocusSessionsTableTableManager(_db, _db.focusSessions);
-  $$VibeChecksTableTableManager get vibeChecks =>
-      $$VibeChecksTableTableManager(_db, _db.vibeChecks);
-  $$RemindersTableTableManager get reminders =>
-      $$RemindersTableTableManager(_db, _db.reminders);
-  $$BlockListTableTableManager get blockList =>
-      $$BlockListTableTableManager(_db, _db.blockList);
+  $$CapturesTableTableManager get captures =>
+      $$CapturesTableTableManager(_db, _db.captures);
+  $$TaskRemindersTableTableManager get taskReminders =>
+      $$TaskRemindersTableTableManager(_db, _db.taskReminders);
+  $$ReminderEventsTableTableManager get reminderEvents =>
+      $$ReminderEventsTableTableManager(_db, _db.reminderEvents);
+  $$ConversationsTableTableManager get conversations =>
+      $$ConversationsTableTableManager(_db, _db.conversations);
+  $$MessagesTableTableManager get messages =>
+      $$MessagesTableTableManager(_db, _db.messages);
   $$EventsTableTableManager get events =>
       $$EventsTableTableManager(_db, _db.events);
   $$SyncMetaTableTableManager get syncMeta =>

@@ -56,6 +56,9 @@ AppTheme buildAnalogCompanionTheme() {
     onBackground: Color(0xFFE9E1DD),
     surfaceVariant: Color(0xFF383432),
     cardBorder: Color(0x0FFFFFFF),
+    // secondaryContainer at 16% and secondary at 40% — the Fresh Start chip.
+    secondarySurface: Color(0x2900A68E),
+    secondaryOutline: Color(0x665BDBC1),
   );
 
   final TextTheme textTheme = TextTheme(

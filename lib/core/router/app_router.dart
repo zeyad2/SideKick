@@ -5,12 +5,11 @@ import 'package:sidekick/core/router/app_gate.dart';
 import 'package:sidekick/core/router/app_routes.dart';
 import 'package:sidekick/features/auth/presentation/forgot_password_screen.dart';
 import 'package:sidekick/features/auth/presentation/login_screen.dart';
-import 'package:sidekick/features/focus/presentation/focus_screen.dart';
-import 'package:sidekick/features/habits/presentation/habits_screen.dart';
 import 'package:sidekick/features/inbox/presentation/inbox_screen.dart';
 import 'package:sidekick/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:sidekick/features/settings/presentation/settings_screen.dart';
 import 'package:sidekick/features/shell/presentation/app_shell.dart';
+import 'package:sidekick/features/shell/presentation/themed_empty_screen.dart';
 import 'package:sidekick/features/splash/presentation/splash_screen.dart';
 
 final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
@@ -20,7 +19,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: AppRoutes.inbox,
+    initialLocation: AppRoutes.capture,
     refreshListenable: refresh,
     redirect: (_, GoRouterState state) {
       final AppGate gate = ref.read(appGateProvider);
@@ -42,7 +41,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
                   location == AppRoutes.forgotPassword ||
                   location == AppRoutes.onboarding ||
                   location == AppRoutes.splash
-              ? AppRoutes.inbox
+              ? AppRoutes.capture
               : null;
       }
     },
@@ -74,8 +73,8 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
-                path: AppRoutes.inbox,
-                name: AppRoutes.inboxName,
+                path: AppRoutes.capture,
+                name: AppRoutes.captureName,
                 builder: (_, _) => const InboxScreen(),
               ),
             ],
@@ -83,18 +82,19 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
-                path: AppRoutes.habits,
-                name: AppRoutes.habitsName,
-                builder: (_, _) => const HabitsScreen(),
+                path: AppRoutes.reminders,
+                name: AppRoutes.remindersName,
+                builder: (_, _) =>
+                    const ThemedEmptyScreen(title: 'Task reminders'),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
-                path: AppRoutes.focus,
-                name: AppRoutes.focusName,
-                builder: (_, _) => const FocusScreen(),
+                path: AppRoutes.places,
+                name: AppRoutes.placesName,
+                builder: (_, _) => const ThemedEmptyScreen(title: 'Places'),
               ),
             ],
           ),

@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
 /// One syncable table: its SQL name (identical on drift and Postgres) and
-/// whether pushes are INSERT-ONLY (`events`, per D9 — immutable, client-id'd,
-/// no LWW conflict).
+/// whether pushes are INSERT-ONLY (`events`/`reminder_events`: immutable,
+/// client-id'd, no LWW conflict).
 @immutable
 class SyncableTable {
   const SyncableTable(this.name, {this.insertOnly = false});
@@ -21,16 +21,11 @@ class SyncableTable {
 /// the LOCAL-ONLY pull cursor and never leaves the device.
 const List<SyncableTable> kSyncableTables = <SyncableTable>[
   SyncableTable('profiles'),
-  SyncableTable('captures'),
-  SyncableTable('goals'),
-  SyncableTable('tasks'),
-  SyncableTable('notes'),
-  SyncableTable('habits'),
-  SyncableTable('habit_completions'),
   SyncableTable('places'),
-  SyncableTable('focus_sessions'),
-  SyncableTable('vibe_checks'),
-  SyncableTable('reminders'),
-  SyncableTable('block_list'),
+  SyncableTable('captures'),
+  SyncableTable('task_reminders'),
+  SyncableTable('reminder_events', insertOnly: true),
+  SyncableTable('conversations'),
+  SyncableTable('messages'),
   SyncableTable('events', insertOnly: true),
 ];

@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sidekick Project Audit and POC Reset</title>
+  <style>
+    :root {
+      --bg: #161311;
+      --panel: #211d1a;
+      --panel-2: #2b2520;
+      --text: #f7efe4;
+      --muted: #cbbdae;
+      --faint: #938579;
+      --amber: #ffb963;
+      --teal: #00a68e;
+      --blue: #7ca7ff;
+      --red: #ff8a80;
+      --border: rgba(255,255,255,.10);
+      --shadow: rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.58 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--amber); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    code {
+      color: #ffe0af;
+      background: rgba(255,255,255,.06);
+      padding: .12rem .32rem;
+      border-radius: 5px;
+      font-size: .92em;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 22px 72px; }
+    header {
+      padding: 34px 0 26px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .eyebrow {
+      color: var(--amber);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: .78rem;
+    }
+    h1, h2, h3 { line-height: 1.14; margin: 0; }
+    h1 { font-size: clamp(2rem, 5vw, 4.3rem); max-width: 900px; margin-top: 10px; }
+    h2 { font-size: 1.9rem; margin: 42px 0 14px; }
+    h3 { font-size: 1.2rem; margin: 24px 0 10px; color: #ffe5bf; }
+    p { margin: 0 0 13px; color: var(--muted); }
+    strong { color: var(--text); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 14px 34px var(--shadow);
+    }
+    .card h3 { margin-top: 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+      font-size: .82rem;
+      font-weight: 700;
+      margin: 3px 5px 3px 0;
+    }
+    .ok { color: #93e2b8; }
+    .warn { color: var(--amber); }
+    .bad { color: var(--red); }
+    .info { color: var(--blue); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 32px;
+    }
+    .toc a {
+      display: block;
+      padding: 12px 13px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 650;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 14px 0 24px;
+      background: rgba(255,255,255,.035);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px 13px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    tr:last-child td { border-bottom: 0; }
+    ul, ol { color: var(--muted); padding-left: 22px; }
+    li { margin: 7px 0; }
+    .callout {
+      border-left: 4px solid var(--amber);
+      background: rgba(255,185,99,.08);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+    .callout p { margin: 0; }
+    .danger { border-left-color: var(--red); background: rgba(255,138,128,.08); }
+    .good { border-left-color: var(--teal); background: rgba(0,166,142,.08); }
+    .blue { border-left-color: var(--blue); background: rgba(124,167,255,.08); }
+    .small { font-size: .92rem; color: var(--faint); }
+    .phase {
+      display: grid;
+      grid-template-columns: 90px 1fr 150px;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .phase:last-child { border-bottom: 0; }
+    .phase .num { color: var(--amber); font-weight: 800; }
+    .status {
+      font-weight: 800;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: .9rem;
+    }
+    footer {
+      margin-top: 48px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      color: var(--faint);
+    }
+    @media (max-width: 900px) {
+      .summary, .grid-2, .toc { grid-template-columns: 1fr; }
+      .phase { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Sidekick audit · 2026-08-18</div>
+      <h1>What Sidekick is, what it has become, and how to strip it back to the real POC.</h1>
+      <p style="max-width: 870px; margin-top: 18px;">
+        This report was prepared from the repository as it exists in <code>E:\projects\SideKick</code>.
+        It uses the local build plan, phase reviews, docs, migrations, Flutter/Dart source, Android native source,
+        and tests. The repo has uncommitted work; this report does not assume those changes are final.
+      </p>
+      <div class="summary">
+        <section class="card">
+          <h3>Current Reality</h3>
+          <p>The app is no longer a small POC. It contains foundations, auth, local-first sync, native Android audio capture, Gemini capture decomposition, inbox triage, auto-commit tasks, habits, Fresh Start, Done list, persona copy, goals data, reminders data, places data, and settings for capture permissions.</p>
+        </section>
+        <section class="card">
+          <h3>Main Drift</h3>
+          <p>The planned product expanded into an ADHD companion platform: capture, inbox, habits, focus sessions, blocking, reminders, geofencing, goals, settings, behavioural events, and future insights. The smart location-reminder POC is still mostly unbuilt.</p>
+        </section>
+        <section class="card">
+          <h3>Recommended Reset</h3>
+          <p>Keep the foundation, auth, local DB, profile/context, places/reminders schema, and a thin AI creation flow. Freeze or remove habits, focus, app blocking, goal sage, Done list, reward systems, and broad capture decomposition until the reminder POC works on-device.</p>
+        </section>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#executive">Executive Read</a>
+      <a href="#requirements">Original Requirements</a>
+      <a href="#built">What Is Built</a>
+      <a href="#architecture">How It Works</a>
+      <a href="#gap">POC Gap</a>
+      <a href="#strip">Strip-Down Plan</a>
+      <a href="#risks">Risks</a>
+      <a href="#sources">Sources Checked</a>
+    </nav>
+
+    <section id="executive">
+      <h2>Executive Read</h2>
+      <div class="callout danger">
+        <p><strong>The core feature you now care about, smart location-aware reminders plus an AI with life context, is not the current center of gravity in the built app.</strong> The built center is voice capture → Gemini extraction → inbox/task/habit/goal materialization, with habits as the most developed user-facing daily-driver surface.</p>
+      </div>
+      <p>
+        The project has a strong technical foundation, but it has also absorbed too many product directions before proving the core POC. The build plan explicitly scoped twelve phases: shell, schema, sync/auth, native capture, AI inbox, habits, time reminders, focus sessions, Android app blocking, context intelligence/geofences, settings, iOS blocking, hardening. That is a full personal operating system, not a single-feature POC.
+      </p>
+      <p>
+        The pieces most relevant to your desired POC already exist as groundwork: offline-first database, profile preferences, places/reminders schema and repositories, behavioural event log, Gemini transport, persona language preference, and enough capture/AI infrastructure to turn natural language into structured drafts. The missing pieces are the actual product: geofence runtime, background location permissions, reminder scheduling/actions, a place/reminder UI, an AI context layer that reads life context, and a narrow UX around “remind me at the right place/time.”
+      </p>
+      <p>
+        My recommendation: stop building new companion features, fork a “POC mode” product definition, and spend the next slice only on <strong>creating, firing, and learning from smart reminders</strong>. The current capture/habits/focus machinery should be treated as optional infrastructure, not the app.
+      </p>
+    </section>
+
+    <section id="requirements">
+      <h2>What Was Supposed To Be Built</h2>
+      <p>
+        The authoritative local plan is <code>SIDEKICK_BUILD_PLAN.md</code>. The missing caveat is important: <code>SIDEKICK_SPEC.md</code> is absent from the repo, and several reviews mention that this limited validation. The current plan still makes the intended scope clear.
+      </p>
+
+      <div class="card">
+        <div class="phase"><div class="num">P0</div><div><strong>Foundations, theme, app shell.</strong> Flutter app, swappable Analog Companion theme, shared widgets, bottom nav.</div><div class="status ok">Built</div></div>
+        <div class="phase"><div class="num">P1</div><div><strong>Database schema.</strong> Supabase schema, RLS, ERD, rationale, sync semantics.</div><div class="status ok">Built, revised</div></div>
+        <div class="phase"><div class="num">P2</div><div><strong>Data, sync, auth, preferences.</strong> Drift mirror, repository interfaces, Supabase sync, events, onboarding.</div><div class="status ok">Built, hardened</div></div>
+        <div class="phase"><div class="num">P3</div><div><strong>Native capture.</strong> Android accessibility trigger and foreground mic recorder that persists audio before network.</div><div class="status ok">Built</div></div>
+        <div class="phase"><div class="num">P4</div><div><strong>Gemini → inbox triage.</strong> Capture audio processed into structured items, reviewed and saved.</div><div class="status ok">Built, expanded</div></div>
+        <div class="phase"><div class="num">P5</div><div><strong>Habits, Fresh Start, reward burst, Done list.</strong> Elastic habit completion and shame-free restart flow.</div><div class="status warn">In progress / blocked review</div></div>
+        <div class="phase"><div class="num">P6</div><div><strong>Time reminders.</strong> Local notifications with Done/Later actions.</div><div class="status bad">Not built</div></div>
+        <div class="phase"><div class="num">P7</div><div><strong>Focus/body double.</strong> Session lifecycle, timer, midpoint check-in, vibe check.</div><div class="status bad">Not built UI; data only</div></div>
+        <div class="phase"><div class="num">P8</div><div><strong>Android app blocking.</strong> Accessibility-based app blocking during focus sessions.</div><div class="status bad">Not built</div></div>
+        <div class="phase"><div class="num">P9</div><div><strong>Context intelligence.</strong> Geofence reminders, habit stacking, next action extraction, avoidance triage, thin goals.</div><div class="status bad">Mostly not built</div></div>
+        <div class="phase"><div class="num">P10</div><div><strong>Settings/configurability.</strong> Trigger config, places, persona language, sync/account, block list.</div><div class="status warn">Partial</div></div>
+        <div class="phase"><div class="num">P11</div><div><strong>iOS app blocking.</strong> FamilyControls shield.</div><div class="status bad">Not built</div></div>
+        <div class="phase"><div class="num">P12</div><div><strong>Hardening and 90-day freeze.</strong> Battery, permissions, sync stress, real device matrix.</div><div class="status bad">Not reached</div></div>
+      </div>
+
+      <h3>Product Meaning</h3>
+      <p>
+        The intended product is an “offline-first analog companion” for ADHD-like executive friction. It started with fast capture and gentle habit support, but the plan grew into a broad assistant: capture thoughts, decompose them, sort them, support habits, run focus sessions, block apps, fire reminders, understand location, infer next actions, and eventually use events for insights.
+      </p>
+      <p>
+        The requirement tangle comes from pulling future context-intelligence and companion ideas into earlier layers. The schema and docs are preparing for goals, reminders, places, app blocking, focus sessions, and behavioural analytics before the core reminder loop has been proven.
+      </p>
+    </section>
+
+    <section id="built">
+      <h2>What Is Already Built</h2>
+      <table>
+        <thead><tr><th>Area</th><th>Built</th><th>What It Means</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Flutter shell and theme</td>
+            <td>App shell with Inbox, Habits, Focus, Settings; dark Analog Companion theme; shared theme tokens/widgets.</td>
+            <td>The UI foundation is usable. The app enforces a consistent visual language and LTR English chrome.</td>
+          </tr>
+          <tr>
+            <td>Auth and onboarding</td>
+            <td>Email/password auth via Supabase; forgot-password request screen; onboarding stores persona response language.</td>
+            <td>A real signed-in personal app exists, but Google sign-in and full password reset deep-link completion are deferred.</td>
+          </tr>
+          <tr>
+            <td>Local-first data</td>
+            <td>Drift SQLite database mirrors Supabase tables; repositories write local first; dirty rows sync in background.</td>
+            <td>This is the strongest foundation. It supports offline use and later cross-device sync.</td>
+          </tr>
+          <tr>
+            <td>Sync hardening</td>
+            <td>Server-side LWW trigger migration, event immutability policy, user-scoped dirty flush, version-safe ack, cold-start sync trigger.</td>
+            <td>Earlier P2 blockers appear addressed in later code and migration <code>0003</code>, though full Flutter tests were not run during this audit.</td>
+          </tr>
+          <tr>
+            <td>Native Android capture</td>
+            <td>AccessibilityService detects configurable volume-key press count; ForegroundService records AAC audio to app storage; NativeCaptureStore journals active/pending/failed capture events.</td>
+            <td>The make-or-break “thought capture from anywhere” path is substantially built on Android. It still needs real-device acceptance for lock screen/OEM behavior.</td>
+          </tr>
+          <tr>
+            <td>Gemini processing</td>
+            <td>Audio is sent to Gemini with a strict JSON response schema. The current version decomposes a rant into multiple draft items: tasks, notes, habits, goals.</td>
+            <td>The AI is currently a classifier/extractor, not a conversational life-context agent.</td>
+          </tr>
+          <tr>
+            <td>Inbox and triage</td>
+            <td>Inbox shows captures, energy mode, processing states, manual triage sheet, bulk review cards, discard, save, retry.</td>
+            <td>This is the most complete app workflow after native capture.</td>
+          </tr>
+          <tr>
+            <td>Auto-commit</td>
+            <td>High-confidence all-task captures up to a small count can be auto-materialized; grouped notification offers Undo/Edit; inbox strip shows recent auto-adds.</td>
+            <td>Useful, but it adds product complexity before the reminder POC exists.</td>
+          </tr>
+          <tr>
+            <td>Tasks, notes, goals</td>
+            <td>Domain models and repositories exist; tasks/notes/goals can be created from capture drafts.</td>
+            <td>These are data-backed but do not yet form a polished task/goal product surface.</td>
+          </tr>
+          <tr>
+            <td>Habits</td>
+            <td>Habit editor, elastic Mini/Normal/Mega completion, reward burst state, persona acknowledgments, Fresh Start, Done list.</td>
+            <td>This is now a major feature, and it is probably outside the narrowed POC.</td>
+          </tr>
+          <tr>
+            <td>Persona copy</td>
+            <td>Persona response language preference, fallback copy, Gemini-generated line refill, validation against wrong language and shame/scoring framing.</td>
+            <td>Good groundwork for “AI tone,” but not yet “AI context about your life.”</td>
+          </tr>
+          <tr>
+            <td>Events</td>
+            <td>Append-only behavioural event log with taxonomy for captures, tasks, habits, reminders, focus, energy.</td>
+            <td>Excellent future context substrate, but no read side or AI memory layer is built.</td>
+          </tr>
+          <tr>
+            <td>Places and reminders</td>
+            <td>Tables, domain models, repositories for places and time/geofence reminders.</td>
+            <td>Important: this is storage only. The actual smart reminder runtime is not built.</td>
+          </tr>
+          <tr>
+            <td>Focus and blocking</td>
+            <td>Focus sessions, vibe checks, block list data exist; Focus tab is still an empty themed screen.</td>
+            <td>Mostly schema/repository groundwork. This is not POC-critical.</td>
+          </tr>
+          <tr>
+            <td>Settings</td>
+            <td>Capture permission status and request flows for microphone, notifications, accessibility, battery exemption.</td>
+            <td>Settings are currently capture-centric, not reminder/location-centric.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Verification Snapshot</h3>
+      <p>
+        I ran <code>C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze</code> and it returned <strong>No issues found</strong>.
+        I attempted <code>flutter analyze --no-pub</code>, but it produced no output after 90 seconds and was stopped. I did not run the full Flutter widget test suite during this audit.
+      </p>
+      <p class="small">
+        Existing phase review evidence says: P3 passed with device checks still human-only; P4 passed with device/API checks still human-only; P5 review was blocked, although the current source appears to include fixes for several listed P5 issues.
+      </p>
+    </section>
+
+    <section id="architecture">
+      <h2>How The Current App Is Built</h2>
+      <div class="grid-2">
+        <section class="card">
+          <h3>Runtime Shape</h3>
+          <p><code>main.dart</code> initializes Supabase and capture notifications/permissions, then runs <code>SidekickApp</code>.</p>
+          <p><code>SidekickApp</code> watches the active theme, sync engine, capture owner binding, auto-commit notifications, and capture processing service. It uses <code>MaterialApp.router</code> with a <code>CaptureOverlayHost</code> wrapper.</p>
+          <p><code>go_router</code> gates navigation through Splash, Login, Onboarding, then the shell.</p>
+        </section>
+        <section class="card">
+          <h3>Data Shape</h3>
+          <p>Drift tables mirror Supabase migrations <code>0001</code>, <code>0002</code>, and local migration state for capture decomposition from <code>0004</code>.</p>
+          <p>Every syncable local row has <code>dirty</code> and <code>synced_at</code>. Cloud tables keep <code>created_at</code>, <code>updated_at</code>, and <code>deleted_at</code>.</p>
+          <p>Feature code depends on repository interfaces; Drift and Supabase stay in data/core layers.</p>
+        </section>
+        <section class="card">
+          <h3>Capture Pipeline</h3>
+          <p>Android volume key gesture → AccessibilityService → ForegroundService recorder → NativeCaptureStore pending event → Flutter method channel → CapturesRepository row → CaptureProcessingService → Gemini → proposed items → inbox review or auto-commit.</p>
+          <p>The design priority is durability: audio bytes hit disk before network or AI processing.</p>
+        </section>
+        <section class="card">
+          <h3>AI Shape</h3>
+          <p>The current AI boundary is not a general assistant. It is mostly <code>GeminiClient.analyzeCaptureAudio(File)</code>, returning structured capture analysis.</p>
+          <p>Persona generation exists for short habit/Fresh Start copy, but there is no conversation table, no message history, no context-retrieval service, no TTS, and no AI chat surface.</p>
+        </section>
+      </div>
+
+      <h3>Current Data Model, In Plain English</h3>
+      <ul>
+        <li><strong>profiles</strong>: who the user is in app terms: language, theme, preferences JSON.</li>
+        <li><strong>captures</strong>: raw audio/thought events and AI draft output. This is the audit trail.</li>
+        <li><strong>tasks, notes, habits, goals</strong>: typed things created from captures or manually.</li>
+        <li><strong>habit_completions</strong>: immutable record of habit wins.</li>
+        <li><strong>places</strong>: named lat/lng/radius anchors for future geofence reminders.</li>
+        <li><strong>reminders</strong>: scheduled or geofence reminder definitions, not yet a firing runtime.</li>
+        <li><strong>focus_sessions, vibe_checks, block_list</strong>: future focus/body-double/app-blocking substrate.</li>
+        <li><strong>events</strong>: append-only behavioural history for future intelligence.</li>
+      </ul>
+    </section>
+
+    <section id="gap">
+      <h2>Gap Against The New POC</h2>
+      <div class="callout blue">
+        <p><strong>New POC definition:</strong> “A smart reminder app that knows enough about my life and location to remind me at the right moment, with AI helping create and adapt those reminders.”</p>
+      </div>
+
+      <table>
+        <thead><tr><th>POC Need</th><th>Current Support</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Create a location-aware reminder</td>
+            <td>Reminder repo has <code>createGeofenceReminder</code>; Place repo exists; capture draft UI has inert location fields.</td>
+            <td>No user-facing place/reminder creation flow. No geofence runtime. No background location permission flow. No map/pin/radius UI.</td>
+          </tr>
+          <tr>
+            <td>Fire a reminder when entering/leaving/dwelling at a place</td>
+            <td>Schema has place, transition, dwell seconds.</td>
+            <td>No <code>geofence_service</code> dependency in <code>pubspec.yaml</code>. No registration/cancellation/reboot restoration. No notification action path for reminders.</td>
+          </tr>
+          <tr>
+            <td>Time-based reminders</td>
+            <td>Dependency <code>flutter_local_notifications</code> exists and is used for auto-commit notifications.</td>
+            <td>P6 reminder scheduling/actions are not implemented. “Done” and “Later” for reminders do not exist.</td>
+          </tr>
+          <tr>
+            <td>AI understands life context</td>
+            <td>Profile, places, tasks, captures, habits, goals, and events can store context.</td>
+            <td>No context assembler, no memory summary, no retrieval policy, no prompt boundary for reminder intelligence, no UI explaining/confirming what the AI used.</td>
+          </tr>
+          <tr>
+            <td>AI creates reminders from natural language</td>
+            <td>Gemini extraction can produce task drafts with schedule/location/reminder flag.</td>
+            <td>The task location field is currently future/inert; saving a draft does not create geofence reminders yet.</td>
+          </tr>
+          <tr>
+            <td>User trust and correction loop</td>
+            <td>Inbox review, auto-commit Undo/Edit, event log.</td>
+            <td>No reminder-specific “why did this fire?”, “not here”, “too early”, “stop reminding here” feedback loop.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Important Product Interpretation</h3>
+      <p>
+        “AI with context about your life” should not start as a chatbot. For this POC it should mean:
+      </p>
+      <ol>
+        <li>It knows your saved places and common anchors.</li>
+        <li>It can turn a messy sentence into a reminder draft with time/place/trigger.</li>
+        <li>It can explain the trigger in plain language.</li>
+        <li>It learns from reminder actions: done, later, dismissed, wrong place, no longer relevant.</li>
+      </ol>
+      <p>
+        That is much narrower than building a general companion. It is enough to prove whether Sidekick has a reason to exist.
+      </p>
+    </section>
+
+    <section id="strip">
+      <h2>Recommended Strip-Down Plan</h2>
+      <div class="callout good">
+        <p><strong>POC thesis:</strong> “I can say or type a thing once, and Sidekick reminds me when the location/time context makes it actionable.” Everything else should be frozen until this loop works reliably on a real phone.</p>
+      </div>
+
+      <h3>Keep</h3>
+      <ul>
+        <li><strong>Flutter shell/theme</strong>: already useful and not the source of product sprawl.</li>
+        <li><strong>Auth/profile/local-first DB</strong>: good foundation for personal context and offline use.</li>
+        <li><strong>Sync, but keep expectations modest</strong>: useful if you use multiple devices, but the POC can work local-first first.</li>
+        <li><strong>Places and reminders repositories</strong>: directly relevant.</li>
+        <li><strong>Gemini transport and structured extraction</strong>: use it for reminder parsing, not broad capture decomposition.</li>
+        <li><strong>Events log</strong>: keep only reminder and context events initially.</li>
+        <li><strong>Native capture only if voice creation is core to your POC</strong>: otherwise allow typed reminder creation first to reduce risk.</li>
+      </ul>
+
+      <h3>Freeze Or Hide</h3>
+      <ul>
+        <li><strong>Habits, Fresh Start, Done list</strong>: good work, but a second product.</li>
+        <li><strong>Focus sessions and app blocking</strong>: high-complexity and not needed for reminder validation.</li>
+        <li><strong>Goal Sage</strong>: keep the table if convenient, but hide goal UX and AI logic.</li>
+        <li><strong>Auto-commit multi-item capture</strong>: useful later, but it complicates trust before reminders are proven.</li>
+        <li><strong>Broad behavioural insights</strong>: do not build until reminder events accumulate.</li>
+      </ul>
+
+      <h3>POC Milestones</h3>
+      <table>
+        <thead><tr><th>Milestone</th><th>Deliverable</th><th>Done Means</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1. Manual smart reminder</td>
+            <td>A simple screen to create a reminder with title, place, enter/exit, dwell, optional time fallback.</td>
+            <td>Reminder persists locally, survives restart, shows in a list, can be edited/deleted.</td>
+          </tr>
+          <tr>
+            <td>2. Geofence runtime</td>
+            <td>Background location permission flow, geofence registration, enter/exit/dwell filtering, reboot/app-start restoration.</td>
+            <td>Walk/drive into a saved place and receive one correct notification.</td>
+          </tr>
+          <tr>
+            <td>3. Notification actions</td>
+            <td>Done, Later, Dismiss, Wrong place actions for reminder notifications.</td>
+            <td>Actions update reminder state/events without opening the app.</td>
+          </tr>
+          <tr>
+            <td>4. AI reminder draft</td>
+            <td>Text or voice input: “remind me to take the returns when I leave home” → structured reminder draft.</td>
+            <td>AI proposes place/transition/copy; user confirms before activation.</td>
+          </tr>
+          <tr>
+            <td>5. Life context layer</td>
+            <td>A small context service that passes profile, saved places, active reminders, recent reminder actions, and relevant tasks into the AI prompt.</td>
+            <td>AI uses known places and prior feedback without inventing hidden assumptions.</td>
+          </tr>
+          <tr>
+            <td>6. Dogfood loop</td>
+            <td>Use for 2 weeks; inspect reminder events and failed/wrong-place actions.</td>
+            <td>You can answer whether the core concept helps in real life.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Possible Code Strategy</h3>
+      <p>
+        The cleanest path is not to delete everything immediately. Add a POC route/shell that only exposes <strong>Reminders</strong> and <strong>Settings</strong>, then stop wiring new code into habits/focus/inbox. This avoids churn while making the app mentally small again.
+      </p>
+      <ol>
+        <li>Change bottom nav to <code>Reminders</code> and <code>Settings</code> for the POC branch.</li>
+        <li>Add a <code>features/reminders/presentation/reminders_screen.dart</code>.</li>
+        <li>Add place management inside reminder creation, not as a separate product surface at first.</li>
+        <li>Add a <code>ReminderScheduler</code> interface with implementations for time notifications and geofences.</li>
+        <li>Add <code>ReminderAiDraftService</code> that reuses Gemini transport but has its own tight prompt and schema.</li>
+        <li>Add <code>ReminderContextService</code> that builds a bounded, explainable context object from profile, places, active reminders, and recent reminder events.</li>
+      </ol>
+    </section>
+
+    <section id="risks">
+      <h2>Risks And Decisions</h2>
+      <table>
+        <thead><tr><th>Risk</th><th>Why It Matters</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Background location reliability</td>
+            <td>Geofencing is platform- and OEM-sensitive. A smart reminder app fails if reminders do not fire.</td>
+            <td>Make real-device geofence acceptance the POC gate. Do not proceed on simulator-only confidence.</td>
+          </tr>
+          <tr>
+            <td>AI overreach</td>
+            <td>An AI that “knows your life” can make creepy or wrong assumptions.</td>
+            <td>Use confirm-before-activate drafts. Show why a place/time was chosen. Learn only from explicit actions at first.</td>
+          </tr>
+          <tr>
+            <td>Client-side Gemini key</td>
+            <td>The current app ships the Gemini key in the client build for personal use.</td>
+            <td>Accept for private POC only. Before distribution, move Gemini behind an authenticated edge proxy.</td>
+          </tr>
+          <tr>
+            <td>Scope gravity</td>
+            <td>Habits/focus/goals can keep pulling attention from the core POC.</td>
+            <td>Hide them in navigation and stop adding tests/features there until the reminder loop works.</td>
+          </tr>
+          <tr>
+            <td>Missing source spec</td>
+            <td><code>SIDEKICK_SPEC.md</code> is absent, so requirements are reconstructed from the build plan and docs.</td>
+            <td>Write a new one-page POC spec and make it the current source of truth.</td>
+          </tr>
+          <tr>
+            <td>Uncommitted changes</td>
+            <td>The working tree contains modified and untracked files, including P5-related fixes.</td>
+            <td>Stabilize or branch before larger cuts. Do not mix cleanup, P5 fixes, and POC pivot in one commit.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>One-Page POC Spec Draft</h3>
+      <div class="card">
+        <p><strong>Sidekick POC:</strong> A private, local-first Android app that creates reminders from plain language and fires them when time/place context makes them useful.</p>
+        <p><strong>Must do:</strong> create/edit/delete location reminders; save named places; fire enter/exit/dwell notifications; support Done/Later/Dismiss/Wrong place; use AI to draft reminders from text/voice; keep a small context memory from places, profile, active reminders, and reminder feedback.</p>
+        <p><strong>Must not do yet:</strong> habits, streaks, focus sessions, app blocking, monthly insights, broad goal planning, general chat, social features, multiple personas, iOS blocking, or complex analytics.</p>
+        <p><strong>Success test:</strong> For two weeks, at least five real reminders fire at the right time/place, and wrong/missed reminders are explainable and fixable.</p>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2>Sources Checked</h2>
+      <ul>
+        <li><code>README.md</code>, <code>SIDEKICK_BUILD_PLAN.md</code>, <code>techdebt.md</code>, <code>DESIGN_SYSTEM.md</code>.</li>
+        <li>Phase reviews: <code>PHASE_1_REVIEW.md</code> through <code>PHASE_5_REVIEW.md</code>.</li>
+        <li>Docs: <code>docs/SCHEMA.md</code>, <code>docs/DATA_CONTRACT.md</code>, <code>docs/EVENTS.md</code>, <code>docs/CAPTURE_DECOMPOSITION.md</code>, <code>docs/SCREENS.md</code>.</li>
+        <li>Supabase migrations <code>0001_initial_schema.sql</code> through <code>0004_capture_decomposition.sql</code>.</li>
+        <li>Core Flutter files: <code>lib/app.dart</code>, router, theme, DB, sync, auth, capture, persona, repository providers.</li>
+        <li>Feature code for inbox, habits, reminders, places, focus, settings, tasks, notes, goals, profile.</li>
+        <li>Android native capture code under <code>android/app/src/main/kotlin/com/sidekick/sidekick</code>.</li>
+        <li>Test inventory under <code>test/</code>.</li>
+      </ul>
+      <footer>
+        Generated as a local project audit. File path: <code>E:\projects\SideKick\docs\project_audit_poc_reset.html</code>.
+      </footer>
+    </section>
+  </div>
+</body>
+</html>

@@ -61,13 +61,7 @@ class DriftSyncEngine implements SyncEngine {
   /// JSONB columns: stored as TEXT locally, must round-trip as JSON objects.
   static const Set<String> _jsonColumns = <String>{
     'prefs',
-    'suggested_schedule',
-    'proposed_items',
-    'dispositioned_item_ids',
-    'frequency_config',
-    'level_config',
-    'captures_during',
-    'recurrence',
+    'ai_context',
     'metadata',
   };
 

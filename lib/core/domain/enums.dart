@@ -1,4 +1,4 @@
-// Domain enums mirroring the schema's CHECK/enum inventory (SCHEMA.md).
+// Domain enums mirroring the POC schema's CHECK/enum inventory.
 //
 // The local drift schema deliberately carries no CHECK constraints; these
 // enums are where the allowed value sets are enforced. Each enum maps to the
@@ -20,17 +20,6 @@ T _byWire<T>(
   return fallback;
 }
 
-enum LlmType {
-  task,
-  note,
-  habit,
-  uncategorized;
-
-  String get wire => name;
-  static LlmType fromWire(String wire) =>
-      _byWire(values, (LlmType v) => v.wire, wire, LlmType.uncategorized);
-}
-
 enum CaptureStatus {
   pending,
   processing,
@@ -44,66 +33,82 @@ enum CaptureStatus {
       _byWire(values, (CaptureStatus v) => v.wire, wire, CaptureStatus.pending);
 }
 
-/// The four draft **kinds** a rant decomposes into (docs/CAPTURE_DECOMPOSITION.md
-/// §2). Doubles as the capture's (retired) `resulting_type`. `goal` was added in
-/// migration `0004` for the rant → many-items flow.
-enum ResultingType {
-  task,
-  note,
-  habit,
-  goal;
+enum CaptureSource {
+  typed,
+  audio,
+  shortcut;
 
   String get wire => name;
-  static ResultingType? fromWire(String? wire) => wire == null
-      ? null
-      : _byWire<ResultingType>(
-          values,
-          (ResultingType v) => v.wire,
-          wire,
-          ResultingType.task,
-        );
+  static CaptureSource fromWire(String wire) =>
+      _byWire(values, (CaptureSource v) => v.wire, wire, CaptureSource.audio);
 }
 
-/// A draft item's model self-reported confidence (§4). Feeds the §12.1
-/// auto-commit gate: any `low` item forces the whole capture to review.
-enum DraftConfidence {
-  high,
-  low;
+enum TaskReminderStatus {
+  pendingAutoCommit('pending_auto_commit'),
+  active('active'),
+  done('done'),
+  dismissed('dismissed'),
+  cancelled('cancelled');
+
+  const TaskReminderStatus(this.wire);
+  final String wire;
+
+  static TaskReminderStatus fromWire(String wire) => _byWire(
+    values,
+    (TaskReminderStatus v) => v.wire,
+    wire,
+    TaskReminderStatus.active,
+  );
+}
+
+enum TaskReminderSource {
+  typed,
+  audio,
+  manual;
 
   String get wire => name;
-  static DraftConfidence fromWire(String wire) =>
-      _byWire(values, (DraftConfidence v) => v.wire, wire, DraftConfidence.low);
+  static TaskReminderSource fromWire(String wire) => _byWire(
+    values,
+    (TaskReminderSource v) => v.wire,
+    wire,
+    TaskReminderSource.manual,
+  );
 }
 
-enum GoalStatus {
-  active,
-  achieved,
-  paused,
-  dropped;
+enum TaskReminderTriggerType {
+  time,
+  place;
 
   String get wire => name;
-  static GoalStatus fromWire(String wire) =>
-      _byWire(values, (GoalStatus v) => v.wire, wire, GoalStatus.active);
+  static TaskReminderTriggerType fromWire(String wire) => _byWire(
+    values,
+    (TaskReminderTriggerType v) => v.wire,
+    wire,
+    TaskReminderTriggerType.time,
+  );
 }
 
-enum TaskStatus {
-  todo,
+enum ReminderEventType {
+  created,
+  activated,
   done,
-  archived;
+  later,
+  dismissed,
+  wrongPlace,
+  edited,
+  fired;
 
-  String get wire => name;
-  static TaskStatus fromWire(String wire) =>
-      _byWire(values, (TaskStatus v) => v.wire, wire, TaskStatus.todo);
-}
+  String get wire => switch (this) {
+    ReminderEventType.wrongPlace => 'wrong_place',
+    _ => name,
+  };
 
-enum HabitLevel {
-  mini,
-  normal,
-  mega;
-
-  String get wire => name;
-  static HabitLevel fromWire(String wire) =>
-      _byWire(values, (HabitLevel v) => v.wire, wire, HabitLevel.mini);
+  static ReminderEventType fromWire(String wire) => _byWire(
+    values,
+    (ReminderEventType v) => v.wire,
+    wire,
+    ReminderEventType.created,
+  );
 }
 
 enum EnergyMode {
@@ -122,15 +127,6 @@ enum EnergyMode {
         );
 }
 
-enum ReminderType {
-  time,
-  geofence;
-
-  String get wire => name;
-  static ReminderType fromWire(String wire) =>
-      _byWire(values, (ReminderType v) => v.wire, wire, ReminderType.time);
-}
-
 enum GeofenceTransition {
   enter,
   exit;
@@ -144,53 +140,6 @@ enum GeofenceTransition {
           wire,
           GeofenceTransition.enter,
         );
-}
-
-enum ReminderStatus {
-  scheduled,
-  fired,
-  done,
-  cancelled;
-
-  String get wire => name;
-  static ReminderStatus fromWire(String wire) => _byWire(
-    values,
-    (ReminderStatus v) => v.wire,
-    wire,
-    ReminderStatus.scheduled,
-  );
-}
-
-enum FocusSessionStatus {
-  active,
-  completed,
-  abandoned;
-
-  String get wire => name;
-  static FocusSessionStatus fromWire(String wire) => _byWire(
-    values,
-    (FocusSessionStatus v) => v.wire,
-    wire,
-    FocusSessionStatus.active,
-  );
-}
-
-enum BlockingMode {
-  soft,
-  hard;
-
-  String get wire => name;
-  static BlockingMode fromWire(String wire) =>
-      _byWire(values, (BlockingMode v) => v.wire, wire, BlockingMode.soft);
-}
-
-enum BlockPlatform {
-  android,
-  ios;
-
-  String get wire => name;
-  static BlockPlatform fromWire(String wire) =>
-      _byWire(values, (BlockPlatform v) => v.wire, wire, BlockPlatform.android);
 }
 
 /// Persona *generated-text* language (D2). Chrome is always English; this only

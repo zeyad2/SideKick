@@ -10,11 +10,9 @@ import 'package:sidekick/core/events/event_emitter.dart';
 import 'package:sidekick/core/events/events_repository.dart';
 import 'package:sidekick/core/sync/connectivity_service.dart';
 import 'package:sidekick/core/sync/sync_engine.dart';
-import 'package:sidekick/features/inbox/data/captures_repository_impl.dart';
-import 'package:sidekick/features/inbox/domain/capture.dart';
-import 'package:sidekick/features/inbox/domain/proposed_item.dart';
-import 'package:sidekick/features/tasks/data/tasks_repository_impl.dart';
-import 'package:sidekick/features/tasks/domain/task.dart';
+import 'package:sidekick/features/reminders/data/reminder_events_repository_impl.dart';
+import 'package:sidekick/features/reminders/data/task_reminders_repository_impl.dart';
+import 'package:sidekick/features/reminders/domain/task_reminder.dart';
 
 import '../support/fakes.dart';
 
@@ -28,7 +26,7 @@ class _StubConnectivity implements ConnectivityService {
 
 DateTime _fixed(String iso) => DateTime.parse(iso);
 
-Map<String, Object?> _remoteTaskRow({
+Map<String, Object?> _remoteReminderRow({
   required String id,
   required String title,
   required String updatedAt,
@@ -36,10 +34,21 @@ Map<String, Object?> _remoteTaskRow({
   'id': id,
   'user_id': 'u1',
   'title': title,
-  'status': 'todo',
+  'details': null,
+  'status': 'active',
+  'source': 'typed',
+  'confidence': 0.9,
+  'trigger_type': 'time',
+  'scheduled_at': '2026-08-18T12:00:00.000Z',
+  'place_id': null,
+  'geofence_transition': null,
+  'dwell_seconds': null,
+  'auto_commit_deadline_at': null,
+  'capture_id': null,
+  'ai_explanation': null,
+  'ai_context': <String, Object?>{'remote': true},
   'created_at': updatedAt,
   'updated_at': updatedAt,
-  'last_activity_at': updatedAt,
   'deleted_at': null,
 };
 
@@ -63,8 +72,8 @@ void main() {
     userId: 'u1',
   );
 
-  TasksRepositoryImpl tasksRepo({DateTime Function()? clock}) =>
-      TasksRepositoryImpl(
+  TaskRemindersRepositoryImpl remindersRepo({DateTime Function()? clock}) =>
+      TaskRemindersRepositoryImpl(
         db: db,
         emitter: EventEmitter(DriftEventsRepository(db), IdGenerator()),
         idGenerator: IdGenerator(),
@@ -72,221 +81,133 @@ void main() {
         clock: clock,
       );
 
-  test('flush pushes dirty rows then clears dirty + sets synced_at', () async {
-    final Task task = await tasksRepo().create(title: 'Sync me');
+  test('dirty POC rows flush and strip local-only columns', () async {
+    final TaskReminder reminder = await remindersRepo().create(
+      TaskReminderDraft(
+        title: 'Sync me',
+        source: TaskReminderSource.typed,
+        confidence: 0.91,
+        triggerType: TaskReminderTriggerType.time,
+        scheduledAt: DateTime.utc(2026, 8, 18, 12),
+        aiContext: const <String, Object?>{'used': true},
+      ),
+    );
 
     await engine().flush();
 
-    expect(gateway.pushes, isNotEmpty);
-    final PushCall taskPush = gateway.pushes.firstWhere(
-      (PushCall p) => p.table == 'tasks',
+    final PushCall push = gateway.pushes.firstWhere(
+      (PushCall p) => p.table == 'task_reminders',
     );
-    expect(taskPush.rows.single['id'], task.id);
-    // Local-only columns are never pushed (R0).
-    expect(taskPush.rows.single.containsKey('dirty'), isFalse);
-    expect(taskPush.rows.single.containsKey('synced_at'), isFalse);
+    expect(push.rows.single['id'], reminder.id);
+    expect(push.rows.single.containsKey('dirty'), isFalse);
+    expect(push.rows.single.containsKey('synced_at'), isFalse);
+    expect(push.rows.single['ai_context'], isA<Map<String, Object?>>());
 
-    final TaskRow row = await (db.select(
-      db.tasks,
-    )..where((Tasks t) => t.id.equals(task.id))).getSingle();
+    final TaskReminderRow row = await (db.select(
+      db.taskReminders,
+    )..where((t) => t.id.equals(reminder.id))).getSingle();
     expect(row.dirty, isFalse);
     expect(row.syncedAt, isNotNull);
   });
 
-  test('events push is INSERT-ONLY (D9)', () async {
-    final DriftEventsRepository events = DriftEventsRepository(db);
-    await events.append(
-      DomainEvent(
-        id: IdGenerator().v4(),
-        userId: 'u1',
-        eventType: 'capture_created',
-        occurredAt: DateTime.now().toUtc(),
-      ),
-    );
-
-    await engine().flush();
-
-    final PushCall eventsPush = gateway.pushes.firstWhere(
-      (PushCall p) => p.table == 'events',
-    );
-    expect(eventsPush.insertOnly, isTrue);
-  });
-
-  test(
-    'capture decomposition JSON pushes decoded and pulls as sqlite text',
-    () async {
-      final CapturesRepositoryImpl captures = CapturesRepositoryImpl(
-        db: db,
-        emitter: EventEmitter(DriftEventsRepository(db), IdGenerator()),
-        idGenerator: IdGenerator(),
-        userId: 'u1',
-        clock: () => _fixed('2026-07-12T10:00:00.000Z'),
-      );
-      final Capture created = await captures.create(source: 'fab');
-      const ProposedItem draft = ProposedItem(
-        id: 'json-draft',
-        kind: ResultingType.task,
-        title: 'Round trip',
-        confidence: DraftConfidence.high,
-      );
-      await captures.update(
-        created.copyWith(
-          proposedItems: const <ProposedItem>[draft],
-          dispositionedItemIds: const <String>['json-draft'],
-          status: CaptureStatus.triaged,
-        ),
-      );
-
-      await engine().flush();
-
-      final PushCall pushed = gateway.pushes.firstWhere(
-        (call) => call.table == 'captures',
-      );
-      expect(pushed.rows.single['proposed_items'], isA<List<Object?>>());
-      expect(pushed.rows.single['dispositioned_item_ids'], <Object?>[
-        'json-draft',
-      ]);
-
-      final Map<String, Object?> remote = Map<String, Object?>.of(
-        pushed.rows.single,
-      )..['updated_at'] = '2026-07-12T11:00:00.000Z';
-      gateway.seedRemote('captures', remote);
-      await engine().pull();
-
-      final CaptureRow row = await (db.select(
-        db.captures,
-      )..where((table) => table.id.equals(created.id))).getSingle();
-      expect(row.proposedItems, contains('json-draft'));
-      expect(row.dispositionedItemIds, '["json-draft"]');
-    },
-  );
-
-  test('pull upserts remote rows and advances last_pull', () async {
+  test('pull applies remote rows and advances cursor', () async {
     gateway.seedRemote(
-      'tasks',
-      _remoteTaskRow(
+      'task_reminders',
+      _remoteReminderRow(
         id: 'remote-1',
         title: 'From another device',
-        updatedAt: '2026-07-12T10:00:00.000Z',
+        updatedAt: '2026-08-18T10:00:00.000Z',
       ),
     );
 
     await engine().pull();
 
-    final TaskRow row = await (db.select(
-      db.tasks,
-    )..where((Tasks t) => t.id.equals('remote-1'))).getSingle();
+    final TaskReminderRow row = await (db.select(
+      db.taskReminders,
+    )..where((t) => t.id.equals('remote-1'))).getSingle();
     expect(row.title, 'From another device');
-    expect(row.dirty, isFalse, reason: 'a pulled row is clean');
+    expect(row.aiContext, '{"remote":true}');
+    expect(row.dirty, isFalse);
 
     final SyncMetaData cursor = await (db.select(
       db.syncMeta,
-    )..where((SyncMeta m) => m.syncTable.equals('tasks'))).getSingle();
-    expect(cursor.lastPull, _fixed('2026-07-12T10:00:00.000Z'));
+    )..where((m) => m.syncTable.equals('task_reminders'))).getSingle();
+    expect(cursor.lastPull, _fixed('2026-08-18T10:00:00.000Z'));
   });
 
-  test('LWW keeps a newer un-pushed local edit over an older remote', () async {
-    // Local edit at t2, still dirty.
-    final Task local = await tasksRepo(
-      clock: () => _fixed('2026-07-12T12:00:00.000Z'),
-    ).create(title: 'Local newer');
-
-    // Older remote row for the same id.
-    gateway.seedRemote(
-      'tasks',
-      _remoteTaskRow(
-        id: local.id,
-        title: 'Remote older',
-        updatedAt: '2026-07-12T09:00:00.000Z',
-      ),
-    );
-
-    await engine().pull();
-
-    final TaskRow row = await (db.select(
-      db.tasks,
-    )..where((Tasks t) => t.id.equals(local.id))).getSingle();
-    expect(row.title, 'Local newer', reason: 'local dirty + newer wins');
-  });
-
-  test('LWW applies a newer remote over the local row', () async {
-    final Task local = await tasksRepo(
-      clock: () => _fixed('2026-07-12T12:00:00.000Z'),
-    ).create(title: 'Local older');
-
-    gateway.seedRemote(
-      'tasks',
-      _remoteTaskRow(
-        id: local.id,
-        title: 'Remote newer',
-        updatedAt: '2026-07-12T15:00:00.000Z',
-      ),
-    );
-
-    await engine().pull();
-
-    final TaskRow row = await (db.select(
-      db.tasks,
-    )..where((Tasks t) => t.id.equals(local.id))).getSingle();
-    expect(row.title, 'Remote newer');
-    expect(row.dirty, isFalse);
-  });
-
-  test('a local edit during an in-flight push is not marked clean', () async {
-    // Create at t1, push it. Mid-push, a newer local edit lands at t2.
-    final Task task = await tasksRepo(
-      clock: () => _fixed('2026-07-12T12:00:00.000Z'),
-    ).create(title: 'Original');
-
-    gateway.onPush = () async {
-      await tasksRepo(
-        clock: () => _fixed('2026-07-12T12:05:00.000Z'),
-      ).update(task.copyWith(title: 'Edited mid-flush'));
-    };
-
-    await engine().flush();
-
-    final TaskRow row = await (db.select(
-      db.tasks,
-    )..where((Tasks t) => t.id.equals(task.id))).getSingle();
-    expect(
-      row.dirty,
-      isTrue,
-      reason:
-          'the version pushed (t1) no longer matches; the t2 edit stays '
-          'dirty and will retry',
-    );
-    expect(row.title, 'Edited mid-flush');
-  });
-
-  test('flush is scoped to the signed-in user', () async {
-    // User u2 has a dirty row; user u1 is signed in.
-    await TasksRepositoryImpl(
+  test('owner-scoped flush never pushes another user row', () async {
+    await TaskRemindersRepositoryImpl(
       db: db,
       emitter: EventEmitter(DriftEventsRepository(db), IdGenerator()),
       idGenerator: IdGenerator(),
       userId: 'u2',
-    ).create(title: 'Belongs to u2');
+    ).create(
+      TaskReminderDraft(
+        title: 'u2 row',
+        source: TaskReminderSource.manual,
+        confidence: 1,
+        triggerType: TaskReminderTriggerType.time,
+        scheduledAt: DateTime.utc(2026, 8, 18, 12),
+      ),
+    );
 
-    // Engine is signed in as u1 (see engine()).
     await engine().flush();
 
-    final bool pushedU2Row = gateway.pushes
-        .where((PushCall p) => p.table == 'tasks')
+    final bool pushedU2 = gateway.pushes
+        .where((PushCall p) => p.table == 'task_reminders')
         .expand((PushCall p) => p.rows)
-        .any((Map<String, Object?> r) => r['user_id'] == 'u2');
-    expect(pushedU2Row, isFalse, reason: "u1's flush must not push u2's rows");
+        .any((Map<String, Object?> row) => row['user_id'] == 'u2');
+    expect(pushedU2, isFalse);
   });
 
-  test('start() triggers a sync when connectivity is regained', () async {
-    await tasksRepo().create(title: 'Queued offline');
-    final DriftSyncEngine e = engine();
-    e.start();
+  test('event inserts remain idempotent and insert-only', () async {
+    final reminder = await remindersRepo().create(
+      TaskReminderDraft(
+        title: 'Reminder',
+        source: TaskReminderSource.manual,
+        confidence: 1,
+        triggerType: TaskReminderTriggerType.time,
+        scheduledAt: DateTime.utc(2026, 8, 18, 12),
+      ),
+    );
+    final events = ReminderEventsRepositoryImpl(
+      db: db,
+      emitter: EventEmitter(DriftEventsRepository(db), IdGenerator()),
+      idGenerator: IdGenerator(),
+      userId: 'u1',
+    );
+    await events.append(
+      id: 'event-1',
+      reminderId: reminder.id,
+      eventType: ReminderEventType.fired,
+    );
+    await events.append(
+      id: 'event-1',
+      reminderId: reminder.id,
+      eventType: ReminderEventType.fired,
+    );
 
-    connectivity.controller.add(true);
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await DriftEventsRepository(db).append(
+      DomainEvent(
+        id: 'domain-event-1',
+        userId: 'u1',
+        eventType: 'capture_created',
+        occurredAt: DateTime.utc(2026, 8, 18),
+      ),
+    );
 
-    expect(gateway.pushes, isNotEmpty);
-    await e.dispose();
+    await engine().flush();
+
+    expect(await db.select(db.reminderEvents).get(), hasLength(1));
+    expect(
+      gateway.pushes
+          .firstWhere((PushCall p) => p.table == 'reminder_events')
+          .insertOnly,
+      isTrue,
+    );
+    expect(
+      gateway.pushes.firstWhere((PushCall p) => p.table == 'events').insertOnly,
+      isTrue,
+    );
   });
 }

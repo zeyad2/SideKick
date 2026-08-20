@@ -363,10 +363,12 @@ class _BlockingCapturesRepository implements CapturesRepository {
 
   @override
   Future<Capture> create({
+    String? inputText,
     String? audioPath,
     DateTime? capturedAt,
-    String source = 'trigger',
+    String source = 'shortcut',
   }) => delegate.create(
+    inputText: inputText,
     audioPath: audioPath,
     capturedAt: capturedAt,
     source: source,

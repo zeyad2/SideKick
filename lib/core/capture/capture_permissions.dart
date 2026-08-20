@@ -68,6 +68,10 @@ class CapturePermissions {
 }
 
 void initializeCaptureForegroundRuntime() {
+  if (kIsWeb || !Platform.isAndroid) {
+    return;
+  }
+
   FlutterForegroundTask.initCommunicationPort();
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(

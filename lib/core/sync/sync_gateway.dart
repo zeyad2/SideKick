@@ -9,10 +9,10 @@ abstract interface class SyncGateway {
   /// Push local rows for [table].
   ///
   /// * Normal tables: an LWW-guarded UPSERT. PostgREST issues a plain upsert;
-  ///   the server-side `sync_lww_guard` trigger (migration 0003) rejects a
+  ///   the server-side `sync_lww_guard` trigger in the POC baseline rejects a
   ///   pushed row whose `updated_at` is older than the stored row and clamps a
   ///   future `updated_at` to `now()` (clock-skew guard) — SCHEMA.md §Sync.
-  /// * [insertOnly] tables (`events`): an idempotent insert (`ON CONFLICT DO
+  /// * [insertOnly] tables (`events`, `reminder_events`): an idempotent insert (`ON CONFLICT DO
   ///   NOTHING`) — rows are immutable and client-id'd, so a duplicate id on
   ///   retry is a no-op and existing data is never overwritten (D9).
   Future<void> push(
@@ -34,31 +34,15 @@ abstract interface class SyncGateway {
 /// Supabase-backed [SyncGateway]. Isolates every PostgREST call so the rest of
 /// the app never touches Supabase types directly.
 ///
-/// Booleans are stored as int 0/1 in sqlite; this gateway coerces them to real
-/// JSON booleans for the known bool columns before pushing, and datetimes are
-/// already ISO-8601 text (store_date_time_values_as_text), which Postgres
-/// `timestamptz` accepts directly.
+/// Datetimes are already ISO-8601 text (store_date_time_values_as_text), which
+/// Postgres `timestamptz` accepts directly.
 class SupabaseSyncGateway implements SyncGateway {
   SupabaseSyncGateway(this._client);
 
   final SupabaseClient _client;
 
-  /// Columns stored as int 0/1 locally that are `boolean` in Postgres.
-  static const Set<String> _boolColumns = <String>{
-    'blocking_enabled',
-    'reset_active',
-    'archived',
-  };
-
   Map<String, Object?> _coerceForPush(Map<String, Object?> row) {
-    final Map<String, Object?> out = Map<String, Object?>.of(row);
-    for (final String col in _boolColumns) {
-      final Object? value = out[col];
-      if (value is int) {
-        out[col] = value != 0;
-      }
-    }
-    return out;
+    return Map<String, Object?>.of(row);
   }
 
   @override
@@ -78,9 +62,10 @@ class SupabaseSyncGateway implements SyncGateway {
       // (crash between the server commit and the local `dirty` clear) must not
       // fail on the duplicate client-generated id. `ON CONFLICT DO NOTHING`
       // ignores an already-present event without ever overwriting it, so the
-      // immutable append-only contract (D9) holds. Non-`events` LWW arbitration
-      // and the clock-skew clamp are enforced server-side by the
-      // `sync_lww_guard` trigger (0003), so a plain upsert is safe here.
+      // immutable append-only contract (D9) holds. LWW arbitration and the
+      // clock-skew clamp for normal tables are enforced server-side by the
+      // `sync_lww_guard` trigger in the POC baseline, so a plain upsert is
+      // safe outside the insert-only path.
       await _client
           .from(table)
           .upsert(payload, ignoreDuplicates: true, onConflict: 'id');

@@ -28,7 +28,7 @@ class CaptureIngestionService {
 
   Future<CapturedAudioEvent> ingest(
     NativeCapturedAudio native, {
-    String source = 'trigger',
+    String source = 'shortcut',
   }) {
     if (native.ownerId != ownerId) {
       return Future<CapturedAudioEvent>.error(

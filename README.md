@@ -1,33 +1,61 @@
 # Sidekick
 
-An offline-first "analog companion" for Android and iOS — a calm, low-friction
-personal assistant built around fast capture and gentle, shame-free habit
-support. Built with Flutter + Dart, local-first storage with cloud sync.
+Sidekick is an Android-first POC for smart task reminders.
 
-> Personal project, built in phases. This repository holds the application
-> source; internal planning and design-review documents are kept out of the
-> public tree (see [Repository layout](#repository-layout)).
+The active product loop is intentionally small:
 
-## Status
+1. Type or capture a reminder once.
+2. Let Sidekick infer the task, time, and place trigger.
+3. Show a short correction window before activation.
+4. Remind at the right moment and learn from Done, Later, Dismiss, and Wrong place actions.
 
-- **Phase 0 — Foundations, theme architecture, app shell** ✅
-  Swappable dark theme (Analog Companion as the default), offline-bundled
-  fonts, shared visual primitives, and a four-destination app shell.
-- **Phase 1 — Database schema** ✅ (design + reviewed migration under
-  `supabase/`).
+Everything outside that loop is future work and belongs in
+[docs/FUTURE_PLANS.md](docs/FUTURE_PLANS.md).
 
-Feature behavior, persistence wiring, auth, sync, Gemini, and native capture
-land in later phases.
+## Current Truth
+
+- [POC spec](docs/POC_SPEC.md)
+- [POC phases](docs/POC_PHASES.md)
+- [Future plans](docs/FUTURE_PLANS.md)
+- [Legacy companion v1 archive](docs/archive/legacy-companion-v1/)
+
+## POC Scope
+
+Active:
+
+- Auth/profile and onboarding gate
+- Theme and app shell
+- Local-first sync foundation
+- Android hardware/audio capture shortcut
+- Gemini transport
+- Captures
+- Task reminders
+- Places
+- Settings
+- Events
+
+Deferred:
+
+- Habits and Fresh Start
+- Done list as a product surface
+- Goals
+- Notes
+- Focus sessions and body double
+- App blocking
+- Vibe checks
+- Persona chat, TTS, and talk-back
+- Insights
+- iOS proof
+- Additional themes
+- Broad non-reminder capture decomposition
 
 ## Toolchain
 
 - Flutter 3.44.6 stable
 - Dart 3.12.2 with sound null safety
 - Android minimum SDK 26
-- iOS target generated with Flutter defaults
 
-Dependencies are exact-pinned in `pubspec.yaml` and fully resolved in
-`pubspec.lock`.
+Dependencies are resolved in `pubspec.lock`.
 
 ## Run
 
@@ -36,38 +64,13 @@ flutter pub get
 flutter run --dart-define-from-file=.env
 ```
 
-Runtime config is read from a gitignored `.env` at the repo root (see
-`.env.example` for the keys). It is loaded at build time via
-`--dart-define-from-file`; no secrets are committed. Required keys:
-`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (Supabase's modern client key,
-`sb_publishable_…`, replacing the legacy `anon` JWT), plus `GEMINI_API_KEY` for
-voice transcription. `GEMINI_MODEL` is optional and defaults to
-`gemini-3.5-flash`. Extra keys in `.env` are ignored.
+Runtime config is read from a gitignored `.env` at the repo root. See
+`.env.example` for required keys.
 
 ## Verify
 
 ```text
+dart analyze
 flutter analyze
-flutter test
+flutter test test/app_shell_test.dart test/static/poc_cleanup_test.dart test/router/app_gate_test.dart
 ```
-
-## Design system
-
-The visual language (colors, type, spacing, radii) is defined in
-`DESIGN_SYSTEM.md` and consumed as a single **registered theme**, never as
-hardcoded values. Adding a second theme is a data swap, not a widget refactor —
-widgets reach every visual token through the theme accessor only.
-
-## Repository layout
-
-```text
-lib/          Flutter app (core/ + feature-first modules)
-assets/fonts/ Bundled DM Serif Display + DM Sans (offline-first, no runtime fetch)
-supabase/     Postgres schema migration + RLS tests
-scripts/      Local tooling (e.g. migration test runner)
-test/         Widget + architecture tests
-```
-
-Internal planning and review material — the phased build plan, review rubrics,
-schema rationale, and per-phase gate reviews — is intentionally **not published**
-and stays local (see the "Kept local" section of `.gitignore`).

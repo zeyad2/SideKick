@@ -27,16 +27,11 @@ class DomainEvent {
 /// The `entity_type` breadcrumb values (loose polymorphic link, no FK).
 abstract final class EntityTypes {
   static const String capture = 'capture';
-  static const String task = 'task';
-  static const String note = 'note';
-  static const String goal = 'goal';
-  static const String habit = 'habit';
-  static const String habitCompletion = 'habit_completion';
+  static const String taskReminder = 'task_reminder';
+  static const String reminderEvent = 'reminder_event';
   static const String place = 'place';
-  static const String focusSession = 'focus_session';
-  static const String vibeCheck = 'vibe_check';
-  static const String reminder = 'reminder';
-  static const String blockListEntry = 'block_list';
+  static const String conversation = 'conversation';
+  static const String message = 'message';
 }
 
 /// Generic STRUCTURAL event types emitted by the P2 repository layer itself.

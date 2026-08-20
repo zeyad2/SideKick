@@ -39,7 +39,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   void _refresh() {
-    setState(() => _status = _permissions.status());
+    setState(() {
+      _status = _permissions.status();
+    });
   }
 
   Future<void> _run(Future<void> Function() action) async {

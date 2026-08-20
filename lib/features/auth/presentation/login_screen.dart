@@ -243,13 +243,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// gives it the built-in disabled styling; the trailing chip says why.
   Widget _googleButton(AppTheme theme) => OutlinedButton(
     onPressed: null,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    child: Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: theme.spacing.sm,
+      runSpacing: theme.spacing.xs,
       children: <Widget>[
         const Icon(Icons.g_mobiledata, size: 28),
-        SizedBox(width: theme.spacing.sm),
         const Text('Continue with Google'),
-        SizedBox(width: theme.spacing.sm),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: theme.spacing.sm,
@@ -270,8 +271,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ),
   );
 
-  Widget _modeToggle(AppTheme theme, {required bool isSignUp}) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
+  Widget _modeToggle(AppTheme theme, {required bool isSignUp}) => Wrap(
+    alignment: WrapAlignment.center,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    spacing: theme.spacing.xs,
     children: <Widget>[
       Text(
         isSignUp ? 'Already have an account?' : 'New to Sidekick?',

@@ -36,6 +36,8 @@ migrate_working_dir/
 /.env
 /.env.*
 !/.env.example
+supabase/.branches/
+supabase/.temp/
 
 # Symbolication related
 app.*.symbols
@@ -55,7 +57,15 @@ app.*.map.json
 # ---------------------------------------------------------------------------
 
 # Internal planning & review docs (product strategy, schema rationale, gate reviews)
-/docs/
+!/docs/
+!/docs/POC_SPEC.md
+!/docs/POC_PHASES.md
+!/docs/FUTURE_PLANS.md
+!/docs/reports/
+!/docs/reports/*
+!/docs/archive/
+!/docs/archive/legacy-companion-v1/
+!/docs/archive/legacy-companion-v1/*
 /SIDEKICK_BUILD_PLAN.md
 /rubrics.md
 

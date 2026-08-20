@@ -46,15 +46,18 @@ void main() {
       ).colors.background,
     );
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Inbox'), findsWidgets);
-    expect(find.text('Habits'), findsOneWidget);
-    expect(find.text('Focus'), findsOneWidget);
+    expect(find.text('Capture'), findsWidgets);
+    expect(find.text('Reminders'), findsOneWidget);
+    expect(find.text('Places'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Habits'), findsNothing);
+    expect(find.text('Fresh Start'), findsNothing);
+    expect(find.text('Focus'), findsNothing);
 
-    await tester.tap(find.text('Habits'));
+    await tester.tap(find.text('Reminders'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Habits'), findsWidgets);
+    expect(find.text('Task reminders'), findsOneWidget);
 
     // P4's live Drift inbox streams close asynchronously. Pump their zero-delay
     // cleanup so this test verifies lifecycle disposal as well as rendering.

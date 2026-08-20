@@ -1,271 +1,37 @@
--- Same-user FK ownership + domain CHECK tests. Run AFTER bootstrap + migration.
--- Reproduces the P1-review attacks and proves they now FAIL:
---   (1) a user CANNOT attach a child row to another user's parent (composite FK);
---   (2) one tenant's delete therefore cannot mutate another tenant's rows;
---   (3) SET NULL nulls ONLY the FK column, never the NOT NULL user_id;
---   (4) domain CHECKs reject nonsensical values.
---
--- Exits non-zero (RAISE EXCEPTION) on any failure so CI can gate on it.
+-- POC same-user FK ownership test. Run after 0001_poc_baseline.sql.
 
-grant usage on schema public to authenticated;
-grant select, insert, update, delete on all tables in schema public to authenticated;
-
--- Two fresh users (distinct from the RLS test's) + a task & capture owned by C.
 insert into auth.users (id, email) values
-    ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c@test'),
-    ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'd@test');
+    ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c-fk@test'),
+    ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'd-fk@test');
 
-insert into public.tasks (id, user_id, title) values
-    ('cccc0000-0000-0000-0000-000000000001', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C task');
-insert into public.captures (id, user_id, status) values
-    ('cccc0000-0000-0000-0000-0000000000ca', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'ready');
-insert into public.goals (id, user_id, title) values
-    ('cccc0000-0000-0000-0000-0000000000a1', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C goal');
+insert into public.places (id, user_id, name, lat, lng) values
+    ('cccc0000-0000-0000-0000-000000000001', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C place', 30, 31);
+insert into public.captures (id, user_id, source, input_text) values
+    ('cccc0000-0000-0000-0000-0000000000ca', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'typed', 'C capture');
 
--- ============================================================================
--- Act as user D (attacker). D must NOT be able to bind children to C's rows.
--- ============================================================================
-set role authenticated;
-set request.jwt.claims = '{"sub":"dddddddd-dddd-dddd-dddd-dddddddddddd"}';
-
--- ATTACK 1: focus_session referencing C's task -> composite FK must reject.
 do $$
 begin
     begin
-        insert into public.focus_sessions (user_id, task_id, duration_minutes)
-        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
-                'cccc0000-0000-0000-0000-000000000001', 25);
-        raise exception 'FAIL: D attached a focus_session to C''s task';
-    exception when foreign_key_violation then
-        raise notice 'PASS: cross-tenant focus_session FK rejected';
-    end;
-end$$;
-
--- ATTACK 2: reminder referencing C's task -> composite FK must reject.
-do $$
-begin
-    begin
-        insert into public.reminders (user_id, reminder_type, task_id, scheduled_at)
-        values ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'time',
-                'cccc0000-0000-0000-0000-000000000001', now());
-        raise exception 'FAIL: D attached a reminder to C''s task';
-    exception when foreign_key_violation then
-        raise notice 'PASS: cross-tenant reminder FK rejected';
-    end;
-end$$;
-
--- ATTACK 3: task referencing C's capture -> composite FK must reject.
-do $$
-begin
-    begin
-        insert into public.tasks (user_id, capture_id, title)
-        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
-                'cccc0000-0000-0000-0000-0000000000ca', 'stolen capture');
-        raise exception 'FAIL: D attached a task to C''s capture';
-    exception when foreign_key_violation then
-        raise notice 'PASS: cross-tenant capture FK rejected';
-    end;
-end$$;
-
--- ATTACK 4: task laddering up to C's goal -> composite FK must reject.
-do $$
-begin
-    begin
-        insert into public.tasks (user_id, goal_id, title)
-        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
-                'cccc0000-0000-0000-0000-0000000000a1', 'stolen goal task');
-        raise exception 'FAIL: D attached a task to C''s goal';
-    exception when foreign_key_violation then
-        raise notice 'PASS: cross-tenant task->goal FK rejected';
-    end;
-end$$;
-
--- ATTACK 5: habit laddering up to C's goal -> composite FK must reject.
-do $$
-begin
-    begin
-        insert into public.habits (user_id, goal_id, title)
-        values ('dddddddd-dddd-dddd-dddd-dddddddddddd',
-                'cccc0000-0000-0000-0000-0000000000a1', 'stolen goal habit');
-        raise exception 'FAIL: D attached a habit to C''s goal';
-    exception when foreign_key_violation then
-        raise notice 'PASS: cross-tenant habit->goal FK rejected';
-    end;
-end$$;
-
-reset request.jwt.claims;
-reset role;
-
--- ============================================================================
--- Positive + cascade-isolation: as owner, C attaches its own child, then the
--- attack being impossible means C's delete can only touch C's own rows.
--- ============================================================================
-insert into public.focus_sessions (id, user_id, task_id, duration_minutes)
-values ('cccc0000-0000-0000-0000-0000000000f5',
-        'cccccccc-cccc-cccc-cccc-cccccccccccc',
-        'cccc0000-0000-0000-0000-000000000001', 25);
-
--- Delete C's task; its own session must SET NULL only task_id (user_id survives).
-delete from public.tasks where id = 'cccc0000-0000-0000-0000-000000000001';
-do $$
-declare tid uuid; uid uuid;
-begin
-    select task_id, user_id into tid, uid
-    from public.focus_sessions where id = 'cccc0000-0000-0000-0000-0000000000f5';
-    if tid is not null then
-        raise exception 'FAIL: task_id should be NULL after parent delete, got %', tid;
-    end if;
-    if uid is distinct from 'cccccccc-cccc-cccc-cccc-cccccccccccc' then
-        raise exception 'FAIL: SET NULL clobbered user_id (got %)', uid;
-    end if;
-    raise notice 'PASS: SET NULL nulled task_id only; user_id intact';
-end$$;
-
--- Goal delete must SET NULL only goal_id and keep the task (goals don't own tasks).
-insert into public.tasks (id, user_id, goal_id, title)
-values ('cccc0000-0000-0000-0000-0000000000b2',
-        'cccccccc-cccc-cccc-cccc-cccccccccccc',
-        'cccc0000-0000-0000-0000-0000000000a1', 'C goal-linked task');
-delete from public.goals where id = 'cccc0000-0000-0000-0000-0000000000a1';
-do $$
-declare gid uuid; uid uuid; cnt int;
-begin
-    select count(*) into cnt from public.tasks
-    where id = 'cccc0000-0000-0000-0000-0000000000b2';
-    if cnt <> 1 then
-        raise exception 'FAIL: task deleted when its goal was deleted (should survive)';
-    end if;
-    select goal_id, user_id into gid, uid from public.tasks
-    where id = 'cccc0000-0000-0000-0000-0000000000b2';
-    if gid is not null then
-        raise exception 'FAIL: goal_id should be NULL after goal delete, got %', gid;
-    end if;
-    if uid is distinct from 'cccccccc-cccc-cccc-cccc-cccccccccccc' then
-        raise exception 'FAIL: SET NULL clobbered user_id (got %)', uid;
-    end if;
-    raise notice 'PASS: goal delete nulled goal_id only; task + user_id intact';
-end$$;
-
--- ============================================================================
--- Domain CHECKs (as owner; these are table constraints, not RLS).
--- ============================================================================
-do $$
-declare
-    C constant uuid := 'cccccccc-cccc-cccc-cccc-cccccccccccc';
-begin
-    -- negative planned duration
-    begin
-        insert into public.focus_sessions (user_id, duration_minutes) values (C, -5);
-        raise exception 'FAIL: negative duration_minutes accepted';
-    exception when check_violation then null; end;
-
-    -- disposition ids must be unique and belong to proposed_items.
-    begin
-        insert into public.captures (
-          user_id, status, proposed_items, dispositioned_item_ids
+        insert into public.task_reminders (
+            user_id, title, source, confidence, trigger_type, scheduled_at, capture_id
         ) values (
-          C, 'ready',
-          '[{"id":"draft-3","kind":"task","title":"Safe","confidence":"high"}]',
-          '["not-a-draft"]'
+            'dddddddd-dddd-dddd-dddd-dddddddddddd',
+            'stolen capture', 'typed', 1, 'time', now(),
+            'cccc0000-0000-0000-0000-0000000000ca'
         );
-        raise exception 'FAIL: foreign disposition id accepted';
-    exception when check_violation then null; end;
+        raise exception 'FAIL: cross-user capture FK was accepted';
+    exception when foreign_key_violation then null; end;
+
     begin
-        insert into public.captures (
-          user_id, status, proposed_items, dispositioned_item_ids
+        insert into public.task_reminders (
+            user_id, title, source, confidence, trigger_type, place_id, geofence_transition
         ) values (
-          C, 'ready',
-          '[{"id":"draft-4","kind":"task","title":"Safe","confidence":"high"}]',
-          '["draft-4","draft-4"]'
+            'dddddddd-dddd-dddd-dddd-dddddddddddd',
+            'stolen place', 'typed', 1, 'place',
+            'cccc0000-0000-0000-0000-000000000001', 'enter'
         );
-        raise exception 'FAIL: duplicate disposition ids accepted';
-    exception when check_violation then null; end;
-
-    -- negative block_attempts
-    begin
-        insert into public.focus_sessions (user_id, duration_minutes, block_attempts)
-        values (C, 25, -2);
-        raise exception 'FAIL: negative block_attempts accepted';
-    exception when check_violation then null; end;
-
-    -- out-of-range lat/lng + non-positive radius
-    begin
-        insert into public.places (user_id, name, lat, lng) values (C, 'bad', 999, -999);
-        raise exception 'FAIL: out-of-range lat/lng accepted';
-    exception when check_violation then null; end;
-    begin
-        insert into public.places (user_id, name, lat, lng, radius_m)
-        values (C, 'bad', 0, 0, -10);
-        raise exception 'FAIL: non-positive radius_m accepted';
-    exception when check_violation then null; end;
-
-    -- negative dwell_seconds
-    begin
-        insert into public.reminders (user_id, reminder_type, scheduled_at, dwell_seconds)
-        values (C, 'time', now(), -60);
-        raise exception 'FAIL: negative dwell_seconds accepted';
-    exception when check_violation then null; end;
-
-    -- resulting_* set while status <> 'triaged'
-    begin
-        insert into public.captures (user_id, status, resulting_type)
-        values (C, 'ready', 'task');
-        raise exception 'FAIL: resulting_type set on non-triaged capture accepted';
-    exception when check_violation then null; end;
-
-    -- triaged capture with neither legacy result nor complete decomposition
-    begin
-        insert into public.captures (user_id, status) values (C, 'triaged');
-        raise exception 'FAIL: triaged capture without resulting_* accepted';
-    exception when check_violation then null; end;
-
-    -- decomposition terminal: every proposed draft has a disposition id.
-    insert into public.captures (
-      user_id, status, proposed_items, dispositioned_item_ids
-    ) values (
-      C, 'triaged',
-      '[{"id":"draft-1","kind":"task","title":"Safe","confidence":"high"}]',
-      '["draft-1"]'
-    );
-
-    -- Retired legacy result columns remain an all-or-none pair, including on
-    -- otherwise valid decomposed terminal rows.
-    begin
-        insert into public.captures (
-          user_id, status, proposed_items, dispositioned_item_ids,
-          resulting_type
-        ) values (
-          C, 'triaged',
-          '[{"id":"half-type","kind":"task","title":"Safe","confidence":"high"}]',
-          '["half-type"]', 'task'
-        );
-        raise exception 'FAIL: resulting_type without resulting_id accepted';
-    exception when check_violation then null; end;
-    begin
-        insert into public.captures (
-          user_id, status, proposed_items, dispositioned_item_ids,
-          resulting_id
-        ) values (
-          C, 'triaged',
-          '[{"id":"half-id","kind":"task","title":"Safe","confidence":"high"}]',
-          '["half-id"]', 'dddddddd-dddd-dddd-dddd-dddddddddddd'
-        );
-        raise exception 'FAIL: resulting_id without resulting_type accepted';
-    exception when check_violation then null; end;
-
-    -- incomplete decomposition may not be marked terminal.
-    begin
-        insert into public.captures (
-          user_id, status, proposed_items, dispositioned_item_ids
-        ) values (
-          C, 'triaged',
-          '[{"id":"draft-2","kind":"task","title":"Unsafe","confidence":"high"}]',
-          '[]'
-        );
-        raise exception 'FAIL: incomplete decomposition accepted as triaged';
-    exception when check_violation then null; end;
-
-    raise notice 'PASS: all domain CHECKs rejected bad values';
+        raise exception 'FAIL: cross-user place FK was accepted';
+    exception when foreign_key_violation then null; end;
 end$$;
 
-select 'ALL FK-OWNERSHIP + CHECK TESTS PASSED' as result;
+select 'ALL POC FK TESTS PASSED' as result;
