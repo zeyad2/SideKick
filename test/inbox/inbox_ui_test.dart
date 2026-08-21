@@ -8,6 +8,7 @@ import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/features/inbox/application/inbox_providers.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
 import 'package:sidekick/features/inbox/presentation/inbox_screen.dart';
+import 'package:sidekick/features/reminders/domain/task_reminder.dart';
 
 void main() {
   final DateTime now = DateTime.utc(2026, 7, 15);
@@ -24,6 +25,24 @@ void main() {
     updatedAt: now,
   );
 
+  TaskReminder pendingReminder() => TaskReminder(
+    id: 'reminder-1',
+    userId: 'u1',
+    title: 'Call the dentist',
+    details: 'Bring insurance card.',
+    status: TaskReminderStatus.pendingAutoCommit,
+    source: TaskReminderSource.typed,
+    confidence: 0.9,
+    triggerType: TaskReminderTriggerType.time,
+    scheduledAt: DateTime.utc(2026, 7, 16, 9),
+    autoCommitDeadlineAt: DateTime.now().toUtc().add(
+      const Duration(seconds: 10),
+    ),
+    aiExplanation: 'Detected a time trigger.',
+    createdAt: now,
+    updatedAt: now,
+  );
+
   testWidgets('capture screen shows typed and audio POC entry points', (
     WidgetTester tester,
   ) async {
@@ -32,6 +51,10 @@ void main() {
         overrides: [
           inboxCapturesProvider.overrideWith(
             (Ref ref) => Stream<List<Capture>>.value(<Capture>[]),
+          ),
+          inboxTaskRemindersProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<TaskReminder>>.value(const <TaskReminder>[]),
           ),
         ],
         child: _themed(const InboxScreen()),
@@ -60,6 +83,10 @@ void main() {
               capture(CaptureStatus.ready),
             ]),
           ),
+          inboxTaskRemindersProvider.overrideWith(
+            (Ref ref) =>
+                Stream<List<TaskReminder>>.value(const <TaskReminder>[]),
+          ),
         ],
         child: _themed(const InboxScreen()),
       ),
@@ -74,6 +101,31 @@ void main() {
     expect(find.text('READY'), findsOneWidget);
     expect(find.text('Review your thoughts'), findsNothing);
     expect(find.text('Shape this thought'), findsNothing);
+  });
+
+  testWidgets('pending auto-commit reminder can be edited or cancelled', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          inboxCapturesProvider.overrideWith(
+            (Ref ref) => Stream<List<Capture>>.value(<Capture>[]),
+          ),
+          inboxTaskRemindersProvider.overrideWith(
+            (Ref ref) => Stream<List<TaskReminder>>.value(<TaskReminder>[
+              pendingReminder(),
+            ]),
+          ),
+        ],
+        child: _themed(const InboxScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('AUTO-COMMIT COUNTDOWN'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Edit'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Cancel'), findsOneWidget);
   });
 }
 

@@ -34,6 +34,7 @@ final Provider<CapturesRepository> capturesRepositoryProvider =
         emitter: d.emitter,
         idGenerator: d.idGenerator,
         userId: d.userId,
+        clock: ref.watch(clockProvider),
       );
     });
 
@@ -45,6 +46,7 @@ final Provider<PlacesRepository> placesRepositoryProvider =
         emitter: d.emitter,
         idGenerator: d.idGenerator,
         userId: d.userId,
+        clock: ref.watch(clockProvider),
       );
     });
 
@@ -56,6 +58,7 @@ final Provider<TaskRemindersRepository> taskRemindersRepositoryProvider =
         emitter: d.emitter,
         idGenerator: d.idGenerator,
         userId: d.userId,
+        clock: ref.watch(clockProvider),
       );
     });
 
@@ -67,6 +70,7 @@ final Provider<ReminderEventsRepository> reminderEventsRepositoryProvider =
         emitter: d.emitter,
         idGenerator: d.idGenerator,
         userId: d.userId,
+        clock: ref.watch(clockProvider),
       );
     });
 
@@ -78,6 +82,7 @@ final Provider<ConversationRepository> conversationRepositoryProvider =
         emitter: d.emitter,
         idGenerator: d.idGenerator,
         userId: d.userId,
+        clock: ref.watch(clockProvider),
       );
     });
 

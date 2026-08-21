@@ -36,6 +36,7 @@ class Capture {
     String? rawTranscript,
     CaptureStatus? status,
     String? error,
+    bool clearError = false,
   }) => Capture(
     id: id,
     userId: userId,
@@ -44,7 +45,7 @@ class Capture {
     audioPath: audioPath ?? this.audioPath,
     rawTranscript: rawTranscript ?? this.rawTranscript,
     status: status ?? this.status,
-    error: error ?? this.error,
+    error: clearError ? null : error ?? this.error,
     capturedAt: capturedAt,
     createdAt: createdAt,
     updatedAt: updatedAt,

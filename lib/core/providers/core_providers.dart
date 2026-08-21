@@ -23,6 +23,12 @@ final Provider<IdGenerator> idGeneratorProvider = Provider<IdGenerator>(
   (Ref ref) => IdGenerator(),
 );
 
+final Provider<DateTime Function()> clockProvider =
+    Provider<DateTime Function()>(
+      (Ref ref) =>
+          () => DateTime.now().toUtc(),
+    );
+
 final Provider<CaptureIngestionBarrier> captureIngestionBarrierProvider =
     Provider<CaptureIngestionBarrier>((Ref ref) => CaptureIngestionBarrier());
 
