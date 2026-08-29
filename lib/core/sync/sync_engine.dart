@@ -150,6 +150,8 @@ class DriftSyncEngine implements SyncEngine {
     }
 
     final List<Map<String, Object?>> payloads = <Map<String, Object?>>[];
+    final Map<String, Map<String, Object?>> payloadById =
+        <String, Map<String, Object?>>{};
     final List<_DirtyRef> refs = <_DirtyRef>[];
     for (final QueryRow row in dirty) {
       final Map<String, Object?> data = Map<String, Object?>.of(row.data);
@@ -162,9 +164,40 @@ class DriftSyncEngine implements SyncEngine {
         if (value is String) data[col] = jsonDecode(value);
       }
       payloads.add(data);
+      payloadById[data['id']! as String] = data;
     }
 
-    await gateway.push(table.name, payloads, insertOnly: table.insertOnly);
+    final List<Map<String, Object?>> accepted = await gateway.push(
+      table.name,
+      payloads,
+      insertOnly: table.insertOnly,
+    );
+    if (table.insertOnly) {
+      await _markSynced(table, refs);
+      return;
+    }
+    for (final Map<String, Object?> row in accepted) {
+      final String? id = row['id'] as String?;
+      if (id == null) continue;
+      final Map<String, Object?>? pushed = payloadById[id];
+      final DateTime? remoteUpdated = _parseDate(row['updated_at']);
+      if (remoteUpdated == null) continue;
+      final _LocalVersion? current = await _localVersion(table.name, id);
+      if (current != null &&
+          current.dirty &&
+          refs.any(
+            (_DirtyRef ref) =>
+                ref.id == id && ref.updatedAt != current.updatedAtIso,
+          )) {
+        continue;
+      }
+      final bool serverAcceptedPayload =
+          pushed != null && _sameServerPayload(pushed, row);
+      if (serverAcceptedPayload ||
+          await _remoteWins(table.name, id, remoteUpdated)) {
+        await _applyRemote(table.name, row);
+      }
+    }
     await _markSynced(table, refs);
   }
 
@@ -210,10 +243,13 @@ class DriftSyncEngine implements SyncEngine {
 
   Future<void> _pullTable(SyncableTable table) async {
     final DateTime? since = await _lastPull(table.name);
+    final DateTime? querySince = since?.subtract(
+      const Duration(milliseconds: 1),
+    );
     final List<Map<String, Object?>> remote = await gateway.pull(
       table.name,
       userId: userId,
-      since: since,
+      since: querySince,
     );
     if (remote.isEmpty) {
       return;
@@ -233,6 +269,30 @@ class DriftSyncEngine implements SyncEngine {
     if (maxUpdated != null) {
       await _setLastPull(table.name, maxUpdated);
     }
+  }
+
+  bool _sameServerPayload(
+    Map<String, Object?> pushed,
+    Map<String, Object?> accepted,
+  ) {
+    for (final MapEntry<String, Object?> entry in pushed.entries) {
+      final String key = entry.key;
+      if (key == 'updated_at' || key == 'created_at') continue;
+      if (!_sameJsonValue(entry.value, accepted[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _sameJsonValue(Object? left, Object? right) {
+    Object? normalize(Object? value) {
+      if (value is DateTime) return value.toUtc().toIso8601String();
+      if (value is Map || value is List) return jsonEncode(value);
+      return value;
+    }
+
+    return normalize(left) == normalize(right);
   }
 
   /// Last-write-wins on the pull side. The incoming row is applied unless the
@@ -262,6 +322,21 @@ class DriftSyncEngine implements SyncEngine {
       return false;
     }
     return true;
+  }
+
+  Future<_LocalVersion?> _localVersion(String tableName, String id) async {
+    final List<QueryRow> rows = await db
+        .customSelect(
+          'SELECT updated_at, dirty FROM $tableName WHERE id = ?',
+          variables: <Variable<Object>>[Variable<String>(id)],
+        )
+        .get();
+    if (rows.isEmpty) return null;
+    final QueryRow row = rows.first;
+    return _LocalVersion(
+      updatedAtIso: row.data['updated_at']?.toString(),
+      dirty: (row.data['dirty'] as int? ?? 0) != 0,
+    );
   }
 
   Future<void> _applyRemote(String tableName, Map<String, Object?> row) async {
@@ -344,4 +419,11 @@ class _DirtyRef {
   const _DirtyRef(this.id, this.updatedAt);
   final String id;
   final String? updatedAt;
+}
+
+class _LocalVersion {
+  const _LocalVersion({required this.updatedAtIso, required this.dirty});
+
+  final String? updatedAtIso;
+  final bool dirty;
 }

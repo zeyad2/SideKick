@@ -43,7 +43,9 @@ void main() {
       File('${repo.path}/lib/core/sync/syncable_tables.dart'),
       File('${repo.path}/lib/features/inbox/application/inbox_providers.dart'),
       File('${repo.path}/lib/features/inbox/presentation/inbox_screen.dart'),
-      File('${repo.path}/lib/features/settings/presentation/settings_screen.dart'),
+      File(
+        '${repo.path}/lib/features/settings/presentation/settings_screen.dart',
+      ),
       File('${repo.path}/lib/features/shell/presentation/app_shell.dart'),
     ];
 
@@ -54,6 +56,7 @@ void main() {
       'features/focus/',
       'features/tasks/',
       'features/settings/data/block_list',
+      'features/chat/',
     ]) {
       for (final File file in activeFiles) {
         expect(
@@ -71,8 +74,32 @@ void main() {
       'habits',
       'freshStart',
       'focus',
+      'chat',
+      'conversation',
     ]) {
       expect(router, isNot(contains(removedRoute)));
+    }
+  });
+
+  test('no active chat route or UI import exists', () {
+    final Iterable<File> activeDartFiles = Directory('${repo.path}/lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((File file) => file.path.endsWith('.dart'));
+
+    for (final File file in activeDartFiles) {
+      final String source = file.readAsStringSync();
+      if (file.path.contains('features\\conversations\\data') ||
+          file.path.contains('features\\conversations\\domain')) {
+        continue;
+      }
+      expect(source, isNot(contains('ChatScreen')), reason: file.path);
+      expect(source, isNot(contains('/chat')), reason: file.path);
+      expect(
+        source,
+        isNot(contains('features/conversations/presentation')),
+        reason: file.path,
+      );
     }
   });
 
@@ -107,6 +134,21 @@ void main() {
     ]) {
       expect(syncableTables, isNot(contains("SyncableTable('$removedTable'")));
     }
+  });
+
+  test('Android time reminders use native durable notification actions', () {
+    final String scheduler = File(
+      '${repo.path}/lib/features/reminders/application/android_reminder_schedule_platform.dart',
+    ).readAsStringSync();
+
+    expect(scheduler, isNot(contains('_notificationId')));
+    expect(scheduler, isNot(contains('zonedSchedule')));
+    expect(scheduler, contains('scheduleTimeReminder'));
+    expect(scheduler, contains('managedNotificationId'));
+    expect(
+      scheduler,
+      isNot(contains('ReminderNotificationDispatcher.dispatchPayload')),
+    );
   });
 
   test('README links only to POC or archive docs', () {

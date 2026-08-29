@@ -30,12 +30,14 @@ class FakeSyncGateway implements SyncGateway {
 
   /// Seed a remote row (as if another device wrote it) for a pull test.
   void seedRemote(String table, Map<String, Object?> row) {
-    remote.putIfAbsent(table, () => <String, Map<String, Object?>>{})[
-        row['id']! as String] = row;
+    remote.putIfAbsent(
+      table,
+      () => <String, Map<String, Object?>>{},
+    )[row['id']! as String] = row;
   }
 
   @override
-  Future<void> push(
+  Future<List<Map<String, Object?>>> push(
     String table,
     List<Map<String, Object?>> rows, {
     required bool insertOnly,
@@ -47,11 +49,44 @@ class FakeSyncGateway implements SyncGateway {
     if (onPush != null) {
       await onPush!();
     }
-    final Map<String, Map<String, Object?>> store =
-        remote.putIfAbsent(table, () => <String, Map<String, Object?>>{});
+    final Map<String, Map<String, Object?>> store = remote.putIfAbsent(
+      table,
+      () => <String, Map<String, Object?>>{},
+    );
+    final List<Map<String, Object?>> accepted = <Map<String, Object?>>[];
     for (final Map<String, Object?> row in rows) {
-      store[row['id']! as String] = row;
+      final String id = row['id']! as String;
+      if (insertOnly && store.containsKey(id)) {
+        accepted.add(store[id]!);
+        continue;
+      }
+      final Map<String, Object?> serverRow = Map<String, Object?>.of(row);
+      final Map<String, Object?>? current = store[id];
+      if (!insertOnly && current != null) {
+        final DateTime currentUpdated = DateTime.parse(
+          current['updated_at']! as String,
+        );
+        final DateTime pushedUpdated = DateTime.parse(
+          serverRow['updated_at']! as String,
+        );
+        if (currentUpdated.isAfter(pushedUpdated)) {
+          accepted.add(current);
+          continue;
+        }
+      }
+      if (!insertOnly && serverRow['updated_at'] is String) {
+        final DateTime pushedUpdated = DateTime.parse(
+          serverRow['updated_at']! as String,
+        );
+        final DateTime maxAccepted = DateTime.utc(2026, 8, 18, 10, 5);
+        if (pushedUpdated.isAfter(maxAccepted)) {
+          serverRow['updated_at'] = maxAccepted.toIso8601String();
+        }
+      }
+      store[id] = serverRow;
+      accepted.add(serverRow);
     }
+    return accepted;
   }
 
   @override
@@ -62,13 +97,15 @@ class FakeSyncGateway implements SyncGateway {
   }) async {
     final Iterable<Map<String, Object?>> rows =
         remote[table]?.values ?? const <Map<String, Object?>>[];
-    return rows.where((Map<String, Object?> row) {
-      if (since == null) {
-        return true;
-      }
-      final DateTime updated = DateTime.parse(row['updated_at']! as String);
-      return updated.isAfter(since);
-    }).toList(growable: false);
+    return rows
+        .where((Map<String, Object?> row) {
+          if (since == null) {
+            return true;
+          }
+          final DateTime updated = DateTime.parse(row['updated_at']! as String);
+          return updated.isAfter(since);
+        })
+        .toList(growable: false);
   }
 }
 

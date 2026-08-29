@@ -15,7 +15,7 @@ abstract interface class SyncGateway {
   /// * [insertOnly] tables (`events`, `reminder_events`): an idempotent insert (`ON CONFLICT DO
   ///   NOTHING`) — rows are immutable and client-id'd, so a duplicate id on
   ///   retry is a no-op and existing data is never overwritten (D9).
-  Future<void> push(
+  Future<List<Map<String, Object?>>> push(
     String table,
     List<Map<String, Object?>> rows, {
     required bool insertOnly,
@@ -23,7 +23,9 @@ abstract interface class SyncGateway {
 
   /// Pull rows for [table] updated since [since] (exclusive), owned by
   /// [userId]. `null` [since] pulls everything. Includes tombstoned rows
-  /// (`deleted_at` set) so deletes propagate.
+  /// (`deleted_at` set) so deletes propagate. The sync engine intentionally
+  /// supplies a tiny overlap window so rows sharing the last timestamp are not
+  /// missed by a timestamp-only cursor.
   Future<List<Map<String, Object?>>> pull(
     String table, {
     required String userId,
@@ -46,13 +48,13 @@ class SupabaseSyncGateway implements SyncGateway {
   }
 
   @override
-  Future<void> push(
+  Future<List<Map<String, Object?>>> push(
     String table,
     List<Map<String, Object?>> rows, {
     required bool insertOnly,
   }) async {
     if (rows.isEmpty) {
-      return;
+      return const <Map<String, Object?>>[];
     }
     final List<Map<String, Object?>> payload = rows
         .map(_coerceForPush)
@@ -66,11 +68,17 @@ class SupabaseSyncGateway implements SyncGateway {
       // clock-skew clamp for normal tables are enforced server-side by the
       // `sync_lww_guard` trigger in the POC baseline, so a plain upsert is
       // safe outside the insert-only path.
-      await _client
+      final List<Map<String, Object?>> accepted = await _client
           .from(table)
-          .upsert(payload, ignoreDuplicates: true, onConflict: 'id');
+          .upsert(payload, ignoreDuplicates: true, onConflict: 'id')
+          .select();
+      return accepted;
     } else {
-      await _client.from(table).upsert(payload);
+      final List<Map<String, Object?>> accepted = await _client
+          .from(table)
+          .upsert(payload)
+          .select();
+      return accepted;
     }
   }
 

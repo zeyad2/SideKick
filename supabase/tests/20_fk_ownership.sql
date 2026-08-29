@@ -1,8 +1,20 @@
 -- POC same-user FK ownership test. Run after 0001_poc_baseline.sql.
 
+begin;
+create extension if not exists pgtap with schema extensions;
+select plan(1);
+
+delete from public.task_reminders where id in (
+    'cccc0000-0000-0000-0000-000000000011',
+    'dddd0000-0000-0000-0000-000000000012'
+);
+delete from public.captures where id = 'cccc0000-0000-0000-0000-0000000000ca';
+delete from public.places where id = 'cccc0000-0000-0000-0000-000000000001';
+
 insert into auth.users (id, email) values
     ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c-fk@test'),
-    ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'd-fk@test');
+    ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'd-fk@test')
+on conflict (id) do nothing;
 
 insert into public.places (id, user_id, name, lat, lng) values
     ('cccc0000-0000-0000-0000-000000000001', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'C place', 30, 31);
@@ -34,4 +46,6 @@ begin
     exception when foreign_key_violation then null; end;
 end$$;
 
-select 'ALL POC FK TESTS PASSED' as result;
+select pass('same-user composite FKs reject cross-user capture/place references');
+select * from finish();
+rollback;

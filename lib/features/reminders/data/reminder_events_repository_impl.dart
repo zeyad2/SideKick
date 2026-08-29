@@ -58,6 +58,35 @@ class ReminderEventsRepositoryImpl extends LocalFirstRepository
           .watch()
           .map((rows) => rows.map(_toDomain).toList(growable: false));
 
+  @override
+  Future<List<ReminderEvent>> recentActions({required int limit}) async {
+    if (limit <= 0) return const <ReminderEvent>[];
+    final List<String> actionTypes = <ReminderEventType>[
+      ReminderEventType.done,
+      ReminderEventType.later,
+      ReminderEventType.dismissed,
+      ReminderEventType.wrongPlace,
+      ReminderEventType.edited,
+    ].map((ReminderEventType type) => type.wire).toList(growable: false);
+    final List<ReminderEventRow> rows =
+        await (db.select(db.reminderEvents)
+              ..where(
+                (ReminderEvents e) =>
+                    e.userId.equals(userId) &
+                    e.deletedAt.isNull() &
+                    e.eventType.isIn(actionTypes),
+              )
+              ..orderBy(<OrderClauseGenerator<ReminderEvents>>[
+                (ReminderEvents e) => OrderingTerm.desc(e.occurredAt),
+              ])
+              ..limit(limit))
+            .get();
+    return rows.map(_toDomain).toList(growable: false);
+  }
+
+  @override
+  Future<ReminderEvent?> findById(String id) => _byId(id);
+
   Future<ReminderEvent?> _byId(String id) async {
     final ReminderEventRow? row =
         await (db.select(db.reminderEvents)..where(

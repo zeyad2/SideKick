@@ -48,44 +48,54 @@ class TaskRemindersRepositoryImpl extends LocalFirstRepository
   Future<TaskReminder> create(TaskReminderDraft draft) async {
     final DateTime timestamp = now();
     final String id = newId();
+    final TaskRemindersCompanion companion = TaskRemindersCompanion.insert(
+      id: id,
+      userId: userId,
+      title: draft.title,
+      details: Value<String?>(draft.details),
+      status: Value<String>(draft.status.wire),
+      source: draft.source.wire,
+      confidence: Value<double>(draft.confidence),
+      triggerType: draft.triggerType.wire,
+      scheduledAt: Value<DateTime?>(draft.scheduledAt),
+      placeId: Value<String?>(draft.placeId),
+      geofenceTransition: Value<String?>(draft.geofenceTransition?.wire),
+      dwellSeconds: Value<int?>(draft.dwellSeconds),
+      autoCommitDeadlineAt: Value<DateTime?>(draft.autoCommitDeadlineAt),
+      captureId: Value<String?>(draft.captureId),
+      draftId: Value<String?>(draft.draftId),
+      aiExplanation: Value<String?>(draft.aiExplanation),
+      aiContext: Value<String?>(
+        draft.aiContext == null ? null : JsonCodecs.encode(draft.aiContext),
+      ),
+      createdAt: Value<DateTime>(timestamp),
+      updatedAt: Value<DateTime>(timestamp),
+      dirty: const Value<bool>(true),
+    );
+    final bool idempotentDraft =
+        draft.captureId != null && draft.draftId != null;
     await db
         .into(db.taskReminders)
         .insert(
-          TaskRemindersCompanion.insert(
-            id: id,
-            userId: userId,
-            title: draft.title,
-            details: Value<String?>(draft.details),
-            status: Value<String>(draft.status.wire),
-            source: draft.source.wire,
-            confidence: Value<double>(draft.confidence),
-            triggerType: draft.triggerType.wire,
-            scheduledAt: Value<DateTime?>(draft.scheduledAt),
-            placeId: Value<String?>(draft.placeId),
-            geofenceTransition: Value<String?>(
-              draft.geofenceTransition?.wire,
-            ),
-            dwellSeconds: Value<int?>(draft.dwellSeconds),
-            autoCommitDeadlineAt: Value<DateTime?>(
-              draft.autoCommitDeadlineAt,
-            ),
-            captureId: Value<String?>(draft.captureId),
-            aiExplanation: Value<String?>(draft.aiExplanation),
-            aiContext: Value<String?>(
-              draft.aiContext == null ? null : JsonCodecs.encode(draft.aiContext),
-            ),
-            createdAt: Value<DateTime>(timestamp),
-            updatedAt: Value<DateTime>(timestamp),
-            dirty: const Value<bool>(true),
-          ),
+          companion,
+          mode: idempotentDraft ? InsertMode.insertOrIgnore : null,
         );
+    final TaskReminder? winner = idempotentDraft
+        ? await _byCaptureDraft(draft.captureId!, draft.draftId!)
+        : await _byId(id);
+    if (winner == null) {
+      throw StateError('Task reminder insert did not produce a row.');
+    }
+    if (winner.id != id) {
+      return winner;
+    }
     emitter.emitCreated(
       userId: userId,
       entityType: EntityTypes.taskReminder,
       entityId: id,
       metadata: <String, Object?>{'source': draft.source.wire},
     );
-    return (await _byId(id))!;
+    return winner;
   }
 
   @override
@@ -115,6 +125,7 @@ class TaskRemindersRepositoryImpl extends LocalFirstRepository
               reminder.autoCommitDeadlineAt,
             ),
             captureId: Value<String?>(reminder.captureId),
+            draftId: Value<String?>(reminder.draftId),
             aiExplanation: Value<String?>(reminder.aiExplanation),
             aiContext: Value<String?>(
               reminder.aiContext == null
@@ -160,6 +171,22 @@ class TaskRemindersRepositoryImpl extends LocalFirstRepository
     return row == null ? null : _toDomain(row);
   }
 
+  Future<TaskReminder?> _byCaptureDraft(
+    String captureId,
+    String draftId,
+  ) async {
+    final TaskReminderRow? row =
+        await (db.select(db.taskReminders)..where(
+              (TaskReminders t) =>
+                  t.userId.equals(userId) &
+                  t.captureId.equals(captureId) &
+                  t.draftId.equals(draftId) &
+                  t.deletedAt.isNull(),
+            ))
+            .getSingleOrNull();
+    return row == null ? null : _toDomain(row);
+  }
+
   List<TaskReminder> _mapRows(List<TaskReminderRow> rows) =>
       rows.map(_toDomain).toList(growable: false);
 
@@ -178,6 +205,7 @@ class TaskRemindersRepositoryImpl extends LocalFirstRepository
     dwellSeconds: row.dwellSeconds,
     autoCommitDeadlineAt: row.autoCommitDeadlineAt,
     captureId: row.captureId,
+    draftId: row.draftId,
     aiExplanation: row.aiExplanation,
     aiContext: JsonCodecs.decodeNullableMap(row.aiContext),
     createdAt: row.createdAt,

@@ -10,12 +10,16 @@ class CapturePermissionSnapshot {
   const CapturePermissionSnapshot({
     required this.microphone,
     required this.notifications,
+    required this.location,
+    required this.backgroundLocation,
     required this.accessibility,
     required this.ignoringBatteryOptimizations,
   });
 
   final bool microphone;
   final bool notifications;
+  final bool location;
+  final bool backgroundLocation;
   final bool accessibility;
   final bool ignoringBatteryOptimizations;
 
@@ -33,6 +37,8 @@ class CapturePermissions {
       return const CapturePermissionSnapshot(
         microphone: false,
         notifications: false,
+        location: false,
+        backgroundLocation: false,
         accessibility: false,
         ignoringBatteryOptimizations: false,
       );
@@ -42,6 +48,8 @@ class CapturePermissions {
       notifications:
           await FlutterForegroundTask.checkNotificationPermission() ==
           NotificationPermission.granted,
+      location: await Permission.locationWhenInUse.isGranted,
+      backgroundLocation: await Permission.locationAlways.isGranted,
       accessibility: await nativeApi.isAccessibilityEnabled(),
       ignoringBatteryOptimizations:
           await FlutterForegroundTask.isIgnoringBatteryOptimizations,
@@ -55,6 +63,12 @@ class CapturePermissions {
       _android &&
       await FlutterForegroundTask.requestNotificationPermission() ==
           NotificationPermission.granted;
+
+  Future<bool> requestLocation() async =>
+      _android && await Permission.locationWhenInUse.request().isGranted;
+
+  Future<bool> requestBackgroundLocation() async =>
+      _android && await Permission.locationAlways.request().isGranted;
 
   Future<void> openAccessibilitySettings() =>
       nativeApi.openAccessibilitySettings();

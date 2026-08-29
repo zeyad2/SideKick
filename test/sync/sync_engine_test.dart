@@ -30,9 +30,10 @@ Map<String, Object?> _remoteReminderRow({
   required String id,
   required String title,
   required String updatedAt,
+  String userId = 'u1',
 }) => <String, Object?>{
   'id': id,
-  'user_id': 'u1',
+  'user_id': userId,
   'title': title,
   'details': null,
   'status': 'active',
@@ -45,6 +46,7 @@ Map<String, Object?> _remoteReminderRow({
   'dwell_seconds': null,
   'auto_commit_deadline_at': null,
   'capture_id': null,
+  'draft_id': null,
   'ai_explanation': null,
   'ai_context': <String, Object?>{'remote': true},
   'created_at': updatedAt,
@@ -134,6 +136,125 @@ void main() {
     )..where((m) => m.syncTable.equals('task_reminders'))).getSingle();
     expect(cursor.lastPull, _fixed('2026-08-18T10:00:00.000Z'));
   });
+
+  test(
+    'stale push rejection does not mark divergent local row clean',
+    () async {
+      final TaskRemindersRepositoryImpl staleRepo = remindersRepo(
+        clock: () => DateTime.utc(2026, 8, 18, 9),
+      );
+      final TaskReminder stale = await staleRepo.create(
+        TaskReminderDraft(
+          title: 'Stale local value',
+          source: TaskReminderSource.typed,
+          confidence: 0.91,
+          triggerType: TaskReminderTriggerType.time,
+          scheduledAt: DateTime.utc(2026, 8, 18, 12),
+        ),
+      );
+      gateway.seedRemote(
+        'task_reminders',
+        _remoteReminderRow(
+          id: stale.id,
+          title: 'Newer server value',
+          updatedAt: '2026-08-18T15:00:00.000Z',
+        ),
+      );
+
+      await engine().syncNow();
+
+      final TaskReminderRow row = await (db.select(
+        db.taskReminders,
+      )..where((t) => t.id.equals(stale.id))).getSingle();
+      expect(row.title, 'Newer server value');
+      expect(row.dirty, isFalse);
+      expect(row.updatedAt, _fixed('2026-08-18T15:00:00.000Z'));
+    },
+  );
+
+  test(
+    'accepted push response does not overwrite newer in-flight local edit',
+    () async {
+      DateTime repoNow = DateTime.utc(2026, 8, 18, 10);
+      final TaskRemindersRepositoryImpl repo = remindersRepo(
+        clock: () => repoNow,
+      );
+      final TaskReminder reminder = await repo.create(
+        TaskReminderDraft(
+          title: 'Original local value',
+          source: TaskReminderSource.typed,
+          confidence: 0.91,
+          triggerType: TaskReminderTriggerType.time,
+          scheduledAt: DateTime.utc(2026, 8, 18, 12),
+        ),
+      );
+      gateway.onPush = () async {
+        repoNow = DateTime.utc(2026, 8, 18, 10, 6);
+        await repo.update(reminder.copyWith(title: 'Concurrent local edit'));
+      };
+
+      await engine().flush();
+
+      final TaskReminderRow row = await (db.select(
+        db.taskReminders,
+      )..where((t) => t.id.equals(reminder.id))).getSingle();
+      expect(row.title, 'Concurrent local edit');
+      expect(row.dirty, isTrue);
+      expect(row.updatedAt, DateTime.utc(2026, 8, 18, 10, 6));
+    },
+  );
+
+  test('server clock-skew clamp converges local pushed row', () async {
+    final TaskReminder future =
+        await remindersRepo(clock: () => DateTime.utc(2026, 8, 18, 11)).create(
+          TaskReminderDraft(
+            title: 'Future device clock',
+            source: TaskReminderSource.typed,
+            confidence: 0.91,
+            triggerType: TaskReminderTriggerType.time,
+            scheduledAt: DateTime.utc(2026, 8, 18, 12),
+          ),
+        );
+
+    await engine().flush();
+
+    final TaskReminderRow row = await (db.select(
+      db.taskReminders,
+    )..where((t) => t.id.equals(future.id))).getSingle();
+    expect(row.title, 'Future device clock');
+    expect(row.dirty, isFalse);
+    expect(row.updatedAt, _fixed('2026-08-18T10:05:00.000Z'));
+  });
+
+  test(
+    'overlap pull does not miss rows sharing previous cursor timestamp',
+    () async {
+      gateway.seedRemote(
+        'task_reminders',
+        _remoteReminderRow(
+          id: 'remote-1',
+          title: 'First remote',
+          updatedAt: '2026-08-18T10:00:00.000Z',
+        ),
+      );
+      await engine().pull();
+      gateway.seedRemote(
+        'task_reminders',
+        _remoteReminderRow(
+          id: 'remote-2',
+          title: 'Same timestamp remote',
+          updatedAt: '2026-08-18T10:00:00.000Z',
+        ),
+      );
+
+      await engine().pull();
+
+      final List<TaskReminderRow> rows = await db
+          .select(db.taskReminders)
+          .get();
+      expect(rows.map((TaskReminderRow row) => row.id), contains('remote-2'));
+    },
+  );
 
   test('owner-scoped flush never pushes another user row', () async {
     await TaskRemindersRepositoryImpl(

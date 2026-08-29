@@ -61,6 +61,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        ReminderRuntimeBridge.configure(this, flutterEngine)
         captureChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME).apply {
             setMethodCallHandler { call, result ->
                 when (call.method) {

@@ -2,14 +2,15 @@
 
 ## Status
 
-PASS-WITH-DEBT
+PASS
 
 ## Summary
 
 Typed input and saved audio captures now feed the same reminder-drafting
 application service. The active capture screen can create task-reminder drafts,
 show pending auto-commit reminders, cancel pending reminders, retry saved audio
-captures, and show review cards for low-confidence or incomplete drafts.
+captures, and persist/reconstruct review cards for low-confidence or
+incomplete drafts.
 
 When `GEMINI_API_KEY` is configured, `GeminiReminderDraftService` sends typed
 text or saved audio bytes to Gemini and parses the strict task-reminder JSON
@@ -33,19 +34,39 @@ local tests and no-network development still work.
   application-service layer.
 - [x] Low-confidence and missing-trigger drafts open on-screen review cards
   instead of persisted auto-commit rows.
+- [x] Low-confidence and incomplete review drafts persist on the capture record
+  and reconstruct after screen/service recreation.
 - [x] Review cards can approve edited drafts into active reminders.
 - [x] Parser rejects habit/goal/note wording.
-- [x] Unclear audio allows two attempts, then asks the user to type instead.
+- [x] Unclear audio allows the initial attempt plus two replacement-recording
+  retries, then asks the user to type instead.
 - [x] Audio capture file paths are preserved after parser failure.
 - [x] UI timer calls auto-commit activation when deadlines pass.
+- [x] Gemini output is strictly validated for task-reminder kind, non-empty
+  title, finite confidence in `0..1`, valid trigger/transition enums,
+  coherent time/place fields, and supplied context IDs.
+- [x] Per-capture processing is idempotent after success and validates all
+  multi-item drafts before creating rows.
+- [x] Review and approval persistence uses stable per-draft IDs, a real
+  `task_reminders.draft_id` column, and an owner/capture/draft unique index, so
+  duplicate approvals are idempotent and same-title drafts are
+  dismissed/approved independently.
+- [x] Reminder creation is wired to the local Drift transaction boundary in the
+  Riverpod app provider, covering reminder rows and capture review/status state
+  together. Reviewed-draft approval insert-or-fetches the database winner
+  inside the transaction.
+- [x] Audio retry processing reloads the capture from storage before work and
+  atomically increments stored retry attempts, preserving structured attempt
+  state across stale arguments and parser exceptions.
+- [x] Fallback wall-clock time parsing uses the explicit profile/device IANA
+  timezone supplied in `ReminderDraftContext` before storing UTC.
 
 ## Tests run
 
 - `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe format ...`: PASS.
-- `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib\features\reminders test\reminders`:
-  PASS, `No issues found!`.
-- `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze lib\features\inbox test\inbox`:
-  PASS, `No issues found!`.
+- `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze`: PASS, no issues.
+- `C:\src\flutter\bin\flutter.bat analyze`: PASS, no issues, run outside
+  sandbox after in-sandbox Flutter commands hung silently.
 - `git diff --check`: PASS.
 - `cmd.exe /c C:\src\flutter\bin\flutter.bat --version`: PASS outside the
   managed sandbox, Flutter 3.44.6 / Dart 3.12.2.
@@ -53,7 +74,9 @@ local tests and no-network development still work.
   found!`.
 - `cmd.exe /c C:\src\flutter\bin\flutter.bat test test\reminders\reminder_creation_service_test.dart test\inbox\inbox_ui_test.dart`:
   PASS, 16 tests passed.
-- `cmd.exe /c C:\src\flutter\bin\flutter.bat test`: PASS, 59 tests passed.
+- `C:\src\flutter\bin\flutter.bat test`: PASS, 91 tests, run outside sandbox.
+- `C:\src\flutter\bin\flutter.bat test`: PASS, 104 tests, run outside sandbox
+  after the final Phase 1-4 remediation pass.
 
 Added test coverage in `test/reminders/reminder_creation_service_test.dart` for:
 
@@ -65,11 +88,24 @@ Added test coverage in `test/reminders/reminder_creation_service_test.dart` for:
 - audio multi-task input.
 - low-confidence review.
 - missing-trigger review.
+- persisted review reconstruction.
 - reviewed draft approval.
 - reviewed time drafts require a concrete schedule before activation.
 - habit/goal/note rejection.
-- unclear-audio retry limit.
+- unclear-audio initial attempt plus two retries.
 - audio file retention after parser failure.
+- strict Gemini output validation.
+- per-capture idempotent reprocessing.
+- all-or-none multi-item validation before row creation.
+- approval idempotency by stable draft ID.
+- concurrent same-title approval winner re-fetch.
+- approval rollback preserving review state.
+- same-title review draft safety.
+- replacement-recording association for audio retry.
+- stale/concurrent audio retry attempt increments.
+- parser exception preservation of structured retry state.
+- Cairo and New York DST timezone parsing.
+- malformed `context_items_used`, timestamp, and explanation rejection.
 
 Added widget coverage in `test/inbox/inbox_ui_test.dart` for:
 
@@ -148,19 +184,16 @@ Allowed `trigger_type` values are `time` and `place`. Place drafts need a saved
 ## Retry/fallback behavior
 
 - Audio parse result with `is_unclear = true` marks the capture `failed`.
-- First unclear parse shows retry copy.
-- Second unclear parse shows typed fallback copy.
+- First and second unclear parses show retry copy.
+- Third unclear parse shows typed fallback copy.
 - Parser/network failure marks the capture `failed` and leaves `audio_path`
-  unchanged for retry.
+  unchanged for retry while preserving the structured attempt state.
+- Replacement retry recording can be explicitly associated with the same
+  capture identity before reprocessing.
 
 ## Known debt
 
-- Review-card state is in-memory until the user approves or dismisses it. The
-  original capture remains retryable, but edited review state is lost on app
-  restart. Logged in `TECH_DEBT.md`.
-- Auto-commit activation runs from the capture screen while the app is open.
-  Phase 3 owns scheduler/lifecycle integration for notifications and app-start
-  resync.
+- None blocking Phase 3.
 
 ## Next phase handoff
 

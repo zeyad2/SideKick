@@ -52,7 +52,9 @@ void main() {
   });
 
   test('server RLS tests target POC tables', () {
-    final String rls = File('supabase/tests/10_rls_isolation.sql').readAsStringSync();
+    final String rls = File(
+      'supabase/tests/10_rls_isolation.sql',
+    ).readAsStringSync();
     expect(rls, contains('public.task_reminders'));
     expect(rls, contains('reminder_events'));
     expect(rls, contains('conversations'));
@@ -62,7 +64,10 @@ void main() {
   });
 
   test('POC baseline includes server LWW guard for normal sync tables', () {
-    expect(migration, contains('create or replace function public.sync_lww_guard()'));
+    expect(
+      migration,
+      contains('create or replace function public.sync_lww_guard()'),
+    );
     for (final String table in <String>[
       'profiles',
       'places',

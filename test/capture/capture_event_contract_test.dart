@@ -70,6 +70,7 @@ void main() {
       final CapturedAudioEvent result = await ingestion.ingest(nativeEvent);
 
       expect(await emitted, same(result));
+      expect(result.nativeEventId, nativeEvent.eventId);
       expect(result.audioFilePath, audio.path);
       final CaptureRow row = await (db.select(db.captures)).getSingle();
       expect(result.captureRowId, row.id);

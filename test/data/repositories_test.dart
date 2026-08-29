@@ -37,8 +37,9 @@ void main() {
       (db.select(db.taskReminders)..where((t) => t.id.equals(id))).getSingle();
 
   test('task reminder create is local-first, dirty, and streamed', () async {
-    final Future<List<TaskReminder>> firstNonEmpty =
-        reminders.watchAll().firstWhere((List<TaskReminder> rows) => rows.isNotEmpty);
+    final Future<List<TaskReminder>> firstNonEmpty = reminders
+        .watchAll()
+        .firstWhere((List<TaskReminder> rows) => rows.isNotEmpty);
 
     final TaskReminder created = await reminders.create(
       TaskReminderDraft(
@@ -150,7 +151,10 @@ void main() {
       userId: 'u1',
     );
 
-    final capture = await captures.create(inputText: 'Remind me', source: 'typed');
+    final capture = await captures.create(
+      inputText: 'Remind me',
+      source: 'typed',
+    );
     final place = await places.create(name: 'Gym', lat: 30, lng: 31);
     final reminder = await reminders.create(
       TaskReminderDraft(
@@ -168,7 +172,9 @@ void main() {
       reminderId: reminder.id,
       eventType: ReminderEventType.created,
     );
-    final Conversation conversation = await conversations.create(title: 'Future');
+    final Conversation conversation = await conversations.create(
+      title: 'Future',
+    );
     final Message message = await conversations.addMessage(
       conversationId: conversation.id,
       role: 'user',
@@ -177,6 +183,9 @@ void main() {
 
     expect(event.reminderId, reminder.id);
     expect(message.conversationId, conversation.id);
-    expect(await conversations.watchMessages(conversation.id).first, hasLength(1));
+    expect(
+      await conversations.watchMessages(conversation.id).first,
+      hasLength(1),
+    );
   });
 }

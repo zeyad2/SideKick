@@ -78,12 +78,14 @@ class CaptureIngestionService {
       // The native journal remains the durable owner through P3. P4 acknowledges
       // only after the capture has safely completed its offline processing path.
       final CapturedAudioEvent event = CapturedAudioEvent(
+        nativeEventId: native.eventId,
         audioFilePath: native.audioPath,
         captureRowId: capture.id,
       );
       _events.add(event);
       if (existing != null &&
-          (capture.status == CaptureStatus.triaged ||
+          (capture.status == CaptureStatus.ready ||
+              capture.status == CaptureStatus.triaged ||
               capture.status == CaptureStatus.discarded)) {
         await nativeApi.acknowledge(native.eventId);
       }

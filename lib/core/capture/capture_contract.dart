@@ -6,10 +6,12 @@ const String captureMethodChannelName = 'com.sidekick/capture';
 @immutable
 class CapturedAudioEvent {
   const CapturedAudioEvent({
+    required this.nativeEventId,
     required this.audioFilePath,
     required this.captureRowId,
   });
 
+  final String nativeEventId;
   final String audioFilePath;
   final String captureRowId;
 }

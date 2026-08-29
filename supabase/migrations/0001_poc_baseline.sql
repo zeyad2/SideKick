@@ -59,6 +59,7 @@ create table public.task_reminders (
     dwell_seconds           integer     check (dwell_seconds is null or dwell_seconds >= 0),
     auto_commit_deadline_at timestamptz,
     capture_id              uuid,
+    draft_id                text,
     ai_explanation          text,
     ai_context              jsonb,
     created_at              timestamptz not null default now(),
@@ -136,6 +137,9 @@ create index idx_places_user on public.places (user_id) where deleted_at is null
 create index idx_captures_user_status on public.captures (user_id, status, captured_at desc) where deleted_at is null;
 create index idx_task_reminders_active on public.task_reminders (user_id, status, scheduled_at) where deleted_at is null;
 create index idx_task_reminders_place on public.task_reminders (place_id) where place_id is not null and deleted_at is null;
+create unique index task_reminders_capture_draft_uidx
+    on public.task_reminders (user_id, capture_id, draft_id)
+    where capture_id is not null and draft_id is not null and deleted_at is null;
 create index idx_reminder_events_reminder on public.reminder_events (reminder_id, occurred_at);
 create index idx_messages_conversation on public.messages (conversation_id, created_at) where deleted_at is null;
 

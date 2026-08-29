@@ -53,6 +53,11 @@ class Captures extends Table with SyncColumns {
 }
 
 @DataClassName('TaskReminderRow')
+@TableIndex(
+  name: 'task_reminders_capture_draft_uidx',
+  columns: <Symbol>{#userId, #captureId, #draftId},
+  unique: true,
+)
 class TaskReminders extends Table with SyncColumns {
   TextColumn get id => text()();
   TextColumn get userId => text()();
@@ -68,6 +73,7 @@ class TaskReminders extends Table with SyncColumns {
   IntColumn get dwellSeconds => integer().nullable()();
   DateTimeColumn get autoCommitDeadlineAt => dateTime().nullable()();
   TextColumn get captureId => text().nullable()();
+  TextColumn get draftId => text().nullable()();
   TextColumn get aiExplanation => text().nullable()();
   TextColumn get aiContext => text().nullable()();
 

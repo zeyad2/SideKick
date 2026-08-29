@@ -33,4 +33,8 @@ abstract interface class ReminderEventsRepository {
   });
 
   Stream<List<ReminderEvent>> watchForReminder(String reminderId);
+
+  Future<List<ReminderEvent>> recentActions({required int limit});
+
+  Future<ReminderEvent?> findById(String id);
 }

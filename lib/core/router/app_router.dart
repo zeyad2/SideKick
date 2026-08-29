@@ -33,9 +33,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
               ? null
               : AppRoutes.login;
         case AppGate.onboarding:
-          return location == AppRoutes.onboarding
-              ? null
-              : AppRoutes.onboarding;
+          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
         case AppGate.ready:
           return location == AppRoutes.login ||
                   location == AppRoutes.forgotPassword ||
@@ -75,7 +73,9 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
               GoRoute(
                 path: AppRoutes.capture,
                 name: AppRoutes.captureName,
-                builder: (_, _) => const InboxScreen(),
+                builder: (_, GoRouterState state) => InboxScreen(
+                  editReminderId: state.uri.queryParameters['editReminderId'],
+                ),
               ),
             ],
           ),

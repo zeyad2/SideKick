@@ -20,6 +20,7 @@ class TaskReminder {
     this.dwellSeconds,
     this.autoCommitDeadlineAt,
     this.captureId,
+    this.draftId,
     this.aiExplanation,
     this.aiContext,
   });
@@ -38,6 +39,7 @@ class TaskReminder {
   final int? dwellSeconds;
   final DateTime? autoCommitDeadlineAt;
   final String? captureId;
+  final String? draftId;
   final String? aiExplanation;
   final Map<String, Object?>? aiContext;
   final DateTime createdAt;
@@ -56,6 +58,7 @@ class TaskReminder {
     int? dwellSeconds,
     DateTime? autoCommitDeadlineAt,
     String? captureId,
+    String? draftId,
     String? aiExplanation,
     Map<String, Object?>? aiContext,
   }) => TaskReminder(
@@ -73,6 +76,7 @@ class TaskReminder {
     dwellSeconds: dwellSeconds ?? this.dwellSeconds,
     autoCommitDeadlineAt: autoCommitDeadlineAt ?? this.autoCommitDeadlineAt,
     captureId: captureId ?? this.captureId,
+    draftId: draftId ?? this.draftId,
     aiExplanation: aiExplanation ?? this.aiExplanation,
     aiContext: aiContext ?? this.aiContext,
     createdAt: createdAt,
@@ -103,6 +107,7 @@ class TaskReminderDraft {
     this.dwellSeconds,
     this.autoCommitDeadlineAt,
     this.captureId,
+    this.draftId,
     this.aiExplanation,
     this.aiContext,
   });
@@ -119,6 +124,7 @@ class TaskReminderDraft {
   final int? dwellSeconds;
   final DateTime? autoCommitDeadlineAt;
   final String? captureId;
+  final String? draftId;
   final String? aiExplanation;
   final Map<String, Object?>? aiContext;
 }

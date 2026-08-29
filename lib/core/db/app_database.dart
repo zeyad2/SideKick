@@ -30,11 +30,20 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) => m.createAll(),
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        await m.addColumn(taskReminders, taskReminders.draftId);
+        await customStatement(
+          'CREATE UNIQUE INDEX IF NOT EXISTS task_reminders_capture_draft_uidx '
+          'ON task_reminders (user_id, capture_id, draft_id)',
+        );
+      }
+    },
   );
 
   /// Clears every local table — all synced rows AND the local pull cursor

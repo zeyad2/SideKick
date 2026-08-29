@@ -49,10 +49,7 @@ void main() {
   }
 
   test('signed out routes to login', () async {
-    expect(
-      await gateFor(auth: FakeAuthRepository.signedOut()),
-      AppGate.login,
-    );
+    expect(await gateFor(auth: FakeAuthRepository.signedOut()), AppGate.login);
   });
 
   test('signed in with an onboarded local profile is ready', () async {
@@ -65,15 +62,18 @@ void main() {
     );
   });
 
-  test('signed in with a not-yet-onboarded profile routes to onboarding', () async {
-    expect(
-      await gateFor(
-        auth: FakeAuthRepository.signedIn('u1'),
-        profileValue: () => profile(onboarded: false),
-      ),
-      AppGate.onboarding,
-    );
-  });
+  test(
+    'signed in with a not-yet-onboarded profile routes to onboarding',
+    () async {
+      expect(
+        await gateFor(
+          auth: FakeAuthRepository.signedIn('u1'),
+          profileValue: () => profile(onboarded: false),
+        ),
+        AppGate.onboarding,
+      );
+    },
+  );
 
   test(
     'signed in with no local profile HOLDS on loading until sync settles',

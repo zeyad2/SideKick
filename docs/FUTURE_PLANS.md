@@ -3,6 +3,15 @@
 This file is the parking lot for product directions outside the Android
 reminder POC. Items here are not active scope until a later plan promotes them.
 
+## Phase 5 Feature Freeze
+
+Feature additions are frozen from **2026-08-24 through 2026-09-07**. During
+this window, active code changes are limited to Android dogfood defects in
+capture reliability, reminder scheduling, location/geofence behavior,
+permissions, sync reliability, and wrong-reminder correction. Every other
+request stays in this file until the freeze ends and the POC evidence is
+reviewed.
+
 ## Deferred Product Directions
 
 - Habits: elastic habits, cadence authoring, habit completions, rewards, and

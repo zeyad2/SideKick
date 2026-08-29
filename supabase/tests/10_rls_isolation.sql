@@ -1,12 +1,46 @@
 -- POC RLS isolation test. Run after 0001_poc_baseline.sql.
 
+begin;
+create extension if not exists pgtap with schema extensions;
+select plan(4);
+
+delete from public.events where id in (
+    'aaaaaaaa-0000-0000-0000-0000000000e1',
+    'bbbbbbbb-0000-0000-0000-0000000000e2'
+);
+delete from public.reminder_events where id in (
+    'aaaaaaaa-0000-0000-0000-000000000021',
+    'bbbbbbbb-0000-0000-0000-000000000022'
+);
+delete from public.messages where id in (
+    'aaaaaaaa-0000-0000-0000-000000000041',
+    'bbbbbbbb-0000-0000-0000-000000000042'
+);
+delete from public.task_reminders where id in (
+    'aaaaaaaa-0000-0000-0000-000000000011',
+    'bbbbbbbb-0000-0000-0000-000000000012'
+);
+delete from public.captures where id in (
+    'aaaaaaaa-0000-0000-0000-000000000001',
+    'bbbbbbbb-0000-0000-0000-000000000002'
+);
+delete from public.places where id in (
+    'aaaaaaaa-0000-0000-0000-0000000000a1',
+    'bbbbbbbb-0000-0000-0000-0000000000b2'
+);
+delete from public.conversations where id in (
+    'aaaaaaaa-0000-0000-0000-000000000031',
+    'bbbbbbbb-0000-0000-0000-000000000032'
+);
+
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on all tables in schema public to authenticated;
 
 insert into auth.users (id, email) values
     ('11111111-1111-1111-1111-111111111111', 'a@test'),
     ('22222222-2222-2222-2222-222222222222', 'b@test'),
-    ('33333333-3333-3333-3333-333333333333', 'c@test');
+    ('33333333-3333-3333-3333-333333333333', 'c@test')
+on conflict (id) do nothing;
 
 delete from public.profiles where id = '33333333-3333-3333-3333-333333333333';
 
@@ -82,6 +116,8 @@ begin
     end loop;
 end$$;
 
+select pass('owner-scoped RLS reads expose own rows and hide other users');
+
 do $$
 begin
     begin
@@ -145,6 +181,8 @@ begin
         raise exception 'FAIL: events cross-user insert accepted';
     exception when insufficient_privilege then null; end;
 end$$;
+
+select pass('owner RLS rejects cross-user inserts');
 
 do $$
 declare
@@ -211,7 +249,11 @@ begin
     end if;
 end$$;
 
+select pass('RLS rejects cross-user writes and append-only event mutation');
+
 reset request.jwt.claims;
 reset role;
 
-select 'ALL POC RLS TESTS PASSED' as result;
+select pass('RLS role was reset after checks');
+select * from finish();
+rollback;

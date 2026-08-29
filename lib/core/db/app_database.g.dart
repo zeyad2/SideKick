@@ -2217,6 +2217,17 @@ class $TaskRemindersTable extends TaskReminders
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _draftIdMeta = const VerificationMeta(
+    'draftId',
+  );
+  @override
+  late final GeneratedColumn<String> draftId = GeneratedColumn<String>(
+    'draft_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _aiExplanationMeta = const VerificationMeta(
     'aiExplanation',
   );
@@ -2260,6 +2271,7 @@ class $TaskRemindersTable extends TaskReminders
     dwellSeconds,
     autoCommitDeadlineAt,
     captureId,
+    draftId,
     aiExplanation,
     aiContext,
   ];
@@ -2411,6 +2423,12 @@ class $TaskRemindersTable extends TaskReminders
         captureId.isAcceptableOrUnknown(data['capture_id']!, _captureIdMeta),
       );
     }
+    if (data.containsKey('draft_id')) {
+      context.handle(
+        _draftIdMeta,
+        draftId.isAcceptableOrUnknown(data['draft_id']!, _draftIdMeta),
+      );
+    }
     if (data.containsKey('ai_explanation')) {
       context.handle(
         _aiExplanationMeta,
@@ -2511,6 +2529,10 @@ class $TaskRemindersTable extends TaskReminders
         DriftSqlType.string,
         data['${effectivePrefix}capture_id'],
       ),
+      draftId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}draft_id'],
+      ),
       aiExplanation: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}ai_explanation'],
@@ -2548,6 +2570,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
   final int? dwellSeconds;
   final DateTime? autoCommitDeadlineAt;
   final String? captureId;
+  final String? draftId;
   final String? aiExplanation;
   final String? aiContext;
   const TaskReminderRow({
@@ -2570,6 +2593,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
     this.dwellSeconds,
     this.autoCommitDeadlineAt,
     this.captureId,
+    this.draftId,
     this.aiExplanation,
     this.aiContext,
   });
@@ -2612,6 +2636,9 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
     }
     if (!nullToAbsent || captureId != null) {
       map['capture_id'] = Variable<String>(captureId);
+    }
+    if (!nullToAbsent || draftId != null) {
+      map['draft_id'] = Variable<String>(draftId);
     }
     if (!nullToAbsent || aiExplanation != null) {
       map['ai_explanation'] = Variable<String>(aiExplanation);
@@ -2661,6 +2688,9 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
       captureId: captureId == null && nullToAbsent
           ? const Value.absent()
           : Value(captureId),
+      draftId: draftId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(draftId),
       aiExplanation: aiExplanation == null && nullToAbsent
           ? const Value.absent()
           : Value(aiExplanation),
@@ -2699,6 +2729,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
         json['autoCommitDeadlineAt'],
       ),
       captureId: serializer.fromJson<String?>(json['captureId']),
+      draftId: serializer.fromJson<String?>(json['draftId']),
       aiExplanation: serializer.fromJson<String?>(json['aiExplanation']),
       aiContext: serializer.fromJson<String?>(json['aiContext']),
     );
@@ -2728,6 +2759,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
         autoCommitDeadlineAt,
       ),
       'captureId': serializer.toJson<String?>(captureId),
+      'draftId': serializer.toJson<String?>(draftId),
       'aiExplanation': serializer.toJson<String?>(aiExplanation),
       'aiContext': serializer.toJson<String?>(aiContext),
     };
@@ -2753,6 +2785,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
     Value<int?> dwellSeconds = const Value.absent(),
     Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
     Value<String?> captureId = const Value.absent(),
+    Value<String?> draftId = const Value.absent(),
     Value<String?> aiExplanation = const Value.absent(),
     Value<String?> aiContext = const Value.absent(),
   }) => TaskReminderRow(
@@ -2779,6 +2812,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
         ? autoCommitDeadlineAt.value
         : this.autoCommitDeadlineAt,
     captureId: captureId.present ? captureId.value : this.captureId,
+    draftId: draftId.present ? draftId.value : this.draftId,
     aiExplanation: aiExplanation.present
         ? aiExplanation.value
         : this.aiExplanation,
@@ -2817,6 +2851,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
           ? data.autoCommitDeadlineAt.value
           : this.autoCommitDeadlineAt,
       captureId: data.captureId.present ? data.captureId.value : this.captureId,
+      draftId: data.draftId.present ? data.draftId.value : this.draftId,
       aiExplanation: data.aiExplanation.present
           ? data.aiExplanation.value
           : this.aiExplanation,
@@ -2846,6 +2881,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
           ..write('dwellSeconds: $dwellSeconds, ')
           ..write('autoCommitDeadlineAt: $autoCommitDeadlineAt, ')
           ..write('captureId: $captureId, ')
+          ..write('draftId: $draftId, ')
           ..write('aiExplanation: $aiExplanation, ')
           ..write('aiContext: $aiContext')
           ..write(')'))
@@ -2873,6 +2909,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
     dwellSeconds,
     autoCommitDeadlineAt,
     captureId,
+    draftId,
     aiExplanation,
     aiContext,
   ]);
@@ -2899,6 +2936,7 @@ class TaskReminderRow extends DataClass implements Insertable<TaskReminderRow> {
           other.dwellSeconds == this.dwellSeconds &&
           other.autoCommitDeadlineAt == this.autoCommitDeadlineAt &&
           other.captureId == this.captureId &&
+          other.draftId == this.draftId &&
           other.aiExplanation == this.aiExplanation &&
           other.aiContext == this.aiContext);
 }
@@ -2923,6 +2961,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
   final Value<int?> dwellSeconds;
   final Value<DateTime?> autoCommitDeadlineAt;
   final Value<String?> captureId;
+  final Value<String?> draftId;
   final Value<String?> aiExplanation;
   final Value<String?> aiContext;
   final Value<int> rowid;
@@ -2946,6 +2985,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
     this.dwellSeconds = const Value.absent(),
     this.autoCommitDeadlineAt = const Value.absent(),
     this.captureId = const Value.absent(),
+    this.draftId = const Value.absent(),
     this.aiExplanation = const Value.absent(),
     this.aiContext = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2970,6 +3010,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
     this.dwellSeconds = const Value.absent(),
     this.autoCommitDeadlineAt = const Value.absent(),
     this.captureId = const Value.absent(),
+    this.draftId = const Value.absent(),
     this.aiExplanation = const Value.absent(),
     this.aiContext = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2998,6 +3039,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
     Expression<int>? dwellSeconds,
     Expression<DateTime>? autoCommitDeadlineAt,
     Expression<String>? captureId,
+    Expression<String>? draftId,
     Expression<String>? aiExplanation,
     Expression<String>? aiContext,
     Expression<int>? rowid,
@@ -3023,6 +3065,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
       if (autoCommitDeadlineAt != null)
         'auto_commit_deadline_at': autoCommitDeadlineAt,
       if (captureId != null) 'capture_id': captureId,
+      if (draftId != null) 'draft_id': draftId,
       if (aiExplanation != null) 'ai_explanation': aiExplanation,
       if (aiContext != null) 'ai_context': aiContext,
       if (rowid != null) 'rowid': rowid,
@@ -3049,6 +3092,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
     Value<int?>? dwellSeconds,
     Value<DateTime?>? autoCommitDeadlineAt,
     Value<String?>? captureId,
+    Value<String?>? draftId,
     Value<String?>? aiExplanation,
     Value<String?>? aiContext,
     Value<int>? rowid,
@@ -3073,6 +3117,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
       dwellSeconds: dwellSeconds ?? this.dwellSeconds,
       autoCommitDeadlineAt: autoCommitDeadlineAt ?? this.autoCommitDeadlineAt,
       captureId: captureId ?? this.captureId,
+      draftId: draftId ?? this.draftId,
       aiExplanation: aiExplanation ?? this.aiExplanation,
       aiContext: aiContext ?? this.aiContext,
       rowid: rowid ?? this.rowid,
@@ -3141,6 +3186,9 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
     if (captureId.present) {
       map['capture_id'] = Variable<String>(captureId.value);
     }
+    if (draftId.present) {
+      map['draft_id'] = Variable<String>(draftId.value);
+    }
     if (aiExplanation.present) {
       map['ai_explanation'] = Variable<String>(aiExplanation.value);
     }
@@ -3175,6 +3223,7 @@ class TaskRemindersCompanion extends UpdateCompanion<TaskReminderRow> {
           ..write('dwellSeconds: $dwellSeconds, ')
           ..write('autoCommitDeadlineAt: $autoCommitDeadlineAt, ')
           ..write('captureId: $captureId, ')
+          ..write('draftId: $draftId, ')
           ..write('aiExplanation: $aiExplanation, ')
           ..write('aiContext: $aiContext, ')
           ..write('rowid: $rowid')
@@ -5970,6 +6019,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MessagesTable messages = $MessagesTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final Index taskRemindersCaptureDraftUidx = Index(
+    'task_reminders_capture_draft_uidx',
+    'CREATE UNIQUE INDEX task_reminders_capture_draft_uidx ON task_reminders (user_id, capture_id, draft_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5984,6 +6037,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     messages,
     events,
     syncMeta,
+    taskRemindersCaptureDraftUidx,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -6966,6 +7020,7 @@ typedef $$TaskRemindersTableCreateCompanionBuilder =
       Value<int?> dwellSeconds,
       Value<DateTime?> autoCommitDeadlineAt,
       Value<String?> captureId,
+      Value<String?> draftId,
       Value<String?> aiExplanation,
       Value<String?> aiContext,
       Value<int> rowid,
@@ -6991,6 +7046,7 @@ typedef $$TaskRemindersTableUpdateCompanionBuilder =
       Value<int?> dwellSeconds,
       Value<DateTime?> autoCommitDeadlineAt,
       Value<String?> captureId,
+      Value<String?> draftId,
       Value<String?> aiExplanation,
       Value<String?> aiContext,
       Value<int> rowid,
@@ -7097,6 +7153,11 @@ class $$TaskRemindersTableFilterComposer
 
   ColumnFilters<String> get captureId => $composableBuilder(
     column: $table.captureId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get draftId => $composableBuilder(
+    column: $table.draftId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7215,6 +7276,11 @@ class $$TaskRemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get draftId => $composableBuilder(
+    column: $table.draftId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get aiExplanation => $composableBuilder(
     column: $table.aiExplanation,
     builder: (column) => ColumnOrderings(column),
@@ -7304,6 +7370,9 @@ class $$TaskRemindersTableAnnotationComposer
   GeneratedColumn<String> get captureId =>
       $composableBuilder(column: $table.captureId, builder: (column) => column);
 
+  GeneratedColumn<String> get draftId =>
+      $composableBuilder(column: $table.draftId, builder: (column) => column);
+
   GeneratedColumn<String> get aiExplanation => $composableBuilder(
     column: $table.aiExplanation,
     builder: (column) => column,
@@ -7363,6 +7432,7 @@ class $$TaskRemindersTableTableManager
                 Value<int?> dwellSeconds = const Value.absent(),
                 Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
                 Value<String?> captureId = const Value.absent(),
+                Value<String?> draftId = const Value.absent(),
                 Value<String?> aiExplanation = const Value.absent(),
                 Value<String?> aiContext = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -7386,6 +7456,7 @@ class $$TaskRemindersTableTableManager
                 dwellSeconds: dwellSeconds,
                 autoCommitDeadlineAt: autoCommitDeadlineAt,
                 captureId: captureId,
+                draftId: draftId,
                 aiExplanation: aiExplanation,
                 aiContext: aiContext,
                 rowid: rowid,
@@ -7411,6 +7482,7 @@ class $$TaskRemindersTableTableManager
                 Value<int?> dwellSeconds = const Value.absent(),
                 Value<DateTime?> autoCommitDeadlineAt = const Value.absent(),
                 Value<String?> captureId = const Value.absent(),
+                Value<String?> draftId = const Value.absent(),
                 Value<String?> aiExplanation = const Value.absent(),
                 Value<String?> aiContext = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -7434,6 +7506,7 @@ class $$TaskRemindersTableTableManager
                 dwellSeconds: dwellSeconds,
                 autoCommitDeadlineAt: autoCommitDeadlineAt,
                 captureId: captureId,
+                draftId: draftId,
                 aiExplanation: aiExplanation,
                 aiContext: aiContext,
                 rowid: rowid,

@@ -2,20 +2,21 @@
 
 ## Status
 
-PASS-WITH-DEBT
+PASS
 
 ## Summary
 
 Replaced the broad companion data model with a fresh reminder-first POC model.
-Drift is reset to schema version 1, Supabase migrations are reset to one POC
-baseline, active sync is limited to POC tables, and active repositories now map
-to captures, places, task reminders, reminder events, conversations/messages,
-and profile.
+Drift is on POC schema version 2, Supabase migrations are the POC baseline plus
+an idempotent reviewed-draft approval migration, active sync is limited to POC
+tables, and active repositories now map to captures, places, task reminders,
+reminder events, conversations/messages, and profile.
 
 ## Deliverables completed
 
-- [x] Reset Drift schema to version 1.
-- [x] Replaced Supabase migrations with `0001_poc_baseline.sql`.
+- [x] Reset Drift schema to POC version 2.
+- [x] Replaced Supabase migrations with `0001_poc_baseline.sql` and added
+  idempotent `0002_task_reminder_draft_ids.sql`.
 - [x] Added POC tables: `profiles`, `places`, `captures`, `task_reminders`,
   `reminder_events`, `conversations`, `messages`, and `events`.
 - [x] Added local-only Drift sync columns: `dirty`, `synced_at`.
@@ -30,33 +31,38 @@ and profile.
 - [x] Kept `events` and `reminder_events` append-only from repository/sync
   perspective.
 - [x] Kept `conversations` and `messages` stored but unused by UI.
+- [x] Added `task_reminders.draft_id` and a unique owner/capture/draft index
+  so reviewed-draft approval is idempotent at the database boundary.
 
 ## Tests run
 
 - `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze`: PASS.
 - `cmd /c C:\src\flutter\bin\flutter.bat analyze`: PASS.
-- `cmd /c C:\src\flutter\bin\flutter.bat test`: PASS, 73 tests.
+- `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe analyze`: PASS, no issues.
+- `C:\src\flutter\bin\flutter.bat analyze`: PASS, no issues, run outside
+  sandbox after in-sandbox Flutter commands hung silently.
+- `C:\src\flutter\bin\flutter.bat test`: PASS, 91 tests, run outside sandbox.
+- `C:\src\flutter\bin\flutter.bat test`: PASS, 104 tests, run outside sandbox
+  after the final Phase 1-4 remediation pass.
 - `cmd /c C:\src\flutter\bin\flutter.bat test test\schema\column_parity_test.dart test\data\repositories_test.dart test\sync\sync_engine_test.dart test\events\events_contract_test.dart test\capture\capture_event_contract_test.dart test\data\preferences_test.dart test\data\wipe_on_logout_test.dart test\app_shell_test.dart test\static\poc_cleanup_test.dart test\router\app_gate_test.dart test\inbox\inbox_ui_test.dart`:
   PASS, 39 tests.
-- `cmd /c supabase start`: PASS on 2026-08-20 with Supabase CLI `2.109.1`;
-  applied `supabase/migrations/0001_poc_baseline.sql` to the local stack.
-- `cmd /c supabase db reset`: PASS on 2026-08-20.
-- `docker exec supabase_db_SideKick psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f /tmp/sidekick-tests/10_rls_isolation.sql -f /tmp/sidekick-tests/20_fk_ownership.sql -f /tmp/sidekick-tests/30_sync_guards.sql`:
-  PASS on 2026-08-20. Output included `ALL POC RLS TESTS PASSED`,
-  `ALL POC FK TESTS PASSED`, and `ALL POC SYNC-GUARD TESTS PASSED`.
+- `supabase migration up`: PASS, applied
+  `0002_task_reminder_draft_ids.sql` to the existing local stack without a
+  destructive database reset.
+- `supabase test db`: PASS, 4 files / 10 pgTAP tests, first run.
+- `supabase test db`: PASS, 4 files / 10 pgTAP tests, second consecutive run
+  against the same local stack.
 
 Verification notes:
 
-- `supabase/tests/00_bootstrap_auth.sql` is a plain-Postgres bootstrap helper,
-  not needed on local Supabase, where `auth` already exists.
-- `cmd /c supabase test db` is not the correct harness for these raw `psql`
-  scripts because it expects pgTAP output and reports `No plan found in TAP
-  output`.
-- A 2026-08-20 re-run of
-  `cmd /c C:\src\flutter\bin\flutter.bat test ...` did not emit runner output
-  after two minutes in this shell and was stopped; no Dart/Flutter source changed
-  during the SQL fixture fix. `C:\src\flutter\bin\cache\dart-sdk\bin\dart.exe
-  analyze` still passed.
+- Supabase tests are now pgTAP-compatible and clean up fixed fixture IDs inside
+  each transactional script, so `supabase test db` is repeatable. The
+  `00_bootstrap_auth.sql` file now asserts the real Supabase `auth` schema is
+  present instead of attempting to create platform-owned auth tables.
+- Sync regression coverage now includes stale server-rejected LWW pushes,
+  newer local edits that land while a push is in flight, server clock-skew
+  clamping convergence, and overlapping pull cursors for rows sharing the same
+  `updated_at` timestamp.
 
 ## Manual acceptance
 
@@ -68,10 +74,11 @@ Verification notes:
 
 ## Changed contracts
 
-- Drift schema version: `1`.
+- Drift schema version: `2`.
 - Drift schema source: `lib/core/db/tables.dart`.
 - Drift generated mirror: `lib/core/db/app_database.g.dart`.
-- Supabase baseline migration: `supabase/migrations/0001_poc_baseline.sql`.
+- Supabase migrations: `supabase/migrations/0001_poc_baseline.sql` and
+  `supabase/migrations/0002_task_reminder_draft_ids.sql`.
 - Normal synced cloud tables use `public.sync_lww_guard()` for stale-write
   rejection and future timestamp clamping.
 - `events` and `reminder_events` have owner read/insert policies only.
@@ -126,18 +133,17 @@ Verification notes:
   `0002_events_log.sql`, `0003_sync_guards.sql`, and
   `0004_capture_decomposition.sql`.
 - Added `0001_poc_baseline.sql`.
+- Added `0002_task_reminder_draft_ids.sql` as an idempotent non-reset migration
+  for existing local/CI databases.
 - No data preservation path is included; the POC reset allows a fresh schema.
 
 ## Supabase dashboard/manual steps required
 
 - Reset the Supabase project/database before applying
   `supabase/migrations/0001_poc_baseline.sql`.
-- On a real Supabase project, apply the baseline and run
-  `supabase/tests/10_rls_isolation.sql`,
-  `supabase/tests/20_fk_ownership.sql`, and
-  `supabase/tests/30_sync_guards.sql` through `psql -v ON_ERROR_STOP=1`.
-  Use `supabase/tests/00_bootstrap_auth.sql` only for a plain Postgres runner
-  that does not already provide Supabase's `auth` schema.
+- On a real Supabase project, apply the baseline and run `supabase test db`
+  against a local/CI Supabase stack. The scripts under `supabase/tests/` are
+  pgTAP tests and are expected to pass on consecutive runs.
 - Confirm RLS policies are present for every POC table in the Supabase
   dashboard.
 

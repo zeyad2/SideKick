@@ -88,7 +88,8 @@ void main() {
         child: const SidekickApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     final Scaffold scaffold = tester.widget<Scaffold>(
       find.byType(Scaffold).first,
@@ -109,6 +110,38 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('signed-out app does not instantiate user-owned scheduler', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWith((Ref ref) {
+            final AppDatabase db = AppDatabase.forTesting(
+              NativeDatabase.memory(),
+            );
+            ref.onDispose(db.close);
+            return db;
+          }),
+          authRepositoryProvider.overrideWithValue(
+            FakeAuthRepository.signedOut(),
+          ),
+          appGateProvider.overrideWithValue(AppGate.login),
+          syncEngineProvider.overrideWithValue(null),
+        ],
+        child: const SidekickApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Welcome back.'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));
   });
 }

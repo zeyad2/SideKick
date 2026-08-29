@@ -112,9 +112,9 @@ class ConversationRepositoryImpl extends LocalFirstRepository
 
   Future<Message?> _messageById(String id) async {
     final MessageRow? row =
-        await (db.select(db.messages)..where(
-              (Messages m) => m.id.equals(id) & m.userId.equals(userId),
-            ))
+        await (db.select(
+              db.messages,
+            )..where((Messages m) => m.id.equals(id) & m.userId.equals(userId)))
             .getSingleOrNull();
     return row == null ? null : _message(row);
   }

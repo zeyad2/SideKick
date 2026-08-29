@@ -40,6 +40,9 @@ class CaptureIngestionLease {
   final CaptureIngestionBarrier _barrier;
   bool _closed = false;
 
+  /// True when sign-out started while this lease was active.
+  bool get invalidated => !_barrier._accepting;
+
   void close() {
     if (_closed) return;
     _closed = true;

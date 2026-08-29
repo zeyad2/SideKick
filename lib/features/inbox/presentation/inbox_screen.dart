@@ -11,10 +11,13 @@ import 'package:sidekick/features/inbox/application/inbox_providers.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
 import 'package:sidekick/features/reminders/application/reminder_creation_service.dart';
 import 'package:sidekick/features/reminders/application/reminder_draft_service.dart';
+import 'package:sidekick/features/reminders/application/reminder_scheduler.dart';
 import 'package:sidekick/features/reminders/domain/task_reminder.dart';
 
 class InboxScreen extends ConsumerStatefulWidget {
-  const InboxScreen({super.key});
+  const InboxScreen({super.key, this.editReminderId});
+
+  final String? editReminderId;
 
   @override
   ConsumerState<InboxScreen> createState() => _InboxScreenState();
@@ -24,18 +27,48 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
   final TextEditingController _input = TextEditingController();
   final List<_ReviewDraftEntry> _reviewDrafts = <_ReviewDraftEntry>[];
   Timer? _autoCommitTimer;
+  String? _openedEditReminderId;
+  String? _requestedEditReminderId;
 
   @override
   void initState() {
     super.initState();
+    unawaited(_restoreReviewDrafts());
+    ReminderEditDispatcher.attach(_onReminderEditRequested);
     _autoCommitTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       ref.read(reminderCreationServiceProvider).activateDueAutoCommits();
       if (mounted) setState(() {});
     });
   }
 
+  Future<void> _restoreReviewDrafts() async {
+    late final List<PendingReviewDraft> drafts;
+    try {
+      drafts = await ref
+          .read(reminderCreationServiceProvider)
+          .pendingReviewDrafts();
+    } catch (_) {
+      return;
+    }
+    if (!mounted || drafts.isEmpty) return;
+    setState(() {
+      _reviewDrafts
+        ..clear()
+        ..addAll(
+          drafts.map(
+            (PendingReviewDraft draft) => _ReviewDraftEntry(
+              draft: draft.draft,
+              source: draft.source,
+              captureId: draft.captureId,
+            ),
+          ),
+        );
+    });
+  }
+
   @override
   void dispose() {
+    ReminderEditDispatcher.detach(_onReminderEditRequested);
     _autoCommitTimer?.cancel();
     _input.dispose();
     super.dispose();
@@ -48,6 +81,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     final AsyncValue<List<TaskReminder>> reminders = ref.watch(
       inboxTaskRemindersProvider,
     );
+    _maybeOpenLinkedEdit(reminders.asData?.value);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -168,7 +202,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                                   scheduledAt: scheduledAt,
                                 ),
                             onDismiss: () =>
-                                setState(() => _reviewDrafts.removeAt(index)),
+                                _dismissReviewDraft(_reviewDrafts[index]),
                           ),
                     ),
                   ),
@@ -236,6 +270,45 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
         ),
       ),
     );
+  }
+
+  void _onReminderEditRequested(String reminderId) {
+    if (!mounted) return;
+    setState(() => _requestedEditReminderId = reminderId);
+  }
+
+  void _maybeOpenLinkedEdit(List<TaskReminder>? reminders) {
+    final String? id = widget.editReminderId ?? _requestedEditReminderId;
+    if (id == null || id.isEmpty || _openedEditReminderId == id) return;
+    TaskReminder? reminder;
+    for (final TaskReminder row in reminders ?? const <TaskReminder>[]) {
+      if (row.id == id) {
+        reminder = row;
+        break;
+      }
+    }
+    if (reminder == null) return;
+    final TaskReminder linkedReminder = reminder;
+    _openedEditReminderId = id;
+    if (_requestedEditReminderId == id) {
+      _requestedEditReminderId = null;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final _EditedReminder? edited = await showDialog<_EditedReminder>(
+        context: context,
+        builder: (BuildContext dialogContext) =>
+            _EditAutoCommitDialog(reminder: linkedReminder),
+      );
+      if (!mounted || edited == null) return;
+      await ref
+          .read(reminderCreationServiceProvider)
+          .editReminder(
+            linkedReminder.id,
+            title: edited.title,
+            details: edited.details,
+          );
+    });
   }
 
   Future<void> _queueTypedReminder() async {
@@ -318,6 +391,20 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Reviewed reminder activated.')),
     );
+  }
+
+  Future<void> _dismissReviewDraft(_ReviewDraftEntry entry) async {
+    await ref
+        .read(reminderCreationServiceProvider)
+        .dismissReviewedDraft(
+          PendingReviewDraft(
+            captureId: entry.captureId,
+            source: entry.source,
+            draft: entry.draft,
+          ),
+        );
+    if (!mounted) return;
+    setState(() => _reviewDrafts.remove(entry));
   }
 }
 
@@ -453,7 +540,7 @@ class _ReviewDraftCardState extends State<_ReviewDraftCard> {
   }
 }
 
-class _CaptureCard extends ConsumerWidget {
+class _CaptureCard extends ConsumerStatefulWidget {
   const _CaptureCard({required this.capture, required this.onReviewDrafts});
 
   final Capture capture;
@@ -461,8 +548,20 @@ class _CaptureCard extends ConsumerWidget {
   onReviewDrafts;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CaptureCard> createState() => _CaptureCardState();
+}
+
+class _CaptureCardState extends ConsumerState<_CaptureCard> {
+  bool _retryInFlight = false;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.appTheme;
+    final bool retryLimitReached =
+        ReminderCreationService.audioRetryLimitReachedFor(widget.capture);
+    final String? stateMessage = ReminderCreationService.captureStateMessageFor(
+      widget.capture,
+    );
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -470,20 +569,23 @@ class _CaptureCard extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Icon(_statusIcon(capture.status), color: theme.colors.primary),
+            Icon(
+              _statusIcon(widget.capture.status),
+              color: theme.colors.primary,
+            ),
             SizedBox(width: theme.spacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    _statusTitle(capture.status),
+                    _statusTitle(widget.capture.status),
                     style: theme.textTheme.titleMedium,
                   ),
                   SizedBox(height: theme.spacing.xs),
                   Text(
-                    capture.rawTranscript ??
-                        capture.audioPath ??
+                    widget.capture.rawTranscript ??
+                        widget.capture.audioPath ??
                         'Audio is saved locally for reminder drafting.',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -493,19 +595,29 @@ class _CaptureCard extends ConsumerWidget {
                   ),
                   SizedBox(height: theme.spacing.sm),
                   Text(
-                    capture.status.name.toUpperCase(),
+                    widget.capture.status.name.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colors.secondary,
                     ),
                   ),
-                  if (capture.status == CaptureStatus.pending ||
-                      capture.status == CaptureStatus.failed) ...[
+                  if (widget.capture.status == CaptureStatus.pending ||
+                      widget.capture.status == CaptureStatus.failed) ...[
                     SizedBox(height: theme.spacing.md),
+                    if (stateMessage != null) ...[
+                      Text(stateMessage, style: theme.textTheme.bodySmall),
+                      SizedBox(height: theme.spacing.sm),
+                    ],
                     OutlinedButton.icon(
-                      onPressed: () => _processAudio(context, ref),
+                      onPressed: retryLimitReached || _retryInFlight
+                          ? null
+                          : () => _processAudio(context),
                       icon: const Icon(Icons.replay_rounded),
                       label: Text(
-                        capture.status == CaptureStatus.failed
+                        retryLimitReached
+                            ? 'Type reminder instead'
+                            : _retryInFlight
+                            ? 'Drafting audio'
+                            : widget.capture.status == CaptureStatus.failed
                             ? 'Retry audio'
                             : 'Draft audio',
                       ),
@@ -534,22 +646,28 @@ class _CaptureCard extends ConsumerWidget {
     _ => 'Capture ready for POC drafting',
   };
 
-  Future<void> _processAudio(BuildContext context, WidgetRef ref) async {
-    final ReminderCreationResult result = await ref
-        .read(reminderCreationServiceProvider)
-        .processAudioCapture(capture);
-    if (!context.mounted) return;
-    onReviewDrafts(result, TaskReminderSource.audio);
-    final String message = result.unclearAudio
-        ? result.retryLimitReached
-              ? 'Audio was unclear twice. Type the reminder instead.'
-              : 'Audio was unclear. Try recording again.'
-        : result.autoCommitted.isNotEmpty
-        ? '${result.autoCommitted.length} reminder draft(s) auto-commit in 10 seconds.'
-        : '${result.needsReview.length} reminder draft(s) need review.';
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+  Future<void> _processAudio(BuildContext context) async {
+    if (_retryInFlight) return;
+    setState(() => _retryInFlight = true);
+    try {
+      final ReminderCreationResult result = await ref
+          .read(reminderCreationServiceProvider)
+          .processAudioCapture(widget.capture);
+      if (!context.mounted) return;
+      widget.onReviewDrafts(result, TaskReminderSource.audio);
+      final String message = result.unclearAudio
+          ? result.retryLimitReached
+                ? 'Audio was unclear twice. Type the reminder instead.'
+                : 'Audio was unclear. Try recording again.'
+          : result.autoCommitted.isNotEmpty
+          ? '${result.autoCommitted.length} reminder draft(s) auto-commit in 10 seconds.'
+          : '${result.needsReview.length} reminder draft(s) need review.';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) setState(() => _retryInFlight = false);
+    }
   }
 }
 
@@ -630,6 +748,13 @@ class _ReminderCard extends ConsumerWidget {
                   ),
                 ],
               ),
+            ] else ...[
+              SizedBox(height: theme.spacing.md),
+              OutlinedButton.icon(
+                onPressed: () => _showEditDialog(context, ref),
+                icon: const Icon(Icons.edit_rounded),
+                label: const Text('Edit'),
+              ),
             ],
           ],
         ),
@@ -644,13 +769,23 @@ class _ReminderCard extends ConsumerWidget {
           _EditAutoCommitDialog(reminder: reminder),
     );
     if (edited == null) return;
-    await ref
-        .read(reminderCreationServiceProvider)
-        .editAutoCommit(
-          reminder.id,
-          title: edited.title,
-          details: edited.details,
-        );
+    if (reminder.status == TaskReminderStatus.pendingAutoCommit) {
+      await ref
+          .read(reminderCreationServiceProvider)
+          .editAutoCommit(
+            reminder.id,
+            title: edited.title,
+            details: edited.details,
+          );
+    } else {
+      await ref
+          .read(reminderCreationServiceProvider)
+          .editReminder(
+            reminder.id,
+            title: edited.title,
+            details: edited.details,
+          );
+    }
   }
 
   static int _secondsRemaining(TaskReminder reminder) {

@@ -15,7 +15,9 @@ void main() {
 
   test('wipeAllData clears every table including the pull cursor', () async {
     // A synced row for the outgoing user.
-    await db.into(db.taskReminders).insert(
+    await db
+        .into(db.taskReminders)
+        .insert(
           TaskRemindersCompanion.insert(
             id: 'reminder-1',
             userId: 'u1',
@@ -26,14 +28,18 @@ void main() {
           ),
         );
     // An event (insert-only table) and a pull cursor.
-    await db.into(db.events).insert(
+    await db
+        .into(db.events)
+        .insert(
           EventsCompanion.insert(
             id: 'event-1',
             userId: 'u1',
             eventType: 'task_reminder_created',
           ),
         );
-    await db.into(db.syncMeta).insert(
+    await db
+        .into(db.syncMeta)
+        .insert(
           SyncMetaCompanion.insert(
             syncTable: 'task_reminders',
             lastPull: Value<DateTime>(DateTime.utc(2026, 8, 18, 10)),
