@@ -141,9 +141,10 @@ void main() {
       final AssistantContext context = await builder().build();
 
       expect(context.recentUnclearCaptures.single['id'], capture.id);
+      expect(context.recentUnclearCaptures.single['reason'], 'unclear_audio');
       expect(
-        context.recentUnclearCaptures.single['error'],
-        'Audio was unclear.',
+        context.recentUnclearCaptures.single.containsKey('error'),
+        isFalse,
       );
       expect(
         context.recentUnclearCaptures.single.containsKey('raw_transcript'),
@@ -151,6 +152,28 @@ void main() {
       );
     },
   );
+
+  test('capture workflow state never enters assistant context', () async {
+    final Capture capture = await captures.create(
+      audioPath: 'capture.m4a',
+      source: CaptureSource.audio.wire,
+    );
+    await captures.update(
+      capture.copyWith(
+        status: CaptureStatus.failed,
+        error: 'Audio was unclear.',
+        metadata: const <String, Object?>{
+          'draft_state':
+              'sidekick_state:{"review_drafts":[{"details":"private speech"}]}',
+        },
+      ),
+    );
+
+    final String encoded = contextJson(await builder().build());
+
+    expect(encoded, isNot(contains('sidekick_state:')));
+    expect(encoded, isNot(contains('private speech')));
+  });
 
   test('context builder enforces bounded payload size', () async {
     for (int i = 0; i < 20; i++) {
@@ -218,3 +241,5 @@ void main() {
     expect(metadata, isNot(contains('private_note')));
   });
 }
+
+String contextJson(AssistantContext context) => context.toJson().toString();

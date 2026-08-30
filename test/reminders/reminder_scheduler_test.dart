@@ -105,7 +105,7 @@ void main() {
     expect(events.rows.single.eventType, ReminderEventType.later);
   });
 
-  test('Dismiss logs event without deleting reminder', () async {
+  test('Dismiss stops the alarm and marks the reminder dismissed', () async {
     final TaskReminder reminder = _reminder();
     reminders.rows[reminder.id] = reminder;
 
@@ -116,8 +116,30 @@ void main() {
       ),
     );
 
-    expect(reminders.rows[reminder.id]!.status, TaskReminderStatus.active);
+    expect(reminders.rows[reminder.id]!.status, TaskReminderStatus.dismissed);
     expect(events.rows.single.eventType, ReminderEventType.dismissed);
+    expect(platform.cancelled, contains(reminder.id));
+  });
+
+  test('Reschedule uses the exact time selected in the alarm screen', () async {
+    final TaskReminder reminder = _reminder();
+    reminders.rows[reminder.id] = reminder;
+    final DateTime selected = DateTime.utc(2026, 8, 23, 18, 45);
+
+    await scheduler.handleAction(
+      ReminderAction(
+        reminderId: reminder.id,
+        action: ReminderNotificationAction.reschedule,
+        metadata: <String, Object?>{
+          'reschedule_at_ms': selected.millisecondsSinceEpoch,
+          'source': 'native_alarm',
+        },
+      ),
+    );
+
+    expect(reminders.rows[reminder.id]!.scheduledAt, selected);
+    expect(platform.time.single.reminder.scheduledAt, selected);
+    expect(events.rows.single.eventType, ReminderEventType.later);
   });
 
   test('Wrong place logs event and stores correction signal', () async {
@@ -261,7 +283,15 @@ void main() {
     await scheduler.resyncAll();
 
     expect(events.rows, hasLength(1));
-    expect(events.rows.single.id, 'native-later-1');
+    expect(
+      events.rows.single.id,
+      matches(
+        RegExp(
+          r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        ),
+      ),
+    );
+    expect(events.rows.single.metadata['native_action_id'], 'native-later-1');
     expect(reminders.rows[reminder.id]!.scheduledAt, firstSnooze);
     expect(platform.ackedNativeActions, <String>[
       'native-later-1',
@@ -269,23 +299,51 @@ void main() {
     ]);
   });
 
-  test('auto-commit activation calls scheduler exactly once', () async {
-    final _FakeCaptureRepository captures = _FakeCaptureRepository(now);
-    final ReminderCreationService creation = ReminderCreationService(
-      captures: captures,
-      reminders: reminders,
-      drafts: const HeuristicReminderDraftService(),
-      clock: () => now,
-      scheduler: scheduler,
-    );
-    await creation.submitText('Remind me to call Sam tomorrow');
-    now = now.add(const Duration(seconds: 11));
+  test(
+    'auto-commit registers during countdown and activates at deadline',
+    () async {
+      final _FakeCaptureRepository captures = _FakeCaptureRepository(now);
+      final ReminderCreationService creation = ReminderCreationService(
+        captures: captures,
+        reminders: reminders,
+        drafts: const HeuristicReminderDraftService(),
+        clock: () => now,
+        scheduler: scheduler,
+      );
+      await creation.submitText('Remind me to call Sam tomorrow');
+      expect(platform.time, hasLength(1));
+      expect(
+        platform.time.single.reminder.status,
+        TaskReminderStatus.pendingAutoCommit,
+      );
+      now = now.add(const Duration(seconds: 11));
 
-    expect(await creation.activateDueAutoCommits(), 1);
+      expect(await creation.activateDueAutoCommits(), 1);
 
-    expect(platform.time, hasLength(1));
-    expect(reminders.rows.values.single.status, TaskReminderStatus.active);
-  });
+      expect(platform.time, hasLength(2));
+      expect(platform.time.last.reminder.status, TaskReminderStatus.active);
+      expect(reminders.rows.values.single.status, TaskReminderStatus.active);
+    },
+  );
+
+  test(
+    'resyncAll activates an expired countdown without the Capture UI',
+    () async {
+      reminders.rows['pending'] =
+          _reminder(
+            id: 'pending',
+            status: TaskReminderStatus.pendingAutoCommit,
+          ).copyWith(
+            autoCommitDeadlineAt: now.subtract(const Duration(seconds: 1)),
+          );
+
+      await scheduler.resyncAll();
+
+      expect(reminders.rows['pending']!.status, TaskReminderStatus.active);
+      expect(platform.time.last.reminder.id, 'pending');
+      expect(events.rows.single.metadata['source'], 'auto_commit_deadline');
+    },
+  );
 
   test('approved review draft schedules immediately', () async {
     final _FakeCaptureRepository captures = _FakeCaptureRepository(now);
@@ -415,7 +473,9 @@ class _FakeReminderEventsRepository implements ReminderEventsRepository {
     Map<String, Object?> metadata = const <String, Object?>{},
     String? id,
   }) async {
-    final String eventId = id ?? 'e${rows.length + 1}';
+    final String eventId =
+        id ??
+        '00000000-0000-4000-8000-${(rows.length + 1).toString().padLeft(12, '0')}';
     final ReminderEvent? existing = await findById(eventId);
     if (existing != null) return existing;
     final ReminderEvent event = ReminderEvent(
@@ -458,6 +518,14 @@ class _FakeReminderEventsRepository implements ReminderEventsRepository {
   Future<ReminderEvent?> findById(String id) async {
     for (final ReminderEvent event in rows) {
       if (event.id == id) return event;
+    }
+    return null;
+  }
+
+  @override
+  Future<ReminderEvent?> findByNativeActionId(String nativeActionId) async {
+    for (final ReminderEvent event in rows) {
+      if (event.metadata['native_action_id'] == nativeActionId) return event;
     }
     return null;
   }

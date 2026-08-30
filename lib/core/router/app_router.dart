@@ -7,9 +7,10 @@ import 'package:sidekick/features/auth/presentation/forgot_password_screen.dart'
 import 'package:sidekick/features/auth/presentation/login_screen.dart';
 import 'package:sidekick/features/inbox/presentation/inbox_screen.dart';
 import 'package:sidekick/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:sidekick/features/places/presentation/places_screen.dart';
+import 'package:sidekick/features/reminders/presentation/reminders_screen.dart';
 import 'package:sidekick/features/settings/presentation/settings_screen.dart';
 import 'package:sidekick/features/shell/presentation/app_shell.dart';
-import 'package:sidekick/features/shell/presentation/themed_empty_screen.dart';
 import 'package:sidekick/features/splash/presentation/splash_screen.dart';
 
 final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
@@ -19,7 +20,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: AppRoutes.capture,
+    initialLocation: AppRoutes.reminders,
     refreshListenable: refresh,
     redirect: (_, GoRouterState state) {
       final AppGate gate = ref.read(appGateProvider);
@@ -39,7 +40,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
                   location == AppRoutes.forgotPassword ||
                   location == AppRoutes.onboarding ||
                   location == AppRoutes.splash
-              ? AppRoutes.capture
+              ? AppRoutes.reminders
               : null;
       }
     },
@@ -84,8 +85,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
               GoRoute(
                 path: AppRoutes.reminders,
                 name: AppRoutes.remindersName,
-                builder: (_, _) =>
-                    const ThemedEmptyScreen(title: 'Task reminders'),
+                builder: (_, _) => const RemindersScreen(),
               ),
             ],
           ),
@@ -94,7 +94,7 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
               GoRoute(
                 path: AppRoutes.places,
                 name: AppRoutes.placesName,
-                builder: (_, _) => const ThemedEmptyScreen(title: 'Places'),
+                builder: (_, _) => const PlacesScreen(),
               ),
             ],
           ),

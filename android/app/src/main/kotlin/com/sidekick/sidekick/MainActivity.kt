@@ -104,6 +104,13 @@ class MainActivity : FlutterActivity() {
                         )
                         result.success(null)
                     }
+                    "cancelCapture" -> {
+                        startService(
+                            Intent(this@MainActivity, CaptureForegroundService::class.java)
+                                .setAction(CaptureForegroundService.ACTION_CANCEL),
+                        )
+                        result.success(null)
+                    }
                     "getCaptureState" -> {
                         val store = NativeCaptureStore(this@MainActivity)
                         if (!CaptureRuntimeGuard.hasLiveCapture) store.recoverInterrupted()
@@ -143,7 +150,16 @@ class MainActivity : FlutterActivity() {
         registerCaptureReceiver()
     }
 
+    @Deprecated("Deprecated in Android; retained for the document picker contract.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (ReminderRuntimeBridge.onReminderSoundPickerResult(this, requestCode, resultCode, data)) {
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        ReminderRuntimeBridge.detachReminderSoundPicker()
         captureChannel?.setMethodCallHandler(null)
         captureChannel = null
         if (receiverRegistered) {

@@ -40,6 +40,7 @@ abstract interface class NativeCaptureApi {
   Future<void> acknowledge(String eventId);
   Future<void> startCapture();
   Future<void> stopCapture();
+  Future<void> cancelCapture();
   Future<bool> isAccessibilityEnabled();
   Future<void> openAccessibilitySettings();
   Future<void> dispose();
@@ -168,6 +169,11 @@ class MethodChannelNativeCaptureApi implements NativeCaptureApi {
   @override
   Future<void> stopCapture() async {
     if (_supported) await _channel.invokeMethod<void>('stopCapture');
+  }
+
+  @override
+  Future<void> cancelCapture() async {
+    if (_supported) await _channel.invokeMethod<void>('cancelCapture');
   }
 
   @override

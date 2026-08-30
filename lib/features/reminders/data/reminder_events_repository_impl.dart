@@ -87,6 +87,21 @@ class ReminderEventsRepositoryImpl extends LocalFirstRepository
   @override
   Future<ReminderEvent?> findById(String id) => _byId(id);
 
+  @override
+  Future<ReminderEvent?> findByNativeActionId(String nativeActionId) async {
+    final List<ReminderEventRow> rows =
+        await (db.select(db.reminderEvents)..where(
+              (ReminderEvents e) =>
+                  e.userId.equals(userId) & e.deletedAt.isNull(),
+            ))
+            .get();
+    for (final ReminderEventRow row in rows) {
+      final ReminderEvent event = _toDomain(row);
+      if (event.metadata['native_action_id'] == nativeActionId) return event;
+    }
+    return null;
+  }
+
   Future<ReminderEvent?> _byId(String id) async {
     final ReminderEventRow? row =
         await (db.select(db.reminderEvents)..where(

@@ -20,7 +20,10 @@ void sidekickReminderBackgroundNotificationTap(NotificationResponse response) {
 }
 
 class AndroidReminderSchedulePlatform
-    implements ReminderSchedulePlatform, NativeReminderActionJournal {
+    implements
+        ReminderSchedulePlatform,
+        NativeReminderActionJournal,
+        DeviceTimeZoneSource {
   AndroidReminderSchedulePlatform({
     FlutterLocalNotificationsPlugin? notifications,
     MethodChannel? channel,
@@ -37,10 +40,12 @@ class AndroidReminderSchedulePlatform
   final FlutterLocalNotificationsPlugin _notifications;
   final MethodChannel _channel;
   bool _initialized = false;
+  bool _requestedFullScreenIntentPermission = false;
 
   @override
   Future<void> scheduleTime(ScheduledReminderRequest request) async {
     await _ensureInitialized();
+    _requestFullScreenIntentPermissionOnce();
     final DateTime? scheduledAt = request.reminder.scheduledAt;
     if (scheduledAt == null) return;
     final int notificationId = await _nativeNotificationId(request.reminder.id);
@@ -51,6 +56,24 @@ class AndroidReminderSchedulePlatform
       'triggerAtMs': scheduledAt.toUtc().millisecondsSinceEpoch,
       'notificationId': notificationId,
     });
+  }
+
+  void _requestFullScreenIntentPermissionOnce() {
+    if (_requestedFullScreenIntentPermission) return;
+    _requestedFullScreenIntentPermission = true;
+    final AndroidFlutterLocalNotificationsPlugin? android = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android == null) return;
+    unawaited(() async {
+      try {
+        await android.requestFullScreenIntentPermission();
+      } on PlatformException {
+        // Scheduling still succeeds. Android will fall back to a heads-up
+        // notification if the permission is unavailable or declined.
+      }
+    }());
   }
 
   @override
@@ -110,6 +133,8 @@ class AndroidReminderSchedulePlatform
                 'source': action['source'] as String? ?? 'native_notification',
                 if (action['recordedAtMs'] != null)
                   'recorded_at_ms': action['recordedAtMs'],
+                if (action['rescheduleAtMs'] != null)
+                  'reschedule_at_ms': action['rescheduleAtMs'],
                 if (action['actionId'] != null)
                   'native_action_id': action['actionId'],
               },
@@ -132,6 +157,19 @@ class AndroidReminderSchedulePlatform
     } on PlatformException {
       return;
     }
+  }
+
+  @override
+  Future<String> currentTimeZoneName() async {
+    try {
+      final String? zone = await _channel.invokeMethod<String>(
+        'currentTimeZoneName',
+      );
+      if (zone != null && zone.trim().isNotEmpty) return zone.trim();
+    } on PlatformException {
+      // Fall through to the only deterministic cross-platform fallback.
+    }
+    return 'UTC';
   }
 
   static Future<void> enqueueNativeAction({

@@ -30,7 +30,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -42,6 +42,9 @@ class AppDatabase extends _$AppDatabase {
           'CREATE UNIQUE INDEX IF NOT EXISTS task_reminders_capture_draft_uidx '
           'ON task_reminders (user_id, capture_id, draft_id)',
         );
+      }
+      if (from < 3) {
+        await m.addColumn(captures, captures.metadata);
       }
     },
   );

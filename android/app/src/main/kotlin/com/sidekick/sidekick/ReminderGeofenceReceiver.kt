@@ -12,6 +12,8 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import org.json.JSONObject
@@ -67,7 +69,11 @@ class ReminderGeofenceReceiver : BroadcastReceiver() {
 
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Sidekick reminder"
         val details = intent.getStringExtra(EXTRA_DETAILS)
-        createChannel(context)
+        if (intent.action == ACTION_TIME_ELAPSED) {
+            showTimeAlarm(context, reminderId, title, details)
+            return
+        }
+        val channelId = createChannel(context)
         if (!canPostNotifications(context)) return
 
         val payload = JSONObject()
@@ -87,7 +93,7 @@ class ReminderGeofenceReceiver : BroadcastReceiver() {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(
             ReminderRuntimeBridge.managedNotificationId(context, reminderId),
-            NotificationCompat.Builder(context, CHANNEL_ID)
+            NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(details ?: "Location reminder")
@@ -97,8 +103,52 @@ class ReminderGeofenceReceiver : BroadcastReceiver() {
                 .addAction(action(context, reminderId, "dismiss", "Dismiss"))
                 .addAction(action(context, reminderId, "wrong_place", "Wrong place"))
                 .setAutoCancel(true)
+                .setSound(selectedSound(context))
                 .build(),
         )
+    }
+
+    private fun showTimeAlarm(
+        context: Context,
+        reminderId: String,
+        title: String,
+        details: String?,
+    ) {
+        val alarmChannelId = createAlarmChannel(context)
+        val alarmIntent = Intent(context, ReminderAlarmActivity::class.java)
+            .putExtra(EXTRA_REMINDER_ID, reminderId)
+            .putExtra(EXTRA_TITLE, title)
+            .putExtra(EXTRA_DETAILS, details)
+            .addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP,
+            )
+        val fullScreen = PendingIntent.getActivity(
+            context,
+            ReminderRuntimeBridge.managedRequestCode(context, "$reminderId:alarm"),
+            alarmIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        if (canPostNotifications(context)) {
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.notify(
+                ReminderRuntimeBridge.managedNotificationId(context, reminderId),
+                NotificationCompat.Builder(context, alarmChannelId)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(title)
+                    .setContentText(details ?: "Time reminder")
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setContentIntent(fullScreen)
+                    .setFullScreenIntent(fullScreen, true)
+                    .setOngoing(true)
+                    .setSound(selectedSound(context))
+                    .build(),
+            )
+        }
+        runCatching { context.startActivity(alarmIntent) }
     }
 
     private fun scheduleDwellNotification(context: Context, original: Intent, dwellSeconds: Int) {
@@ -140,12 +190,60 @@ class ReminderGeofenceReceiver : BroadcastReceiver() {
         return NotificationCompat.Action.Builder(R.mipmap.ic_launcher, title, pending).build()
     }
 
-    private fun createChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+    private fun createChannel(context: Context): String {
+        val channelId = "${CHANNEL_ID}_${ReminderSoundStore.channelSuffix(context)}"
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return channelId
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "Place reminders", NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(channelId, "Place reminders", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                setSound(selectedSound(context), attributes)
+            },
         )
+        return channelId
+    }
+
+    private fun createAlarmChannel(context: Context): String {
+        val channelId = "${ALARM_CHANNEL_ID}_${ReminderSoundStore.channelSuffix(context)}"
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return channelId
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        manager.createNotificationChannel(
+            NotificationChannel(
+                channelId,
+                "Alarm reminders",
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = "Time reminders that ring like an alarm."
+                enableVibration(true)
+                setSound(selectedSound(context), attributes)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            },
+        )
+        return channelId
+    }
+
+    private fun selectedSound(context: Context): Uri {
+        val fallback = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val selected = runCatching { ReminderSoundStore.selectedUri(context) }
+            .getOrElse { return fallback }
+        runCatching {
+            if (selected.scheme == "content") {
+            context.grantUriPermission(
+                "com.android.systemui",
+                    selected,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+            }
+        }
+        return selected
     }
 
     private fun canPostNotifications(context: Context): Boolean =
@@ -168,5 +266,6 @@ class ReminderGeofenceReceiver : BroadcastReceiver() {
         const val ACTION_DWELL_ELAPSED = "com.sidekick.sidekick.reminder.DWELL_ELAPSED"
         const val ACTION_TIME_ELAPSED = "com.sidekick.sidekick.reminder.TIME_ELAPSED"
         private const val CHANNEL_ID = "sidekick_place_reminders"
+        private const val ALARM_CHANNEL_ID = "sidekick_alarm_reminders_v1"
     }
 }

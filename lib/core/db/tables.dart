@@ -46,6 +46,7 @@ class Captures extends Table with SyncColumns {
   TextColumn get rawTranscript => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('pending'))();
   TextColumn get error => text().nullable()();
+  TextColumn get metadata => text().withDefault(const Constant('{}'))();
   DateTimeColumn get capturedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override

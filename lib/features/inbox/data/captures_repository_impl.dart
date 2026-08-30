@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:sidekick/core/data/local_first_repository.dart';
 import 'package:sidekick/core/db/app_database.dart';
+import 'package:sidekick/core/db/json_codec.dart';
 import 'package:sidekick/core/domain/enums.dart';
 import 'package:sidekick/core/events/domain_event.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
@@ -122,6 +123,7 @@ class CapturesRepositoryImpl extends LocalFirstRepository
             rawTranscript: Value<String?>(capture.rawTranscript),
             status: Value<String>(capture.status.wire),
             error: Value<String?>(capture.error),
+            metadata: Value<String>(JsonCodecs.encode(capture.metadata)),
             updatedAt: Value<DateTime>(timestamp),
             dirty: const Value<bool>(true),
           ),
@@ -172,6 +174,7 @@ class CapturesRepositoryImpl extends LocalFirstRepository
     rawTranscript: row.rawTranscript,
     status: CaptureStatus.fromWire(row.status),
     error: row.error,
+    metadata: JsonCodecs.decodeMap(row.metadata),
     capturedAt: row.capturedAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,

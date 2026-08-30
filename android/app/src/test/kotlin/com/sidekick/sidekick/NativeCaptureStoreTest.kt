@@ -75,6 +75,20 @@ class NativeCaptureStoreTest {
         assertFalse(CaptureRuntimeGuard.hasLiveCapture)
     }
 
+    @Test
+    fun discardActiveRemovesJournalEntryAndAudio() {
+        val active = event("cancelled")
+        val audio = java.io.File(active.audioPath).apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        store.markActive(active)
+
+        assertEquals(active, store.discardActive())
+
+        assertNull(store.active())
+        assertFalse(audio.exists())
+        assertTrue(store.pending().isEmpty())
+        assertTrue(store.failed("owner").isEmpty())
+    }
+
     private fun event(id: String) = NativeCaptureEvent(
         eventId = id,
         audioPath = context.filesDir.resolve("$id.aac").absolutePath,

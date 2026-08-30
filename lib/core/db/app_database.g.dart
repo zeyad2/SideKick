@@ -1352,6 +1352,18 @@ class $CapturesTable extends Captures
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _metadataMeta = const VerificationMeta(
+    'metadata',
+  );
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+    'metadata',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
   static const VerificationMeta _capturedAtMeta = const VerificationMeta(
     'capturedAt',
   );
@@ -1379,6 +1391,7 @@ class $CapturesTable extends Captures
     rawTranscript,
     status,
     error,
+    metadata,
     capturedAt,
   ];
   @override
@@ -1477,6 +1490,12 @@ class $CapturesTable extends Captures
         error.isAcceptableOrUnknown(data['error']!, _errorMeta),
       );
     }
+    if (data.containsKey('metadata')) {
+      context.handle(
+        _metadataMeta,
+        metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
+      );
+    }
     if (data.containsKey('captured_at')) {
       context.handle(
         _capturedAtMeta,
@@ -1544,6 +1563,10 @@ class $CapturesTable extends Captures
         DriftSqlType.string,
         data['${effectivePrefix}error'],
       ),
+      metadata: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata'],
+      )!,
       capturedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}captured_at'],
@@ -1571,6 +1594,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
   final String? rawTranscript;
   final String status;
   final String? error;
+  final String metadata;
   final DateTime capturedAt;
   const CaptureRow({
     required this.createdAt,
@@ -1586,6 +1610,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     this.rawTranscript,
     required this.status,
     this.error,
+    required this.metadata,
     required this.capturedAt,
   });
   @override
@@ -1616,6 +1641,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     if (!nullToAbsent || error != null) {
       map['error'] = Variable<String>(error);
     }
+    map['metadata'] = Variable<String>(metadata);
     map['captured_at'] = Variable<DateTime>(capturedAt);
     return map;
   }
@@ -1647,6 +1673,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       error: error == null && nullToAbsent
           ? const Value.absent()
           : Value(error),
+      metadata: Value(metadata),
       capturedAt: Value(capturedAt),
     );
   }
@@ -1670,6 +1697,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       rawTranscript: serializer.fromJson<String?>(json['rawTranscript']),
       status: serializer.fromJson<String>(json['status']),
       error: serializer.fromJson<String?>(json['error']),
+      metadata: serializer.fromJson<String>(json['metadata']),
       capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
     );
   }
@@ -1690,6 +1718,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
       'rawTranscript': serializer.toJson<String?>(rawTranscript),
       'status': serializer.toJson<String>(status),
       'error': serializer.toJson<String?>(error),
+      'metadata': serializer.toJson<String>(metadata),
       'capturedAt': serializer.toJson<DateTime>(capturedAt),
     };
   }
@@ -1708,6 +1737,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     Value<String?> rawTranscript = const Value.absent(),
     String? status,
     Value<String?> error = const Value.absent(),
+    String? metadata,
     DateTime? capturedAt,
   }) => CaptureRow(
     createdAt: createdAt ?? this.createdAt,
@@ -1725,6 +1755,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
         : this.rawTranscript,
     status: status ?? this.status,
     error: error.present ? error.value : this.error,
+    metadata: metadata ?? this.metadata,
     capturedAt: capturedAt ?? this.capturedAt,
   );
   CaptureRow copyWithCompanion(CapturesCompanion data) {
@@ -1744,6 +1775,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
           : this.rawTranscript,
       status: data.status.present ? data.status.value : this.status,
       error: data.error.present ? data.error.value : this.error,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
       capturedAt: data.capturedAt.present
           ? data.capturedAt.value
           : this.capturedAt,
@@ -1766,6 +1798,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
           ..write('rawTranscript: $rawTranscript, ')
           ..write('status: $status, ')
           ..write('error: $error, ')
+          ..write('metadata: $metadata, ')
           ..write('capturedAt: $capturedAt')
           ..write(')'))
         .toString();
@@ -1786,6 +1819,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
     rawTranscript,
     status,
     error,
+    metadata,
     capturedAt,
   );
   @override
@@ -1805,6 +1839,7 @@ class CaptureRow extends DataClass implements Insertable<CaptureRow> {
           other.rawTranscript == this.rawTranscript &&
           other.status == this.status &&
           other.error == this.error &&
+          other.metadata == this.metadata &&
           other.capturedAt == this.capturedAt);
 }
 
@@ -1822,6 +1857,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
   final Value<String?> rawTranscript;
   final Value<String> status;
   final Value<String?> error;
+  final Value<String> metadata;
   final Value<DateTime> capturedAt;
   final Value<int> rowid;
   const CapturesCompanion({
@@ -1838,6 +1874,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     this.rawTranscript = const Value.absent(),
     this.status = const Value.absent(),
     this.error = const Value.absent(),
+    this.metadata = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1855,6 +1892,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     this.rawTranscript = const Value.absent(),
     this.status = const Value.absent(),
     this.error = const Value.absent(),
+    this.metadata = const Value.absent(),
     this.capturedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1874,6 +1912,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     Expression<String>? rawTranscript,
     Expression<String>? status,
     Expression<String>? error,
+    Expression<String>? metadata,
     Expression<DateTime>? capturedAt,
     Expression<int>? rowid,
   }) {
@@ -1891,6 +1930,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
       if (rawTranscript != null) 'raw_transcript': rawTranscript,
       if (status != null) 'status': status,
       if (error != null) 'error': error,
+      if (metadata != null) 'metadata': metadata,
       if (capturedAt != null) 'captured_at': capturedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1910,6 +1950,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     Value<String?>? rawTranscript,
     Value<String>? status,
     Value<String?>? error,
+    Value<String>? metadata,
     Value<DateTime>? capturedAt,
     Value<int>? rowid,
   }) {
@@ -1927,6 +1968,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
       rawTranscript: rawTranscript ?? this.rawTranscript,
       status: status ?? this.status,
       error: error ?? this.error,
+      metadata: metadata ?? this.metadata,
       capturedAt: capturedAt ?? this.capturedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1974,6 +2016,9 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
     if (error.present) {
       map['error'] = Variable<String>(error.value);
     }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
     if (capturedAt.present) {
       map['captured_at'] = Variable<DateTime>(capturedAt.value);
     }
@@ -1999,6 +2044,7 @@ class CapturesCompanion extends UpdateCompanion<CaptureRow> {
           ..write('rawTranscript: $rawTranscript, ')
           ..write('status: $status, ')
           ..write('error: $error, ')
+          ..write('metadata: $metadata, ')
           ..write('capturedAt: $capturedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -6642,6 +6688,7 @@ typedef $$CapturesTableCreateCompanionBuilder =
       Value<String?> rawTranscript,
       Value<String> status,
       Value<String?> error,
+      Value<String> metadata,
       Value<DateTime> capturedAt,
       Value<int> rowid,
     });
@@ -6660,6 +6707,7 @@ typedef $$CapturesTableUpdateCompanionBuilder =
       Value<String?> rawTranscript,
       Value<String> status,
       Value<String?> error,
+      Value<String> metadata,
       Value<DateTime> capturedAt,
       Value<int> rowid,
     });
@@ -6735,6 +6783,11 @@ class $$CapturesTableFilterComposer
 
   ColumnFilters<String> get error => $composableBuilder(
     column: $table.error,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+    column: $table.metadata,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6818,6 +6871,11 @@ class $$CapturesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
     column: $table.capturedAt,
     builder: (column) => ColumnOrderings(column),
@@ -6874,6 +6932,9 @@ class $$CapturesTableAnnotationComposer
   GeneratedColumn<String> get error =>
       $composableBuilder(column: $table.error, builder: (column) => column);
 
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+
   GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
     column: $table.capturedAt,
     builder: (column) => column,
@@ -6924,6 +6985,7 @@ class $$CapturesTableTableManager
                 Value<String?> rawTranscript = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<String?> error = const Value.absent(),
+                Value<String> metadata = const Value.absent(),
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CapturesCompanion(
@@ -6940,6 +7002,7 @@ class $$CapturesTableTableManager
                 rawTranscript: rawTranscript,
                 status: status,
                 error: error,
+                metadata: metadata,
                 capturedAt: capturedAt,
                 rowid: rowid,
               ),
@@ -6958,6 +7021,7 @@ class $$CapturesTableTableManager
                 Value<String?> rawTranscript = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<String?> error = const Value.absent(),
+                Value<String> metadata = const Value.absent(),
                 Value<DateTime> capturedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CapturesCompanion.insert(
@@ -6974,6 +7038,7 @@ class $$CapturesTableTableManager
                 rawTranscript: rawTranscript,
                 status: status,
                 error: error,
+                metadata: metadata,
                 capturedAt: capturedAt,
                 rowid: rowid,
               ),

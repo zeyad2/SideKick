@@ -37,6 +37,7 @@ class CaptureOverlayHost extends ConsumerWidget {
                   CaptureOverlayStage.recording => _RecordingOverlay(
                     state: state,
                     onDone: coordinator.stopCapture,
+                    onCancel: coordinator.cancelCapture,
                   ),
                   CaptureOverlayStage.processing => _ProcessingOverlay(
                     step: state.processingStep,
@@ -76,9 +77,14 @@ class _CaptureBackdrop extends StatelessWidget {
 }
 
 class _RecordingOverlay extends StatefulWidget {
-  const _RecordingOverlay({required this.state, required this.onDone});
+  const _RecordingOverlay({
+    required this.state,
+    required this.onDone,
+    required this.onCancel,
+  });
   final CaptureOverlayState state;
   final Future<void> Function() onDone;
+  final Future<void> Function() onCancel;
 
   @override
   State<_RecordingOverlay> createState() => _RecordingOverlayState();
@@ -160,6 +166,11 @@ class _RecordingOverlayState extends State<_RecordingOverlay>
           Text(timer, style: theme.textTheme.titleLarge),
           SizedBox(height: theme.spacing.xl),
           PillButton(label: 'Done', onPressed: widget.onDone),
+          SizedBox(height: theme.spacing.sm),
+          TextButton(
+            onPressed: widget.onCancel,
+            child: const Text('Cancel recording'),
+          ),
         ],
       ),
     );

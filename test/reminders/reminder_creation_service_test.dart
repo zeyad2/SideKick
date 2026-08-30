@@ -15,6 +15,7 @@ import 'package:sidekick/features/profile/data/profile_repository_impl.dart';
 import 'package:sidekick/features/reminders/application/assistant_context_builder.dart';
 import 'package:sidekick/features/reminders/application/reminder_creation_service.dart';
 import 'package:sidekick/features/reminders/application/reminder_draft_service.dart';
+import 'package:sidekick/features/reminders/application/reminder_scheduler.dart';
 import 'package:sidekick/features/reminders/data/reminder_events_repository_impl.dart';
 import 'package:sidekick/features/reminders/data/task_reminders_repository_impl.dart';
 import 'package:sidekick/features/reminders/domain/reminder_event.dart';
@@ -82,6 +83,60 @@ void main() {
     expect(reminder.scheduledAt, DateTime.utc(2026, 8, 21, 9));
   });
 
+  test(
+    'submitText uses the device timezone when no profile pref exists',
+    () async {
+      String? persistedZone;
+      final ReminderCreationService zonedService = ReminderCreationService(
+        captures: captures,
+        reminders: reminders,
+        drafts: const HeuristicReminderDraftService(),
+        clock: () => now,
+        events: reminderEvents,
+        atomically: db.transaction,
+        timeZoneSource: const _FixedTimeZoneSource('Africa/Cairo'),
+        persistTimeZone: (String zone) async => persistedZone = zone,
+      );
+
+      final ReminderCreationResult result = await zonedService.submitText(
+        'Remind me to call the dentist tomorrow',
+      );
+
+      expect(
+        result.autoCommitted.single.scheduledAt,
+        DateTime.utc(2026, 8, 21, 6),
+      );
+      expect(persistedZone, 'Africa/Cairo');
+    },
+  );
+
+  test('structured manual reminder activates at the selected time', () async {
+    final DateTime selected = now.add(const Duration(hours: 3));
+
+    final TaskReminder reminder = await service.createManualReminder(
+      title: 'Take medicine',
+      details: 'With food',
+      triggerType: TaskReminderTriggerType.time,
+      scheduledAt: selected,
+    );
+
+    expect(reminder.status, TaskReminderStatus.active);
+    expect(reminder.source, TaskReminderSource.manual);
+    expect(reminder.scheduledAt, selected);
+    expect(reminder.details, 'With food');
+  });
+
+  test('structured place reminder requires a saved place', () async {
+    await expectLater(
+      service.createManualReminder(
+        title: 'Buy milk',
+        triggerType: TaskReminderTriggerType.place,
+        geofenceTransition: GeofenceTransition.enter,
+      ),
+      throwsA(isA<ReminderDraftFormatException>()),
+    );
+  });
+
   test('countdown expiry activates reminder', () async {
     await service.submitText('Remind me to call the dentist tomorrow');
     now = now.add(const Duration(seconds: 11));
@@ -95,6 +150,22 @@ void main() {
     expect(active.single.autoCommitDeadlineAt, isNull);
   });
 
+  test(
+    'manual approval activates a reminder before countdown expiry',
+    () async {
+      await service.submitText('Remind me to call the dentist tomorrow');
+      final TaskReminder reminder = (await pending()).single;
+
+      await service.approveAutoCommit(reminder.id);
+
+      final List<TaskReminder> active = await reminders
+          .watchByStatus(TaskReminderStatus.active)
+          .first;
+      expect(active.single.id, reminder.id);
+      expect(active.single.autoCommitDeadlineAt, isNull);
+    },
+  );
+
   test('cancel during countdown prevents activation', () async {
     await service.submitText('Remind me to call the dentist tomorrow');
     final TaskReminder reminder = (await pending()).single;
@@ -107,6 +178,20 @@ void main() {
         .watchByStatus(TaskReminderStatus.cancelled)
         .first;
     expect(cancelled.single.id, reminder.id);
+  });
+
+  test('cancelled reminder can be re-enabled with a future schedule', () async {
+    await service.submitText('Remind me to call the dentist tomorrow');
+    final TaskReminder reminder = (await pending()).single;
+    await service.approveAutoCommit(reminder.id);
+    await service.cancelReminder(reminder.id);
+
+    final DateTime moved = now.add(const Duration(days: 3));
+    await service.reenableReminder(reminder.id, scheduledAt: moved);
+
+    final TaskReminder active =
+        (await reminders.watchByStatus(TaskReminderStatus.active).first).single;
+    expect(active.scheduledAt, moved);
   });
 
   test('edit during countdown saves edited reminder', () async {
@@ -575,7 +660,11 @@ void main() {
     );
 
     final String prompt = GeminiReminderDraftService.promptForTesting(
-      ReminderDraftContext(now: now, assistantContext: context),
+      ReminderDraftContext(
+        now: now,
+        assistantContext: context,
+        timeZoneName: 'Africa/Cairo',
+      ),
     );
 
     expect(prompt, contains('"places":[{"id":"p1","name":"Workshop"'));
@@ -583,6 +672,8 @@ void main() {
     expect(prompt, contains('Do not create reminders from background context'));
     expect(prompt, contains('place:<id>'));
     expect(prompt, contains('Assistant context JSON, bounded and redacted'));
+    expect(prompt, contains('User IANA time zone: Africa/Cairo'));
+    expect(prompt, contains('Current local time in that zone:'));
   });
 
   test('Gemini parser rejects non task reminder output', () {
@@ -998,6 +1089,15 @@ void main() {
       );
     },
   );
+}
+
+class _FixedTimeZoneSource implements DeviceTimeZoneSource {
+  const _FixedTimeZoneSource(this.zone);
+
+  final String zone;
+
+  @override
+  Future<String> currentTimeZoneName() async => zone;
 }
 
 Future<File> _audioFile(String transcript) async {

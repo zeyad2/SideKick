@@ -46,6 +46,23 @@ class ReminderRuntimeBridgeTest {
     }
 
     @Test
+    fun nativeAlarmJournalPersistsExactRescheduleTime() {
+        val selected = 1_800_000_000_000L
+        ReminderRuntimeBridge.enqueueNativeAction(
+            context,
+            "r1",
+            "reschedule",
+            selected,
+            "native_alarm",
+        )
+
+        val action = ReminderRuntimeBridge.drainNativeActions(context).single()
+        assertEquals("reschedule", action["action"])
+        assertEquals("native_alarm", action["source"])
+        assertEquals(selected, action["rescheduleAtMs"])
+    }
+
+    @Test
     fun managedIdsArePersistedAndCollisionFreeForDifferentKeys() {
         val first = ReminderRuntimeBridge.managedNotificationId(context, "b4a3ec07-c57b-49ba-a2e1-7dd1736c9cfc")
         val second = ReminderRuntimeBridge.managedNotificationId(context, "0cc85ee7-fcfa-4f1a-ad39-d3b10f00395c")

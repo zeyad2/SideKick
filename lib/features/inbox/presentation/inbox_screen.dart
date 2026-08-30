@@ -2,17 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sidekick/core/capture/capture_permissions.dart';
 import 'package:sidekick/core/capture/capture_providers.dart';
 import 'package:sidekick/core/domain/enums.dart';
+import 'package:sidekick/core/router/app_routes.dart';
 import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/core/theme/widgets/persona_orb.dart';
 import 'package:sidekick/features/inbox/application/inbox_providers.dart';
-import 'package:sidekick/features/inbox/domain/capture.dart';
+import 'package:sidekick/features/places/domain/place.dart';
 import 'package:sidekick/features/reminders/application/reminder_creation_service.dart';
 import 'package:sidekick/features/reminders/application/reminder_draft_service.dart';
 import 'package:sidekick/features/reminders/application/reminder_scheduler.dart';
 import 'package:sidekick/features/reminders/domain/task_reminder.dart';
+import 'package:sidekick/features/reminders/presentation/reminder_formatters.dart';
 
 class InboxScreen extends ConsumerStatefulWidget {
   const InboxScreen({super.key, this.editReminderId});
@@ -24,8 +27,14 @@ class InboxScreen extends ConsumerStatefulWidget {
 }
 
 class _InboxScreenState extends ConsumerState<InboxScreen> {
-  final TextEditingController _input = TextEditingController();
+  final TextEditingController _title = TextEditingController();
+  final TextEditingController _details = TextEditingController();
   final List<_ReviewDraftEntry> _reviewDrafts = <_ReviewDraftEntry>[];
+  TaskReminderTriggerType _manualTrigger = TaskReminderTriggerType.time;
+  DateTime? _manualScheduledAt;
+  String? _manualPlaceId;
+  GeofenceTransition _manualTransition = GeofenceTransition.enter;
+  bool _creatingManualReminder = false;
   Timer? _autoCommitTimer;
   String? _openedEditReminderId;
   String? _requestedEditReminderId;
@@ -36,7 +45,6 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     unawaited(_restoreReviewDrafts());
     ReminderEditDispatcher.attach(_onReminderEditRequested);
     _autoCommitTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      ref.read(reminderCreationServiceProvider).activateDueAutoCommits();
       if (mounted) setState(() {});
     });
   }
@@ -70,17 +78,19 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
   void dispose() {
     ReminderEditDispatcher.detach(_onReminderEditRequested);
     _autoCommitTimer?.cancel();
-    _input.dispose();
+    _title.dispose();
+    _details.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.appTheme;
-    final AsyncValue<List<Capture>> captures = ref.watch(inboxCapturesProvider);
     final AsyncValue<List<TaskReminder>> reminders = ref.watch(
       inboxTaskRemindersProvider,
     );
+    final List<Place> places =
+        ref.watch(homePlacesProvider).asData?.value ?? <Place>[];
     _maybeOpenLinkedEdit(reminders.asData?.value);
 
     return Scaffold(
@@ -111,33 +121,146 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                         const PersonaOrb(),
                         SizedBox(height: theme.spacing.lg),
                         Text(
-                          'Capture reminder',
+                          'What’s next',
                           style: theme.textTheme.headlineLarge,
                         ),
                         SizedBox(height: theme.spacing.sm),
                         Text(
-                          'Type or record one reminder. Sidekick will infer the task, time, and place trigger.',
+                          'Set it manually, or tap the microphone and say it naturally.',
                           style: theme.textTheme.bodyMedium,
                         ),
                         SizedBox(height: theme.spacing.lg),
                         TextField(
-                          controller: _input,
-                          minLines: 2,
-                          maxLines: 4,
+                          controller: _title,
                           textCapitalization: TextCapitalization.sentences,
                           decoration: const InputDecoration(
-                            labelText: 'Reminder',
-                            hintText: 'Remind me to...',
+                            labelText: 'What should I remind you about?',
+                            hintText: 'Call the dentist',
                           ),
                         ),
                         SizedBox(height: theme.spacing.md),
+                        TextField(
+                          controller: _details,
+                          minLines: 1,
+                          maxLines: 3,
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: const InputDecoration(
+                            labelText: 'Notes (optional)',
+                          ),
+                        ),
+                        SizedBox(height: theme.spacing.md),
+                        SegmentedButton<TaskReminderTriggerType>(
+                          segments:
+                              const <ButtonSegment<TaskReminderTriggerType>>[
+                                ButtonSegment<TaskReminderTriggerType>(
+                                  value: TaskReminderTriggerType.time,
+                                  icon: Icon(Icons.schedule_rounded),
+                                  label: Text('Date & time'),
+                                ),
+                                ButtonSegment<TaskReminderTriggerType>(
+                                  value: TaskReminderTriggerType.place,
+                                  icon: Icon(Icons.place_rounded),
+                                  label: Text('Place'),
+                                ),
+                              ],
+                          selected: <TaskReminderTriggerType>{_manualTrigger},
+                          onSelectionChanged:
+                              (Set<TaskReminderTriggerType> selection) =>
+                                  setState(
+                                    () => _manualTrigger = selection.single,
+                                  ),
+                        ),
+                        SizedBox(height: theme.spacing.md),
+                        if (_manualTrigger == TaskReminderTriggerType.time)
+                          OutlinedButton.icon(
+                            onPressed: _chooseManualDateTime,
+                            icon: const Icon(Icons.event_rounded),
+                            label: Text(
+                              _manualScheduledAt == null
+                                  ? 'Choose date and time'
+                                  : '${reminderDate(_manualScheduledAt!)} at ${reminderTime(_manualScheduledAt!)}',
+                            ),
+                          )
+                        else ...<Widget>[
+                          if (places.isEmpty)
+                            Text(
+                              'No saved places yet. Add one in the Places tab first.',
+                              style: theme.textTheme.bodySmall,
+                            )
+                          else
+                            DropdownButtonFormField<String>(
+                              initialValue:
+                                  places.any(
+                                    (Place place) => place.id == _manualPlaceId,
+                                  )
+                                  ? _manualPlaceId
+                                  : null,
+                              decoration: const InputDecoration(
+                                labelText: 'Saved place',
+                              ),
+                              items: places
+                                  .map(
+                                    (Place place) => DropdownMenuItem<String>(
+                                      value: place.id,
+                                      child: Text(place.name),
+                                    ),
+                                  )
+                                  .toList(growable: false),
+                              onChanged: (String? value) =>
+                                  setState(() => _manualPlaceId = value),
+                            ),
+                          SizedBox(height: theme.spacing.sm),
+                          SegmentedButton<GeofenceTransition>(
+                            segments: const <ButtonSegment<GeofenceTransition>>[
+                              ButtonSegment<GeofenceTransition>(
+                                value: GeofenceTransition.enter,
+                                label: Text('When I arrive'),
+                              ),
+                              ButtonSegment<GeofenceTransition>(
+                                value: GeofenceTransition.exit,
+                                label: Text('When I leave'),
+                              ),
+                            ],
+                            selected: <GeofenceTransition>{_manualTransition},
+                            onSelectionChanged:
+                                (Set<GeofenceTransition> selection) => setState(
+                                  () => _manualTransition = selection.single,
+                                ),
+                          ),
+                        ],
+                        SizedBox(height: theme.spacing.md),
                         FilledButton.icon(
-                          onPressed: _queueTypedReminder,
-                          icon: const Icon(Icons.send_rounded),
-                          label: const Text('Draft reminder'),
+                          onPressed: _creatingManualReminder
+                              ? null
+                              : _createManualReminder,
+                          icon: const Icon(Icons.alarm_add_rounded),
+                          label: Text(
+                            _creatingManualReminder
+                                ? 'Creating reminder…'
+                                : 'Create reminder',
+                          ),
+                        ),
+                        SizedBox(height: theme.spacing.sm),
+                        OutlinedButton.icon(
+                          onPressed: _startCapture,
+                          icon: const Icon(Icons.mic_rounded),
+                          label: const Text('Say it instead'),
                         ),
                         SizedBox(height: theme.spacing.xl),
-                        Text('REMINDERS', style: theme.textTheme.labelMedium),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                'UPCOMING',
+                                style: theme.textTheme.labelMedium,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => context.go(AppRoutes.reminders),
+                              child: const Text('See all'),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -154,7 +277,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                           ),
                           sliver: SliverToBoxAdapter(
                             child: Text(
-                              'No reminder drafts yet.',
+                              'Nothing upcoming yet.',
                               style: theme.textTheme.bodySmall,
                             ),
                           ),
@@ -167,7 +290,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                             theme.spacing.xl,
                           ),
                           sliver: SliverList.separated(
-                            itemCount: items.length,
+                            itemCount: items.take(3).length,
                             separatorBuilder: (_, _) =>
                                 SizedBox(height: theme.spacing.md),
                             itemBuilder: (BuildContext context, int index) =>
@@ -206,63 +329,8 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                           ),
                     ),
                   ),
-                SliverPadding(
-                  padding: EdgeInsets.fromLTRB(
-                    theme.spacing.mobileMargin,
-                    theme.spacing.lg,
-                    theme.spacing.mobileMargin,
-                    theme.spacing.md,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: Text(
-                      'AUDIO CAPTURES',
-                      style: theme.textTheme.labelMedium,
-                    ),
-                  ),
-                ),
-                captures.when(
-                  loading: () => const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: PersonaOrb(isPulsing: true)),
-                  ),
-                  error: (_, _) => const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Text('Captures will be back shortly.'),
-                    ),
-                  ),
-                  data: (List<Capture> items) => items.isEmpty
-                      ? SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Padding(
-                            padding: EdgeInsets.all(theme.spacing.xl),
-                            child: Center(
-                              child: Text(
-                                'No captured audio waiting.',
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.headlineSmall,
-                              ),
-                            ),
-                          ),
-                        )
-                      : SliverPadding(
-                          padding: EdgeInsets.fromLTRB(
-                            theme.spacing.mobileMargin,
-                            theme.spacing.sm,
-                            theme.spacing.mobileMargin,
-                            theme.spacing.xl * 3,
-                          ),
-                          sliver: SliverList.separated(
-                            itemCount: items.length,
-                            separatorBuilder: (_, _) =>
-                                SizedBox(height: theme.spacing.md),
-                            itemBuilder: (BuildContext context, int index) =>
-                                _CaptureCard(
-                                  capture: items[index],
-                                  onReviewDrafts: _addReviewDrafts,
-                                ),
-                          ),
-                        ),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: theme.spacing.xl * 3),
                 ),
               ],
             ),
@@ -311,25 +379,98 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
     });
   }
 
-  Future<void> _queueTypedReminder() async {
-    final String text = _input.text.trim();
-    if (text.isEmpty) return;
-    _input.clear();
-    late final ReminderCreationResult result;
-    try {
-      result = await ref.read(reminderCreationServiceProvider).submitText(text);
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Drafting failed: $error')));
+  Future<void> _createManualReminder() async {
+    if (_title.text.trim().isEmpty) {
+      _showMessage('Add a reminder title first.');
       return;
     }
+    if (_manualTrigger == TaskReminderTriggerType.time &&
+        _manualScheduledAt == null) {
+      _showMessage('Choose a date and time.');
+      return;
+    }
+    if (_manualTrigger == TaskReminderTriggerType.place &&
+        _manualPlaceId == null) {
+      _showMessage('Choose a saved place.');
+      return;
+    }
+    if (_manualTrigger == TaskReminderTriggerType.place) {
+      final CapturePermissions permissions = CapturePermissions(
+        ref.read(nativeCaptureApiProvider),
+      );
+      final bool foreground = await permissions.requestLocation();
+      final bool background = foreground
+          ? await permissions.requestBackgroundLocation()
+          : false;
+      if (!mounted) return;
+      if (!foreground || !background) {
+        _showMessage('Location access is needed for place reminders.');
+        return;
+      }
+    }
+    setState(() => _creatingManualReminder = true);
+    try {
+      await ref
+          .read(reminderCreationServiceProvider)
+          .createManualReminder(
+            title: _title.text,
+            details: _details.text,
+            triggerType: _manualTrigger,
+            scheduledAt: _manualScheduledAt?.toUtc(),
+            placeId: _manualPlaceId,
+            geofenceTransition: _manualTransition,
+          );
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage('Could not create reminder: $error');
+      return;
+    } finally {
+      if (mounted) setState(() => _creatingManualReminder = false);
+    }
     if (!mounted) return;
-    _addReviewDrafts(result, TaskReminderSource.typed);
-    final String message = result.autoCommitted.isNotEmpty
-        ? '${result.autoCommitted.length} reminder draft(s) auto-commit in 10 seconds.'
-        : '${result.needsReview.length} reminder draft(s) need review.';
+    _title.clear();
+    _details.clear();
+    setState(() {
+      _manualScheduledAt = null;
+      _manualPlaceId = null;
+    });
+    _showMessage('Reminder created.');
+  }
+
+  Future<void> _chooseManualDateTime() async {
+    final DateTime now = DateTime.now();
+    final DateTime initial =
+        _manualScheduledAt ?? now.add(const Duration(hours: 1));
+    final DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: DateTime(now.year + 5, 12, 31),
+      helpText: 'Choose reminder day',
+    );
+    if (date == null || !mounted) return;
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+      helpText: 'Choose reminder time',
+    );
+    if (time == null) return;
+    final DateTime selected = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    if (!selected.isAfter(now)) {
+      _showMessage('Choose a time in the future.');
+      return;
+    }
+    setState(() => _manualScheduledAt = selected);
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -349,25 +490,6 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
       return;
     }
     await ref.read(captureCoordinatorProvider)?.startCapture();
-  }
-
-  void _addReviewDrafts(
-    ReminderCreationResult result,
-    TaskReminderSource source,
-  ) {
-    final String? captureId = result.captureId;
-    if (captureId == null || result.needsReview.isEmpty) return;
-    setState(() {
-      _reviewDrafts.addAll(
-        result.needsReview.map(
-          (ParsedReminderDraft draft) => _ReviewDraftEntry(
-            draft: draft,
-            source: source,
-            captureId: captureId,
-          ),
-        ),
-      );
-    });
   }
 
   Future<void> _approveReviewDraft(
@@ -540,137 +662,6 @@ class _ReviewDraftCardState extends State<_ReviewDraftCard> {
   }
 }
 
-class _CaptureCard extends ConsumerStatefulWidget {
-  const _CaptureCard({required this.capture, required this.onReviewDrafts});
-
-  final Capture capture;
-  final void Function(ReminderCreationResult result, TaskReminderSource source)
-  onReviewDrafts;
-
-  @override
-  ConsumerState<_CaptureCard> createState() => _CaptureCardState();
-}
-
-class _CaptureCardState extends ConsumerState<_CaptureCard> {
-  bool _retryInFlight = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.appTheme;
-    final bool retryLimitReached =
-        ReminderCreationService.audioRetryLimitReachedFor(widget.capture);
-    final String? stateMessage = ReminderCreationService.captureStateMessageFor(
-      widget.capture,
-    );
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: EdgeInsets.all(theme.spacing.card),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Icon(
-              _statusIcon(widget.capture.status),
-              color: theme.colors.primary,
-            ),
-            SizedBox(width: theme.spacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    _statusTitle(widget.capture.status),
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  SizedBox(height: theme.spacing.xs),
-                  Text(
-                    widget.capture.rawTranscript ??
-                        widget.capture.audioPath ??
-                        'Audio is saved locally for reminder drafting.',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colors.onSurfaceVariant,
-                    ),
-                  ),
-                  SizedBox(height: theme.spacing.sm),
-                  Text(
-                    widget.capture.status.name.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colors.secondary,
-                    ),
-                  ),
-                  if (widget.capture.status == CaptureStatus.pending ||
-                      widget.capture.status == CaptureStatus.failed) ...[
-                    SizedBox(height: theme.spacing.md),
-                    if (stateMessage != null) ...[
-                      Text(stateMessage, style: theme.textTheme.bodySmall),
-                      SizedBox(height: theme.spacing.sm),
-                    ],
-                    OutlinedButton.icon(
-                      onPressed: retryLimitReached || _retryInFlight
-                          ? null
-                          : () => _processAudio(context),
-                      icon: const Icon(Icons.replay_rounded),
-                      label: Text(
-                        retryLimitReached
-                            ? 'Type reminder instead'
-                            : _retryInFlight
-                            ? 'Drafting audio'
-                            : widget.capture.status == CaptureStatus.failed
-                            ? 'Retry audio'
-                            : 'Draft audio',
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static IconData _statusIcon(CaptureStatus status) => switch (status) {
-    CaptureStatus.pending => Icons.graphic_eq_rounded,
-    CaptureStatus.processing => Icons.sync_rounded,
-    CaptureStatus.failed => Icons.error_outline_rounded,
-    _ => Icons.task_alt_rounded,
-  };
-
-  static String _statusTitle(CaptureStatus status) => switch (status) {
-    CaptureStatus.pending => 'Audio queued',
-    CaptureStatus.processing => 'Preparing reminder draft',
-    CaptureStatus.failed => 'Audio needs retry',
-    _ => 'Capture ready for POC drafting',
-  };
-
-  Future<void> _processAudio(BuildContext context) async {
-    if (_retryInFlight) return;
-    setState(() => _retryInFlight = true);
-    try {
-      final ReminderCreationResult result = await ref
-          .read(reminderCreationServiceProvider)
-          .processAudioCapture(widget.capture);
-      if (!context.mounted) return;
-      widget.onReviewDrafts(result, TaskReminderSource.audio);
-      final String message = result.unclearAudio
-          ? result.retryLimitReached
-                ? 'Audio was unclear twice. Type the reminder instead.'
-                : 'Audio was unclear. Try recording again.'
-          : result.autoCommitted.isNotEmpty
-          ? '${result.autoCommitted.length} reminder draft(s) auto-commit in 10 seconds.'
-          : '${result.needsReview.length} reminder draft(s) need review.';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    } finally {
-      if (mounted) setState(() => _retryInFlight = false);
-    }
-  }
-}
-
 class _ReminderCard extends ConsumerWidget {
   const _ReminderCard({required this.reminder});
 
@@ -713,6 +704,13 @@ class _ReminderCard extends ConsumerWidget {
             ],
             SizedBox(height: theme.spacing.sm),
             Text(
+              reminderScheduleLabel(reminder),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colors.primary,
+              ),
+            ),
+            SizedBox(height: theme.spacing.sm),
+            Text(
               pending
                   ? 'AUTO-COMMIT COUNTDOWN'
                   : reminder.status.wire.toUpperCase(),
@@ -725,6 +723,14 @@ class _ReminderCard extends ConsumerWidget {
               Text(
                 '${_secondsRemaining(reminder)}s remaining',
                 style: theme.textTheme.bodySmall,
+              ),
+              SizedBox(height: theme.spacing.sm),
+              FilledButton.icon(
+                onPressed: () => ref
+                    .read(reminderCreationServiceProvider)
+                    .approveAutoCommit(reminder.id),
+                icon: const Icon(Icons.check_rounded),
+                label: const Text('Approve now'),
               ),
               SizedBox(height: theme.spacing.sm),
               Row(

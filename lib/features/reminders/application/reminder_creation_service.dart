@@ -50,6 +50,8 @@ class ReminderCreationService {
     this.contextBuilder,
     this.events,
     this.atomically,
+    this.timeZoneSource,
+    this.persistTimeZone,
     this.autoCommitDelay = const Duration(seconds: 10),
     this.autoCommitConfidence = 0.75,
   });
@@ -62,10 +64,13 @@ class ReminderCreationService {
   final AssistantContextBuilder? contextBuilder;
   final ReminderEventsRepository? events;
   final Future<T> Function<T>(Future<T> Function() action)? atomically;
+  final DeviceTimeZoneSource? timeZoneSource;
+  final Future<void> Function(String timeZoneName)? persistTimeZone;
   final Duration autoCommitDelay;
   final double autoCommitConfidence;
 
   static const String _captureStatePrefix = 'sidekick_state:';
+  static const String _captureStateMetadataKey = 'draft_state';
 
   bool audioRetryLimitReached(Capture capture) =>
       audioRetryLimitReachedFor(capture);
@@ -74,10 +79,10 @@ class ReminderCreationService {
       captureStateMessageFor(capture);
 
   static bool audioRetryLimitReachedFor(Capture capture) =>
-      _decodeCaptureState(capture.error).audioAttempts >= 3;
+      _decodeCaptureState(capture).audioAttempts >= 3;
 
   static String? captureStateMessageFor(Capture capture) =>
-      _decodeCaptureState(capture.error).message;
+      _decodeCaptureState(capture).message;
 
   Future<void> associateReplacementRecording(
     Capture capture, {
@@ -90,7 +95,7 @@ class ReminderCreationService {
       );
     }
     final Capture current = await _reloadCapture(capture);
-    final _CaptureDraftState state = _decodeCaptureState(current.error);
+    final _CaptureDraftState state = _decodeCaptureState(current);
     if (state.audioAttempts >= 3) {
       throw const ReminderDraftFormatException(
         'Audio retry limit has been reached; type the reminder instead.',
@@ -100,12 +105,16 @@ class ReminderCreationService {
       current.copyWith(
         audioPath: trimmed,
         status: CaptureStatus.pending,
-        error: _encodeCaptureState(
-          reviewDrafts: state.reviewDrafts,
-          source: state.source,
-          audioAttempts: state.audioAttempts,
-          message: 'Replacement recording attached. Draft audio when ready.',
+        metadata: _withCaptureState(
+          current,
+          _encodeCaptureState(
+            reviewDrafts: state.reviewDrafts,
+            source: state.source,
+            audioAttempts: state.audioAttempts,
+            message: 'Replacement recording attached. Draft audio when ready.',
+          ),
         ),
+        clearError: true,
       ),
     );
   }
@@ -129,11 +138,11 @@ class ReminderCreationService {
         trimmed,
         ReminderDraftContext(
           now: clock(),
-          timeZoneName: _timeZoneName(assistantContext),
+          timeZoneName: await _timeZoneName(assistantContext),
           assistantContext: assistantContext,
         ),
       );
-      return _runAtomic(() async {
+      final ReminderCreationResult result = await _runAtomic(() async {
         final ReminderCreationResult result = await _saveParsed(
           parsed,
           source: TaskReminderSource.typed,
@@ -145,23 +154,73 @@ class ReminderCreationService {
                 ? CaptureStatus.failed
                 : CaptureStatus.ready,
             rawTranscript: parsed.rawTranscript,
-            error: parsed.isUnclear
-                ? 'Text was unclear.'
-                : _encodeCaptureState(
-                    reviewDrafts: result.needsReview,
-                    source: TaskReminderSource.typed,
-                  ),
+            error: parsed.isUnclear ? 'Text was unclear.' : null,
+            metadata: _withCaptureState(
+              capture,
+              parsed.isUnclear
+                  ? null
+                  : _encodeCaptureState(
+                      reviewDrafts: result.needsReview,
+                      source: TaskReminderSource.typed,
+                    ),
+            ),
             clearError: !parsed.isUnclear && result.needsReview.isEmpty,
           ),
         );
         return result;
       });
+      await _schedulePendingReminders(result.autoCommitted);
+      return result;
     } catch (error) {
       await captures.update(
         capture.copyWith(status: CaptureStatus.failed, error: error.toString()),
       );
       rethrow;
     }
+  }
+
+  Future<TaskReminder> createManualReminder({
+    required String title,
+    String? details,
+    required TaskReminderTriggerType triggerType,
+    DateTime? scheduledAt,
+    String? placeId,
+    GeofenceTransition? geofenceTransition,
+  }) async {
+    final String cleanTitle = title.trim();
+    if (cleanTitle.isEmpty) {
+      throw const ReminderDraftFormatException('Reminder title is required.');
+    }
+    if (triggerType == TaskReminderTriggerType.time &&
+        (scheduledAt == null || !scheduledAt.isAfter(clock()))) {
+      throw const ReminderDraftFormatException(
+        'Choose a future date and time.',
+      );
+    }
+    if (triggerType == TaskReminderTriggerType.place &&
+        (placeId == null || geofenceTransition == null)) {
+      throw const ReminderDraftFormatException(
+        'Choose a saved place and whether you are arriving or leaving.',
+      );
+    }
+    final TaskReminder reminder = await reminders.create(
+      TaskReminderDraft(
+        title: cleanTitle,
+        details: details?.trim().isEmpty ?? true ? null : details!.trim(),
+        source: TaskReminderSource.manual,
+        confidence: 1,
+        triggerType: triggerType,
+        scheduledAt: triggerType == TaskReminderTriggerType.time
+            ? scheduledAt
+            : null,
+        placeId: triggerType == TaskReminderTriggerType.place ? placeId : null,
+        geofenceTransition: triggerType == TaskReminderTriggerType.place
+            ? geofenceTransition
+            : null,
+      ),
+    );
+    await scheduler?.schedule(reminder);
+    return reminder;
   }
 
   Future<ReminderCreationResult> processAudioCapture(Capture capture) async {
@@ -172,18 +231,23 @@ class ReminderCreationService {
         'Audio capture has no file path.',
       );
     }
-    final _CaptureDraftState initialState = _decodeCaptureState(current.error);
+    final _CaptureDraftState initialState = _decodeCaptureState(current);
     final int retryCount = initialState.audioAttempts;
     if (retryCount >= 3) {
       await captures.update(
         current.copyWith(
           status: CaptureStatus.failed,
-          error: _encodeCaptureState(
-            reviewDrafts: initialState.reviewDrafts,
-            source: initialState.source,
-            audioAttempts: retryCount,
-            message:
-                'Audio was unclear after three attempts. Type the reminder instead.',
+          error:
+              'Audio was unclear after three attempts. Type the reminder instead.',
+          metadata: _withCaptureState(
+            current,
+            _encodeCaptureState(
+              reviewDrafts: initialState.reviewDrafts,
+              source: initialState.source,
+              audioAttempts: retryCount,
+              message:
+                  'Audio was unclear after three attempts. Type the reminder instead.',
+            ),
           ),
         ),
       );
@@ -203,28 +267,32 @@ class ReminderCreationService {
         ReminderDraftContext(
           now: clock(),
           audioRetryCount: retryCount,
-          timeZoneName: _timeZoneName(assistantContext),
+          timeZoneName: await _timeZoneName(assistantContext),
           assistantContext: assistantContext,
         ),
       );
       if (parsed.isUnclear) {
         return _runAtomic(() async {
           final Capture latest = await _reloadCapture(current);
-          final _CaptureDraftState latestState = _decodeCaptureState(
-            latest.error,
-          );
+          final _CaptureDraftState latestState = _decodeCaptureState(latest);
           final int nextRetryCount = latestState.audioAttempts + 1;
           await captures.update(
             latest.copyWith(
               status: CaptureStatus.failed,
               rawTranscript: parsed.rawTranscript,
-              error: _encodeCaptureState(
-                reviewDrafts: latestState.reviewDrafts,
-                source: latestState.source,
-                audioAttempts: nextRetryCount,
-                message: nextRetryCount > 2
-                    ? 'Audio was unclear after three attempts. Type the reminder instead.'
-                    : 'Audio was unclear. Try recording again.',
+              error: nextRetryCount > 2
+                  ? 'Audio was unclear after three attempts. Type the reminder instead.'
+                  : 'Audio was unclear. Try recording again.',
+              metadata: _withCaptureState(
+                latest,
+                _encodeCaptureState(
+                  reviewDrafts: latestState.reviewDrafts,
+                  source: latestState.source,
+                  audioAttempts: nextRetryCount,
+                  message: nextRetryCount > 2
+                      ? 'Audio was unclear after three attempts. Type the reminder instead.'
+                      : 'Audio was unclear. Try recording again.',
+                ),
               ),
             ),
           );
@@ -237,11 +305,9 @@ class ReminderCreationService {
           );
         });
       }
-      return _runAtomic(() async {
+      final ReminderCreationResult result = await _runAtomic(() async {
         final Capture latest = await _reloadCapture(current);
-        final _CaptureDraftState latestState = _decodeCaptureState(
-          latest.error,
-        );
+        final _CaptureDraftState latestState = _decodeCaptureState(latest);
         final ReminderCreationResult result = await _saveParsed(
           parsed,
           source: TaskReminderSource.audio,
@@ -251,28 +317,36 @@ class ReminderCreationService {
           latest.copyWith(
             status: CaptureStatus.ready,
             rawTranscript: parsed.rawTranscript,
-            error: _encodeCaptureState(
-              reviewDrafts: result.needsReview,
-              source: TaskReminderSource.audio,
-              audioAttempts: latestState.audioAttempts,
+            metadata: _withCaptureState(
+              latest,
+              _encodeCaptureState(
+                reviewDrafts: result.needsReview,
+                source: TaskReminderSource.audio,
+                audioAttempts: latestState.audioAttempts,
+              ),
             ),
-            clearError:
-                result.needsReview.isEmpty && latestState.audioAttempts == 0,
+            clearError: true,
           ),
         );
         return result;
       });
+      await _schedulePendingReminders(result.autoCommitted);
+      return result;
     } catch (error) {
       final Capture latest = await _reloadCapture(current);
-      final _CaptureDraftState latestState = _decodeCaptureState(latest.error);
+      final _CaptureDraftState latestState = _decodeCaptureState(latest);
       await captures.update(
         latest.copyWith(
           status: CaptureStatus.failed,
-          error: _encodeCaptureState(
-            reviewDrafts: latestState.reviewDrafts,
-            source: latestState.source,
-            audioAttempts: latestState.audioAttempts,
-            message: error.toString(),
+          error: error.toString(),
+          metadata: _withCaptureState(
+            latest,
+            _encodeCaptureState(
+              reviewDrafts: latestState.reviewDrafts,
+              source: latestState.source,
+              audioAttempts: latestState.audioAttempts,
+              message: error.toString(),
+            ),
           ),
         ),
       );
@@ -281,6 +355,10 @@ class ReminderCreationService {
   }
 
   Future<int> activateDueAutoCommits() async {
+    final ReminderScheduler? attachedScheduler = scheduler;
+    if (attachedScheduler != null) {
+      return attachedScheduler.activateDueAutoCommits();
+    }
     final DateTime now = clock();
     final List<TaskReminder> pending = await reminders
         .watchByStatus(TaskReminderStatus.pendingAutoCommit)
@@ -303,6 +381,26 @@ class ReminderCreationService {
     return activated;
   }
 
+  Future<void> approveAutoCommit(String id) async {
+    final TaskReminder? reminder = await _findReminder(id);
+    if (reminder == null ||
+        reminder.status != TaskReminderStatus.pendingAutoCommit) {
+      return;
+    }
+    final TaskReminder active = _withStatus(
+      reminder,
+      TaskReminderStatus.active,
+      clearDeadline: true,
+    );
+    await reminders.update(active);
+    await events?.append(
+      reminderId: active.id,
+      eventType: ReminderEventType.activated,
+      metadata: const <String, Object?>{'source': 'manual_approval'},
+    );
+    await scheduler?.schedule(active);
+  }
+
   Future<List<PendingReviewDraft>> pendingReviewDrafts() async {
     final List<Capture> rows = await captures.watchByStatuses(<CaptureStatus>{
       CaptureStatus.ready,
@@ -310,7 +408,7 @@ class ReminderCreationService {
     }).first;
     return rows
         .expand((Capture capture) {
-          final _CaptureDraftState state = _decodeCaptureState(capture.error);
+          final _CaptureDraftState state = _decodeCaptureState(capture);
           return state.reviewDrafts.map(
             (ParsedReminderDraft draft) => PendingReviewDraft(
               captureId: capture.id,
@@ -332,7 +430,7 @@ class ReminderCreationService {
     ]);
     if (rows.isEmpty) return;
     final Capture capture = rows.single;
-    final _CaptureDraftState state = _decodeCaptureState(capture.error);
+    final _CaptureDraftState state = _decodeCaptureState(capture);
     final List<ParsedReminderDraft> remaining = state.reviewDrafts
         .where(
           (ParsedReminderDraft draft) => draft.draftId != entry.draft.draftId,
@@ -340,13 +438,17 @@ class ReminderCreationService {
         .toList(growable: false);
     await captures.update(
       capture.copyWith(
-        error: _encodeCaptureState(
-          reviewDrafts: remaining,
-          source: state.source,
-          audioAttempts: state.audioAttempts,
-          message: state.message,
+        metadata: _withCaptureState(
+          capture,
+          _encodeCaptureState(
+            reviewDrafts: remaining,
+            source: state.source,
+            audioAttempts: state.audioAttempts,
+            message: state.message,
+          ),
         ),
-        clearError: remaining.isEmpty && state.message == null,
+        error: state.message,
+        clearError: state.message == null,
       ),
     );
   }
@@ -360,6 +462,108 @@ class ReminderCreationService {
     await reminders.update(
       _withStatus(reminder, TaskReminderStatus.cancelled, clearDeadline: true),
     );
+    await scheduler?.cancel(id);
+  }
+
+  Future<void> cancelReminder(String id) async {
+    final TaskReminder? reminder = await _findReminder(id);
+    if (reminder == null ||
+        !<TaskReminderStatus>{
+          TaskReminderStatus.active,
+          TaskReminderStatus.pendingAutoCommit,
+        }.contains(reminder.status)) {
+      return;
+    }
+    await reminders.update(
+      _withStatus(reminder, TaskReminderStatus.cancelled, clearDeadline: true),
+    );
+    await scheduler?.cancel(id);
+  }
+
+  Future<void> reenableReminder(String id, {DateTime? scheduledAt}) async {
+    final TaskReminder? reminder = await _findReminder(id);
+    if (reminder == null ||
+        <TaskReminderStatus>{
+          TaskReminderStatus.active,
+          TaskReminderStatus.pendingAutoCommit,
+        }.contains(reminder.status)) {
+      return;
+    }
+    final DateTime? nextSchedule = scheduledAt ?? reminder.scheduledAt;
+    if (reminder.triggerType == TaskReminderTriggerType.time &&
+        (nextSchedule == null || !nextSchedule.isAfter(clock()))) {
+      throw StateError(
+        'Choose a future time before re-enabling this reminder.',
+      );
+    }
+    final TaskReminder active = TaskReminder(
+      id: reminder.id,
+      userId: reminder.userId,
+      title: reminder.title,
+      details: reminder.details,
+      status: TaskReminderStatus.active,
+      source: reminder.source,
+      confidence: reminder.confidence,
+      triggerType: reminder.triggerType,
+      scheduledAt: nextSchedule,
+      placeId: reminder.placeId,
+      geofenceTransition: reminder.geofenceTransition,
+      dwellSeconds: reminder.dwellSeconds,
+      captureId: reminder.captureId,
+      draftId: reminder.draftId,
+      aiExplanation: reminder.aiExplanation,
+      aiContext: reminder.aiContext,
+      createdAt: reminder.createdAt,
+      updatedAt: reminder.updatedAt,
+    );
+    await reminders.update(active);
+    await events?.append(
+      reminderId: active.id,
+      eventType: ReminderEventType.activated,
+      metadata: const <String, Object?>{'source': 'reminders_tab'},
+    );
+    await scheduler?.schedule(active);
+  }
+
+  Future<void> rescheduleReminder(String id, DateTime scheduledAt) async {
+    final TaskReminder? reminder = await _findReminder(id);
+    if (reminder == null ||
+        reminder.triggerType != TaskReminderTriggerType.time) {
+      return;
+    }
+    if (!scheduledAt.isAfter(clock())) {
+      throw StateError('Reminder time must be in the future.');
+    }
+    final TaskReminder updated = TaskReminder(
+      id: reminder.id,
+      userId: reminder.userId,
+      title: reminder.title,
+      details: reminder.details,
+      status: TaskReminderStatus.active,
+      source: reminder.source,
+      confidence: reminder.confidence,
+      triggerType: reminder.triggerType,
+      scheduledAt: scheduledAt,
+      placeId: reminder.placeId,
+      geofenceTransition: reminder.geofenceTransition,
+      dwellSeconds: reminder.dwellSeconds,
+      captureId: reminder.captureId,
+      draftId: reminder.draftId,
+      aiExplanation: reminder.aiExplanation,
+      aiContext: reminder.aiContext,
+      createdAt: reminder.createdAt,
+      updatedAt: reminder.updatedAt,
+    );
+    await reminders.update(updated);
+    await events?.append(
+      reminderId: updated.id,
+      eventType: ReminderEventType.edited,
+      metadata: const <String, Object?>{
+        'source': 'reminders_tab',
+        'scheduled_at_changed': true,
+      },
+    );
+    await scheduler?.schedule(updated);
   }
 
   Future<void> editAutoCommit(
@@ -405,6 +609,7 @@ class ReminderCreationService {
         'scheduled_at_changed': scheduledAt != null,
       },
     );
+    await scheduler?.schedule(edited);
   }
 
   Future<void> editReminder(
@@ -457,6 +662,7 @@ class ReminderCreationService {
         'scheduled_at_changed': scheduledAt != null,
       },
     );
+    await scheduler?.schedule(edited);
   }
 
   Future<TaskReminder> approveReviewedDraft(
@@ -583,27 +789,26 @@ class ReminderCreationService {
         continue;
       }
       if (_canAutoCommit(draft)) {
-        autoCommitted.add(
-          await reminders.create(
-            TaskReminderDraft(
-              title: draft.title,
-              details: draft.details,
-              status: TaskReminderStatus.pendingAutoCommit,
-              source: source,
-              confidence: draft.confidence,
-              triggerType: draft.triggerType,
-              scheduledAt: draft.scheduledAt,
-              placeId: draft.placeId,
-              geofenceTransition: draft.geofenceTransition,
-              dwellSeconds: draft.dwellSeconds,
-              autoCommitDeadlineAt: clock().add(autoCommitDelay),
-              captureId: captureId,
-              draftId: draft.draftId,
-              aiExplanation: draft.explanation,
-              aiContext: _aiContext(draft),
-            ),
+        final TaskReminder pending = await reminders.create(
+          TaskReminderDraft(
+            title: draft.title,
+            details: draft.details,
+            status: TaskReminderStatus.pendingAutoCommit,
+            source: source,
+            confidence: draft.confidence,
+            triggerType: draft.triggerType,
+            scheduledAt: draft.scheduledAt,
+            placeId: draft.placeId,
+            geofenceTransition: draft.geofenceTransition,
+            dwellSeconds: draft.dwellSeconds,
+            autoCommitDeadlineAt: clock().add(autoCommitDelay),
+            captureId: captureId,
+            draftId: draft.draftId,
+            aiExplanation: draft.explanation,
+            aiContext: _aiContext(draft),
           ),
         );
+        autoCommitted.add(pending);
       } else {
         review.add(draft);
         seenReviewDraftIds.add(draft.draftId!);
@@ -618,6 +823,22 @@ class ReminderCreationService {
 
   bool _canAutoCommit(ParsedReminderDraft draft) =>
       draft.confidence >= autoCommitConfidence && draft.hasConcreteTrigger;
+
+  Future<void> _schedulePendingReminders(
+    List<TaskReminder> remindersToSchedule,
+  ) async {
+    for (final TaskReminder reminder in remindersToSchedule) {
+      try {
+        // Register the underlying trigger during the correction window. If the
+        // app is killed before the deadline, the OS still owns the reminder;
+        // cancel/edit paths reconcile this registration immediately.
+        await scheduler?.schedule(reminder);
+      } catch (_) {
+        // Native permission/runtime failures must not roll back local-first
+        // capture and reminder rows.
+      }
+    }
+  }
 
   void _validateDraftForPersistence(ParsedReminderDraft draft) {
     if (draft.title.trim().isEmpty) {
@@ -689,7 +910,7 @@ class ReminderCreationService {
   Future<_CaptureDraftState> _captureState(String captureId) async {
     final List<Capture> rows = await captures.getByIds(<String>[captureId]);
     if (rows.isEmpty) return const _CaptureDraftState();
-    return _decodeCaptureState(rows.single.error);
+    return _decodeCaptureState(rows.single);
   }
 
   Future<Capture> _reloadCapture(Capture capture) async {
@@ -708,15 +929,32 @@ class ReminderCreationService {
     return tx<AtomicValue>(action);
   }
 
-  String _timeZoneName(AssistantContext? context) {
+  Future<String> _timeZoneName(AssistantContext? context) async {
     final Object? prefs = context?.profile?['prefs'];
     if (prefs is Map<String, Object?>) {
       final Object? value = prefs['timezone'];
       if (value is String && value.trim().isNotEmpty) {
-        return value.trim();
+        final String storedZone = value.trim();
+        if (HeuristicReminderDraftService.isSupportedTimeZone(storedZone)) {
+          return storedZone;
+        }
       }
     }
-    return 'UTC';
+    final String zone = await timeZoneSource?.currentTimeZoneName() ?? 'UTC';
+    if (!HeuristicReminderDraftService.isSupportedTimeZone(zone)) {
+      throw ReminderDraftFormatException(
+        'The device returned an unsupported timezone ($zone).',
+      );
+    }
+    if (zone != 'UTC') {
+      try {
+        await persistTimeZone?.call(zone);
+      } catch (_) {
+        // Preference persistence is local-first enrichment; drafting can still
+        // proceed with the zone returned by the device.
+      }
+    }
+    return zone;
   }
 
   ParsedReminderDraft _withDraftId(ParsedReminderDraft draft, String id) =>
@@ -760,20 +998,24 @@ class ReminderCreationService {
     final List<Capture> rows = await captures.getByIds(<String>[captureId]);
     if (rows.isEmpty) return;
     final Capture capture = rows.single;
-    final _CaptureDraftState state = _decodeCaptureState(capture.error);
+    final _CaptureDraftState state = _decodeCaptureState(capture);
     if (state.reviewDrafts.isEmpty) return;
     final List<ParsedReminderDraft> remaining = state.reviewDrafts
         .where((ParsedReminderDraft draft) => draft.draftId != approved.draftId)
         .toList(growable: false);
     await captures.update(
       capture.copyWith(
-        error: _encodeCaptureState(
-          reviewDrafts: remaining,
-          source: state.source,
-          audioAttempts: state.audioAttempts,
-          message: state.message,
+        metadata: _withCaptureState(
+          capture,
+          _encodeCaptureState(
+            reviewDrafts: remaining,
+            source: state.source,
+            audioAttempts: state.audioAttempts,
+            message: state.message,
+          ),
         ),
-        clearError: remaining.isEmpty && state.message == null,
+        error: state.message,
+        clearError: state.message == null,
       ),
     );
   }
@@ -790,7 +1032,28 @@ class ReminderCreationService {
     return '$_captureStatePrefix${jsonEncode(<String, Object?>{'review_drafts': reviewDrafts.map((ParsedReminderDraft draft) => draft.toJson()).toList(growable: false), 'source': source?.wire, if (audioAttempts > 0) 'audio_attempts': audioAttempts, 'message': message})}';
   }
 
-  static _CaptureDraftState _decodeCaptureState(String? value) {
+  static Map<String, Object?> _withCaptureState(
+    Capture capture,
+    String? value,
+  ) {
+    final Map<String, Object?> metadata = <String, Object?>{
+      ...capture.metadata,
+    };
+    if (value == null) {
+      metadata.remove(_captureStateMetadataKey);
+    } else {
+      metadata[_captureStateMetadataKey] = value;
+    }
+    return metadata;
+  }
+
+  static _CaptureDraftState _decodeCaptureState(Capture capture) {
+    final Object? metadataValue = capture.metadata[_captureStateMetadataKey];
+    final String? value = metadataValue is String
+        ? metadataValue
+        : capture.error?.startsWith(_captureStatePrefix) == true
+        ? capture.error
+        : null;
     if (value == null || !value.startsWith(_captureStatePrefix)) {
       return const _CaptureDraftState();
     }

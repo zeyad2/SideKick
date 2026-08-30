@@ -35,6 +35,7 @@ create table public.captures (
     status         text        not null default 'pending'
                               check (status in ('pending','processing','ready','triaged','failed','discarded')),
     error          text,
+    metadata       jsonb       not null default '{}'::jsonb,
     captured_at    timestamptz not null default now(),
     created_at     timestamptz not null default now(),
     updated_at     timestamptz not null default now(),

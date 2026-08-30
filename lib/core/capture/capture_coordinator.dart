@@ -79,6 +79,12 @@ class CaptureCoordinator {
   Future<void> startCapture() => nativeApi.startCapture();
   Future<void> stopCapture() => nativeApi.stopCapture();
 
+  Future<void> cancelCapture() async {
+    await nativeApi.cancelCapture();
+    _processingTimer?.cancel();
+    _emit(const CaptureOverlayState());
+  }
+
   void dismissError() => _emit(const CaptureOverlayState());
 
   void _handleSignal(NativeCaptureSignal signal) {

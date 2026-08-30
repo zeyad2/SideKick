@@ -7,10 +7,12 @@ import 'package:sidekick/core/providers/core_providers.dart';
 import 'package:sidekick/core/providers/repository_providers.dart';
 import 'package:sidekick/core/utils/app_config.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
+import 'package:sidekick/features/places/domain/place.dart';
 import 'package:sidekick/features/reminders/application/assistant_context_builder.dart';
 import 'package:sidekick/features/reminders/application/audio_reminder_retry_controller.dart';
 import 'package:sidekick/features/reminders/application/reminder_creation_service.dart';
 import 'package:sidekick/features/reminders/application/reminder_draft_service.dart';
+import 'package:sidekick/features/reminders/application/reminder_scheduler.dart';
 import 'package:sidekick/features/reminders/application/reminder_scheduler_providers.dart';
 import 'package:sidekick/features/reminders/domain/task_reminder.dart';
 
@@ -28,18 +30,37 @@ final StreamProvider<List<Capture>> inboxCapturesProvider =
 
 final StreamProvider<List<TaskReminder>> inboxTaskRemindersProvider =
     StreamProvider<List<TaskReminder>>((Ref ref) {
-      return ref
-          .watch(taskRemindersRepositoryProvider)
-          .watchAll()
-          .map(
-            (List<TaskReminder> reminders) => reminders
-                .where(
-                  (TaskReminder reminder) =>
-                      reminder.status == TaskReminderStatus.active ||
-                      reminder.status == TaskReminderStatus.pendingAutoCommit,
-                )
-                .toList(growable: false),
-          );
+      return ref.watch(taskRemindersRepositoryProvider).watchAll().map((
+        List<TaskReminder> reminders,
+      ) {
+        final DateTime now = DateTime.now().toUtc();
+        final List<TaskReminder> upcoming = reminders
+            .where(
+              (TaskReminder reminder) =>
+                  reminder.status == TaskReminderStatus.pendingAutoCommit ||
+                  (reminder.status == TaskReminderStatus.active &&
+                      (reminder.triggerType == TaskReminderTriggerType.place ||
+                          (reminder.scheduledAt?.isAfter(now) ?? false))),
+            )
+            .toList();
+        upcoming.sort((TaskReminder left, TaskReminder right) {
+          if (left.status == TaskReminderStatus.pendingAutoCommit &&
+              right.status != TaskReminderStatus.pendingAutoCommit) {
+            return -1;
+          }
+          if (right.status == TaskReminderStatus.pendingAutoCommit &&
+              left.status != TaskReminderStatus.pendingAutoCommit) {
+            return 1;
+          }
+          final DateTime? a = left.scheduledAt;
+          final DateTime? b = right.scheduledAt;
+          if (a != null && b != null) return a.compareTo(b);
+          if (a != null) return -1;
+          if (b != null) return 1;
+          return right.updatedAt.compareTo(left.updatedAt);
+        });
+        return upcoming;
+      });
     });
 
 final Provider<ReminderDraftService> reminderDraftServiceProvider =
@@ -51,6 +72,11 @@ final Provider<ReminderDraftService> reminderDraftServiceProvider =
         apiKey: AppConfig.geminiApiKey,
         model: AppConfig.geminiModel,
       );
+    });
+
+final StreamProvider<List<Place>> homePlacesProvider =
+    StreamProvider<List<Place>>((Ref ref) {
+      return ref.watch(placesRepositoryProvider).watchAll();
     });
 
 final Provider<AssistantContextBuilder> assistantContextBuilderProvider =
@@ -66,6 +92,9 @@ final Provider<AssistantContextBuilder> assistantContextBuilderProvider =
 
 final Provider<ReminderCreationService> reminderCreationServiceProvider =
     Provider<ReminderCreationService>((Ref ref) {
+      final ReminderSchedulePlatform platform = ref.watch(
+        reminderSchedulePlatformProvider,
+      );
       return ReminderCreationService(
         captures: ref.watch(capturesRepositoryProvider),
         reminders: ref.watch(taskRemindersRepositoryProvider),
@@ -75,6 +104,12 @@ final Provider<ReminderCreationService> reminderCreationServiceProvider =
         contextBuilder: ref.watch(assistantContextBuilderProvider),
         events: ref.watch(reminderEventsRepositoryProvider),
         atomically: ref.watch(appDatabaseProvider).transaction,
+        timeZoneSource: platform is DeviceTimeZoneSource
+            ? platform as DeviceTimeZoneSource
+            : null,
+        persistTimeZone: (String zone) => ref
+            .read(profileRepositoryProvider)
+            .mergePrefs(<String, Object?>{'timezone': zone}),
       );
     });
 

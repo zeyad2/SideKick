@@ -14,10 +14,24 @@ Everything outside that loop is future work and belongs in
 
 ## Current Truth
 
+- [Agent operating manual](AGENTS.md) — start here before changing code
 - [POC spec](docs/POC_SPEC.md)
 - [POC phases](docs/POC_PHASES.md)
 - [Future plans](docs/FUTURE_PLANS.md)
+- [Technical debt ledger](TECH_DEBT.md)
 - [Legacy companion v1 archive](docs/archive/legacy-companion-v1/)
+
+## Engineering Docs
+
+- [Architecture](docs/ARCHITECTURE.md) — layers, the four runtimes, the reminder
+  loop end to end
+- [Code map](docs/CODE_MAP.md) — what lives where, and what to add where
+- [Conventions](docs/CONVENTIONS.md) — the rules that keep this from breaking
+- [Runtime contracts](docs/RUNTIME_CONTRACTS.md) — Dart↔Kotlin, Dart↔Postgres,
+  Dart↔Gemini
+- [Testing](docs/TESTING.md) — commands, layering, and known coverage gaps
+- [Code review 2026-08-29](docs/reports/CODE_REVIEW_2026-08-29.md) — current
+  open findings
 
 ## POC Scope
 

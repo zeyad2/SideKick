@@ -14,6 +14,7 @@ const Duration defaultLaterSnooze = Duration(hours: 2);
 enum ReminderNotificationAction {
   done('done'),
   later('later'),
+  reschedule('reschedule'),
   dismiss('dismiss'),
   wrongPlace('wrong_place'),
   open('open');
@@ -187,6 +188,7 @@ class ScheduledReminderRequest {
 abstract interface class ReminderScheduler {
   Future<void> schedule(TaskReminder reminder);
   Future<void> cancel(String id);
+  Future<int> activateDueAutoCommits();
   Future<void> resyncAll();
   Future<void> handleAction(ReminderAction action);
 }
@@ -200,6 +202,10 @@ abstract interface class ReminderSchedulePlatform {
 abstract interface class NativeReminderActionJournal {
   Future<List<ReminderAction>> pendingNativeActions();
   Future<void> ackNativeAction(String actionId);
+}
+
+abstract interface class DeviceTimeZoneSource {
+  Future<String> currentTimeZoneName();
 }
 
 class ReminderSchedulerService implements ReminderScheduler {
@@ -225,7 +231,8 @@ class ReminderSchedulerService implements ReminderScheduler {
 
   @override
   Future<void> schedule(TaskReminder reminder) async {
-    if (reminder.status != TaskReminderStatus.active) {
+    if (reminder.status != TaskReminderStatus.active &&
+        reminder.status != TaskReminderStatus.pendingAutoCommit) {
       await cancel(reminder.id);
       return;
     }
@@ -255,7 +262,57 @@ class ReminderSchedulerService implements ReminderScheduler {
   Future<void> cancel(String id) => platform.cancel(id);
 
   @override
+  Future<int> activateDueAutoCommits() async {
+    final DateTime now = clock();
+    final List<TaskReminder> pending = await reminders
+        .watchByStatus(TaskReminderStatus.pendingAutoCommit)
+        .first;
+    int activated = 0;
+    for (final TaskReminder reminder in pending) {
+      final DateTime? deadline = reminder.autoCommitDeadlineAt;
+      if (deadline == null || deadline.isAfter(now)) continue;
+      final TaskReminder active = TaskReminder(
+        id: reminder.id,
+        userId: reminder.userId,
+        title: reminder.title,
+        details: reminder.details,
+        status: TaskReminderStatus.active,
+        source: reminder.source,
+        confidence: reminder.confidence,
+        triggerType: reminder.triggerType,
+        scheduledAt: reminder.scheduledAt,
+        placeId: reminder.placeId,
+        geofenceTransition: reminder.geofenceTransition,
+        dwellSeconds: reminder.dwellSeconds,
+        captureId: reminder.captureId,
+        draftId: reminder.draftId,
+        aiExplanation: reminder.aiExplanation,
+        aiContext: reminder.aiContext,
+        createdAt: reminder.createdAt,
+        updatedAt: reminder.updatedAt,
+      );
+      await _runAtomic(() async {
+        await reminders.update(active);
+        await _append(
+          active.id,
+          ReminderEventType.activated,
+          const <String, Object?>{'source': 'auto_commit_deadline'},
+        );
+      });
+      try {
+        await schedule(active);
+      } catch (_) {
+        // The row is active and remains eligible for the next resync even if
+        // the current platform registration is temporarily unavailable.
+      }
+      activated++;
+    }
+    return activated;
+  }
+
+  @override
   Future<void> resyncAll() async {
+    await activateDueAutoCommits();
     final List<TaskReminder> active = await reminders
         .watchByStatus(TaskReminderStatus.active)
         .first;
@@ -289,7 +346,7 @@ class ReminderSchedulerService implements ReminderScheduler {
         ? platform as NativeReminderActionJournal
         : null;
     if (nativeActionId != null &&
-        await events.findById(nativeActionId) != null) {
+        await events.findByNativeActionId(nativeActionId) != null) {
       await journal?.ackNativeAction(nativeActionId);
       return;
     }
@@ -299,12 +356,7 @@ class ReminderSchedulerService implements ReminderScheduler {
           await reminders.update(
             reminder.copyWith(status: TaskReminderStatus.done),
           );
-          await _append(
-            reminder.id,
-            ReminderEventType.done,
-            action.metadata,
-            id: nativeActionId,
-          );
+          await _append(reminder.id, ReminderEventType.done, action.metadata);
         });
         await cancel(reminder.id);
       case ReminderNotificationAction.later:
@@ -330,18 +382,52 @@ class ReminderSchedulerService implements ReminderScheduler {
           await _append(reminder.id, ReminderEventType.later, <String, Object?>{
             ...action.metadata,
             'snooze_seconds': laterSnooze.inSeconds,
-          }, id: nativeActionId);
+          });
         });
         await schedule(snoozed);
+      case ReminderNotificationAction.reschedule:
+        final Object? rawTimestamp = action.metadata['reschedule_at_ms'];
+        if (rawTimestamp is! int) return;
+        final TaskReminder rescheduled = TaskReminder(
+          id: reminder.id,
+          userId: reminder.userId,
+          title: reminder.title,
+          details: reminder.details,
+          status: TaskReminderStatus.active,
+          source: reminder.source,
+          confidence: reminder.confidence,
+          triggerType: TaskReminderTriggerType.time,
+          scheduledAt: DateTime.fromMillisecondsSinceEpoch(
+            rawTimestamp,
+            isUtc: true,
+          ),
+          captureId: reminder.captureId,
+          draftId: reminder.draftId,
+          aiExplanation: reminder.aiExplanation,
+          aiContext: reminder.aiContext,
+          createdAt: reminder.createdAt,
+          updatedAt: reminder.updatedAt,
+        );
+        await _runAtomic(() async {
+          await reminders.update(rescheduled);
+          await _append(reminder.id, ReminderEventType.later, <String, Object?>{
+            ...action.metadata,
+            'rescheduled_at': rescheduled.scheduledAt!.toIso8601String(),
+          });
+        });
+        await schedule(rescheduled);
       case ReminderNotificationAction.dismiss:
         await _runAtomic(() async {
+          await reminders.update(
+            reminder.copyWith(status: TaskReminderStatus.dismissed),
+          );
           await _append(
             reminder.id,
             ReminderEventType.dismissed,
             action.metadata,
-            id: nativeActionId,
           );
         });
+        await cancel(reminder.id);
       case ReminderNotificationAction.wrongPlace:
         await _runAtomic(() async {
           await _append(
@@ -355,18 +441,12 @@ class ReminderSchedulerService implements ReminderScheduler {
               'open_edit': true,
               'edit_route': '/capture?editReminderId=${reminder.id}',
             },
-            id: nativeActionId,
           );
         });
         ReminderEditDispatcher.request(reminder.id);
       case ReminderNotificationAction.open:
         await _runAtomic(() async {
-          await _append(
-            reminder.id,
-            ReminderEventType.fired,
-            action.metadata,
-            id: nativeActionId,
-          );
+          await _append(reminder.id, ReminderEventType.fired, action.metadata);
         });
     }
     if (nativeActionId != null && journal != null) {

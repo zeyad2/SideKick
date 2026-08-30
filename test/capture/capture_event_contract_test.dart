@@ -223,6 +223,47 @@ void main() {
     },
   );
 
+  test('coordinator initialization never starts recording', () async {
+    final CaptureCoordinator coordinator = CaptureCoordinator(
+      nativeApi: native,
+      ingestion: ingestion,
+      profileRepository: _FakeProfileRepository('capture-user'),
+      userId: 'capture-user',
+    );
+
+    await coordinator.initialize();
+
+    expect(native.startCount, 0);
+    await coordinator.dispose();
+  });
+
+  test('cancel discards the live recording and closes the overlay', () async {
+    final CaptureCoordinator coordinator = CaptureCoordinator(
+      nativeApi: native,
+      ingestion: ingestion,
+      profileRepository: _FakeProfileRepository('capture-user'),
+      userId: 'capture-user',
+    );
+    await coordinator.initialize();
+    native.emit(
+      NativeRecordingStarted(
+        NativeCapturedAudio(
+          eventId: 'cancel-me',
+          audioPath: '${temp.path}/cancel-me.aac',
+          capturedAt: DateTime.utc(2026, 7, 15),
+          ownerId: 'capture-user',
+        ),
+      ),
+    );
+    await pumpEventQueue();
+
+    await coordinator.cancelCapture();
+
+    expect(native.cancelCount, 1);
+    expect(coordinator.currentState.stage, CaptureOverlayStage.hidden);
+    await coordinator.dispose();
+  });
+
   test(
     'auth-transition barrier drains writes and keeps native replay durable',
     () async {
@@ -273,6 +314,8 @@ class _FakeNativeCaptureApi implements NativeCaptureApi {
   final List<String> acknowledged = <String>[];
   bool disposed = false;
   String? ownerId;
+  int startCount = 0;
+  int cancelCount = 0;
 
   void emit(NativeCaptureSignal signal) => _signals.add(signal);
 
@@ -315,10 +358,13 @@ class _FakeNativeCaptureApi implements NativeCaptureApi {
   Future<void> setOwner(String? ownerId) async => this.ownerId = ownerId;
 
   @override
-  Future<void> startCapture() async {}
+  Future<void> startCapture() async => startCount += 1;
 
   @override
   Future<void> stopCapture() async {}
+
+  @override
+  Future<void> cancelCapture() async => cancelCount += 1;
 }
 
 class _FakeProfileRepository implements ProfileRepository {

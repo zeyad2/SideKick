@@ -37,4 +37,6 @@ abstract interface class ReminderEventsRepository {
   Future<List<ReminderEvent>> recentActions({required int limit});
 
   Future<ReminderEvent?> findById(String id);
+
+  Future<ReminderEvent?> findByNativeActionId(String nativeActionId);
 }

@@ -46,18 +46,24 @@ void main() {
       ).colors.background,
     );
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Capture'), findsWidgets);
-    expect(find.text('Reminders'), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Reminders'), findsWidgets);
     expect(find.text('Places'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Habits'), findsNothing);
     expect(find.text('Fresh Start'), findsNothing);
     expect(find.text('Focus'), findsNothing);
 
-    await tester.tap(find.text('Reminders'));
+    expect(
+      find.byType(CalendarDatePicker),
+      findsOneWidget,
+      reason: 'a normal launch opens the reminder plan, not capture',
+    );
+
+    await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Task reminders'), findsOneWidget);
+    expect(find.text('What’s next'), findsOneWidget);
 
     // P4's live Drift inbox streams close asynchronously. Pump their zero-delay
     // cleanup so this test verifies lifecycle disposal as well as rendering.
@@ -90,6 +96,9 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
 
     final Scaffold scaffold = tester.widget<Scaffold>(
       find.byType(Scaffold).first,

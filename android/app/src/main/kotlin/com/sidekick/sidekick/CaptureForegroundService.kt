@@ -44,6 +44,7 @@ class CaptureForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_STOP -> stopRecording()
+            ACTION_CANCEL -> cancelRecording()
             ACTION_START -> startRecording()
             else -> if (!CaptureRuntimeGuard.hasLiveCapture) stopSelf()
         }
@@ -159,6 +160,20 @@ class CaptureForegroundService : Service() {
         }
     }
 
+    @Synchronized
+    private fun cancelRecording() {
+        val eventId = currentEventId
+        handler.removeCallbacks(amplitudeTick)
+        runCatching { recorder?.stop() }
+        runCatching { recorder?.release() }
+        recorder = null
+        isRecording = false
+        store.discardActive()
+        eventId?.let(CaptureRuntimeGuard::end)
+        currentEventId = null
+        stopForegroundAndSelf()
+    }
+
     override fun onDestroy() {
         if (recorder != null) stopRecording()
         super.onDestroy()
@@ -221,6 +236,7 @@ class CaptureForegroundService : Service() {
     companion object {
         const val ACTION_START = "com.sidekick.sidekick.capture.START"
         const val ACTION_STOP = "com.sidekick.sidekick.capture.STOP"
+        const val ACTION_CANCEL = "com.sidekick.sidekick.capture.CANCEL"
         const val ACTION_STARTED = "com.sidekick.sidekick.capture.STARTED"
         const val ACTION_LEVEL = "com.sidekick.sidekick.capture.LEVEL"
         const val ACTION_SAVED = "com.sidekick.sidekick.capture.SAVED"

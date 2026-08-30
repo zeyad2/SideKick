@@ -22,9 +22,9 @@ class AppShell extends StatelessWidget {
         ),
         destinations: const <NavigationDestination>[
           NavigationDestination(
-            icon: Icon(Icons.mic_none_rounded),
-            selectedIcon: Icon(Icons.mic_rounded),
-            label: 'Capture',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.notifications_none_rounded),

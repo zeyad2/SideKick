@@ -8,7 +8,9 @@ import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/features/inbox/application/inbox_providers.dart';
 import 'package:sidekick/features/inbox/domain/capture.dart';
 import 'package:sidekick/features/inbox/presentation/inbox_screen.dart';
+import 'package:sidekick/features/places/domain/place.dart';
 import 'package:sidekick/features/reminders/domain/task_reminder.dart';
+import 'package:sidekick/features/reminders/presentation/reminder_formatters.dart';
 
 void main() {
   final DateTime now = DateTime.utc(2026, 7, 15);
@@ -43,7 +45,7 @@ void main() {
     updatedAt: now,
   );
 
-  testWidgets('capture screen shows typed and audio POC entry points', (
+  testWidgets('home shows typed and audio reminder entry points', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -56,23 +58,42 @@ void main() {
             (Ref ref) =>
                 Stream<List<TaskReminder>>.value(const <TaskReminder>[]),
           ),
+          homePlacesProvider.overrideWith(
+            (Ref ref) => Stream<List<Place>>.value(const <Place>[]),
+          ),
         ],
         child: _themed(const InboxScreen()),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Capture reminder'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Reminder'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Draft reminder'), findsOneWidget);
+    expect(find.text('What’s next'), findsOneWidget);
+    expect(
+      find.widgetWithText(TextField, 'What should I remind you about?'),
+      findsOneWidget,
+    );
+    expect(find.text('Date & time'), findsOneWidget);
+    expect(find.text('Place'), findsOneWidget);
+    expect(find.text('Choose date and time'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Create reminder'),
+      findsOneWidget,
+    );
+    expect(
+      find.widgetWithText(OutlinedButton, 'Say it instead'),
+      findsOneWidget,
+    );
     expect(find.byTooltip('Start audio capture'), findsOneWidget);
-    expect(find.text('No captured audio waiting.'), findsOneWidget);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
+    expect(find.text('Nothing upcoming yet.'), findsOneWidget);
+    expect(find.text('AUDIO CAPTURES'), findsNothing);
     expect(find.text('Habit'), findsNothing);
     expect(find.text('Goal'), findsNothing);
     expect(find.text('Note'), findsNothing);
   });
 
-  testWidgets('capture screen lists saved audio without multi-kind review', (
+  testWidgets('home keeps raw saved audio out of the user experience', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -87,18 +108,17 @@ void main() {
             (Ref ref) =>
                 Stream<List<TaskReminder>>.value(const <TaskReminder>[]),
           ),
+          homePlacesProvider.overrideWith(
+            (Ref ref) => Stream<List<Place>>.value(const <Place>[]),
+          ),
         ],
         child: _themed(const InboxScreen()),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Remind me to call the dentist tomorrow after work.'),
-      findsOneWidget,
-    );
-    expect(find.text('Capture ready for POC drafting'), findsOneWidget);
-    expect(find.text('READY'), findsOneWidget);
+    expect(find.text('AUDIO CAPTURES'), findsNothing);
+    expect(find.text('Capture ready for POC drafting'), findsNothing);
     expect(find.text('Review your thoughts'), findsNothing);
     expect(find.text('Shape this thought'), findsNothing);
   });
@@ -117,13 +137,20 @@ void main() {
               pendingReminder(),
             ]),
           ),
+          homePlacesProvider.overrideWith(
+            (Ref ref) => Stream<List<Place>>.value(const <Place>[]),
+          ),
         ],
         child: _themed(const InboxScreen()),
       ),
     );
     await tester.pumpAndSettle();
 
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
     expect(find.text('AUTO-COMMIT COUNTDOWN'), findsOneWidget);
+    expect(find.text(reminderScheduleLabel(pendingReminder())), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Approve now'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Edit'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Cancel'), findsOneWidget);
   });

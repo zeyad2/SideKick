@@ -115,6 +115,13 @@ class NativeCaptureStore(context: Context) {
         failed
     }
 
+    fun discardActive(): NativeCaptureEvent? = synchronized(LOCK) {
+        val event = active() ?: return@synchronized null
+        check(prefs.edit().remove(ACTIVE).commit())
+        runCatching { File(event.audioPath).delete() }
+        event
+    }
+
     fun pending(ownerId: String? = null): List<NativeCaptureEvent> = synchronized(LOCK) {
         prefs.all.entries
             .asSequence()

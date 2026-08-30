@@ -15,6 +15,7 @@ class Capture {
     this.audioPath,
     this.rawTranscript,
     this.error,
+    this.metadata = const <String, Object?>{},
   });
 
   final String id;
@@ -25,6 +26,7 @@ class Capture {
   final String? rawTranscript;
   final CaptureStatus status;
   final String? error;
+  final Map<String, Object?> metadata;
   final DateTime capturedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -37,6 +39,7 @@ class Capture {
     CaptureStatus? status,
     String? error,
     bool clearError = false,
+    Map<String, Object?>? metadata,
   }) => Capture(
     id: id,
     userId: userId,
@@ -46,6 +49,7 @@ class Capture {
     rawTranscript: rawTranscript ?? this.rawTranscript,
     status: status ?? this.status,
     error: clearError ? null : error ?? this.error,
+    metadata: metadata ?? this.metadata,
     capturedAt: capturedAt,
     createdAt: createdAt,
     updatedAt: updatedAt,

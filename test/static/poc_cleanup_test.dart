@@ -11,7 +11,7 @@ void main() {
     ).readAsStringSync();
 
     for (final String label in <String>[
-      'Capture',
+      'Home',
       'Reminders',
       'Places',
       'Settings',
@@ -151,7 +151,16 @@ void main() {
     );
   });
 
-  test('README links only to POC or archive docs', () {
+  test('README links only to POC, agent, or archive docs', () {
+    const Set<String> agentDocs = <String>{
+      'AGENTS.md',
+      'TECH_DEBT.md',
+      'docs/ARCHITECTURE.md',
+      'docs/CODE_MAP.md',
+      'docs/CONVENTIONS.md',
+      'docs/RUNTIME_CONTRACTS.md',
+      'docs/TESTING.md',
+    };
     final String readme = File('${repo.path}/README.md').readAsStringSync();
     final RegExp markdownLink = RegExp(r'\[[^\]]+\]\(([^)]+)\)');
 
@@ -161,9 +170,11 @@ void main() {
       expect(
         target.startsWith('docs/POC_') ||
             target == 'docs/FUTURE_PLANS.md' ||
-            target.startsWith('docs/archive/'),
+            target.startsWith('docs/archive/') ||
+            target.startsWith('docs/reports/') ||
+            agentDocs.contains(target),
         isTrue,
-        reason: '$target is not a current POC or archive document',
+        reason: '$target is not a current POC, agent, or archive document',
       );
     }
   });

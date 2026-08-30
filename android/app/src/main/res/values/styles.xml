@@ -15,4 +15,13 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+    <style name="ReminderAlarmTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowBackground">#161311</item>
+        <item name="android:colorAccent">#FFB963</item>
+        <item name="android:navigationBarColor">#161311</item>
+        <item name="android:statusBarColor">#161311</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

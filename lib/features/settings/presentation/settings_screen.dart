@@ -8,6 +8,8 @@ import 'package:sidekick/core/theme/app_theme_scope.dart';
 import 'package:sidekick/core/theme/widgets/pill_button.dart';
 import 'package:sidekick/core/theme/widgets/surface_card.dart';
 import 'package:sidekick/features/places/domain/place.dart';
+import 'package:sidekick/features/settings/application/android_reminder_sound_platform.dart';
+import 'package:sidekick/features/settings/domain/reminder_sound.dart';
 
 final StreamProvider<List<Place>> settingsPlacesProvider =
     StreamProvider<List<Place>>((Ref ref) {
@@ -24,6 +26,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen>
     with WidgetsBindingObserver {
   Future<CapturePermissionSnapshot>? _status;
+  Future<ReminderSoundState>? _sounds;
+  String? _soundBusy;
 
   CapturePermissions get _permissions =>
       CapturePermissions(ref.read(nativeCaptureApiProvider));
@@ -49,12 +53,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   void _refresh() {
     setState(() {
       _status = _permissions.status();
+      _sounds = ref.read(reminderSoundPlatformProvider).state();
     });
   }
 
   Future<void> _run(Future<void> Function() action) async {
     await action();
     if (mounted) _refresh();
+  }
+
+  Future<void> _runSound(
+    String operation,
+    Future<void> Function(ReminderSoundPlatform platform) action,
+  ) async {
+    if (_soundBusy != null) return;
+    setState(() => _soundBusy = operation);
+    try {
+      await action(ref.read(reminderSoundPlatformProvider));
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString().replaceFirst('Bad state: ', '')),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _soundBusy = null;
+          _sounds = ref.read(reminderSoundPlatformProvider).state();
+        });
+      }
+    }
   }
 
   @override
@@ -191,6 +222,131 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             },
           ),
           SizedBox(height: theme.spacing.xl),
+          Text('Reminder sound', style: theme.textTheme.headlineMedium),
+          SizedBox(height: theme.spacing.sm),
+          Text(
+            'Use the system alarm, download a small optional tone, or import '
+            'an audio file already on this device. Downloaded and imported '
+            'sounds stay local and are not synced.',
+            style: theme.textTheme.bodyMedium,
+          ),
+          SizedBox(height: theme.spacing.md),
+          FutureBuilder<ReminderSoundState>(
+            future: _sounds,
+            builder: (BuildContext context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const SurfaceCard(
+                  child: Text('Checking reminder sounds...'),
+                );
+              }
+              if (snapshot.hasError || snapshot.data == null) {
+                return const SurfaceCard(
+                  child: Text('Reminder sounds are unavailable.'),
+                );
+              }
+              final ReminderSoundState state = snapshot.data!;
+              return SurfaceCard(
+                child: Column(
+                  children: <Widget>[
+                    _SoundRow(
+                      name: 'System alarm',
+                      detail: 'Uses the alarm sound configured in Android.',
+                      selected: state.systemSelected,
+                      busy: _soundBusy != null,
+                      onSelect: () => _runSound(
+                        'system',
+                        (ReminderSoundPlatform platform) =>
+                            platform.select('system'),
+                      ),
+                      onPreview: () => _runSound(
+                        'preview-system',
+                        (ReminderSoundPlatform platform) =>
+                            platform.preview('system'),
+                      ),
+                    ),
+                    for (final ReminderSoundOption sound in state.catalog) ...[
+                      Divider(height: theme.spacing.xl),
+                      _SoundRow(
+                        name: sound.name,
+                        detail: sound.downloaded
+                            ? 'Downloaded • CC0'
+                            : 'Optional download • CC0',
+                        selected: sound.selected,
+                        busy: _soundBusy != null,
+                        onSelect: sound.downloaded
+                            ? () => _runSound(
+                                sound.id,
+                                (ReminderSoundPlatform platform) =>
+                                    platform.select(sound.id),
+                              )
+                            : null,
+                        onDownload: sound.downloaded
+                            ? null
+                            : () => _runSound(
+                                'download-${sound.id}',
+                                (ReminderSoundPlatform platform) =>
+                                    platform.download(sound.id),
+                              ),
+                        onPreview: sound.downloaded
+                            ? () => _runSound(
+                                'preview-${sound.id}',
+                                (ReminderSoundPlatform platform) =>
+                                    platform.preview(sound.id),
+                              )
+                            : null,
+                        onDelete: sound.downloaded
+                            ? () => _runSound(
+                                'delete-${sound.id}',
+                                (ReminderSoundPlatform platform) =>
+                                    platform.delete(sound.id),
+                              )
+                            : null,
+                      ),
+                    ],
+                    Divider(height: theme.spacing.xl),
+                    _SoundRow(
+                      name: state.localName ?? 'Local audio file',
+                      detail: state.localAvailable
+                          ? 'Imported from this device'
+                          : 'MP3, WAV, OGG, AAC, or M4A',
+                      selected: state.localSelected,
+                      busy: _soundBusy != null,
+                      onSelect: state.localAvailable
+                          ? () => _runSound(
+                              'local',
+                              (ReminderSoundPlatform platform) =>
+                                  platform.select('local'),
+                            )
+                          : null,
+                      onDownload: () => _runSound(
+                        'pick-local',
+                        (ReminderSoundPlatform platform) =>
+                            platform.chooseLocalFile(),
+                      ),
+                      downloadLabel: state.localAvailable
+                          ? 'Replace file'
+                          : 'Choose file',
+                      onPreview: state.localAvailable
+                          ? () => _runSound(
+                              'preview-local',
+                              (ReminderSoundPlatform platform) =>
+                                  platform.preview('local'),
+                            )
+                          : null,
+                      onDelete: state.localAvailable
+                          ? () => _runSound(
+                              'delete-local',
+                              (ReminderSoundPlatform platform) =>
+                                  platform.delete('local'),
+                            )
+                          : null,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          SizedBox(height: theme.spacing.xl),
           Text('Saved places', style: theme.textTheme.headlineMedium),
           SizedBox(height: theme.spacing.sm),
           SurfaceCard(
@@ -236,6 +392,91 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SoundRow extends StatelessWidget {
+  const _SoundRow({
+    required this.name,
+    required this.detail,
+    required this.selected,
+    required this.busy,
+    this.onSelect,
+    this.onDownload,
+    this.downloadLabel = 'Download',
+    this.onPreview,
+    this.onDelete,
+  });
+
+  final String name;
+  final String detail;
+  final bool selected;
+  final bool busy;
+  final VoidCallback? onSelect;
+  final VoidCallback? onDownload;
+  final String downloadLabel;
+  final VoidCallback? onPreview;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.appTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
+              color: selected
+                  ? theme.colors.secondary
+                  : theme.colors.onSurfaceVariant,
+            ),
+            SizedBox(width: theme.spacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(name, style: theme.textTheme.titleMedium),
+                  Text(detail, style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: theme.spacing.sm),
+        Wrap(
+          spacing: theme.spacing.sm,
+          runSpacing: theme.spacing.xs,
+          children: <Widget>[
+            if (onDownload != null)
+              OutlinedButton(
+                onPressed: busy ? null : onDownload,
+                child: Text(downloadLabel),
+              ),
+            if (onSelect != null)
+              FilledButton(
+                onPressed: busy || selected ? null : onSelect,
+                child: Text(selected ? 'Selected' : 'Select'),
+              ),
+            if (onPreview != null)
+              TextButton.icon(
+                onPressed: busy ? null : onPreview,
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: const Text('Preview'),
+              ),
+            if (onDelete != null)
+              IconButton(
+                tooltip: 'Remove downloaded sound',
+                onPressed: busy ? null : onDelete,
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -237,7 +237,7 @@ class RepositoryAssistantContextBuilder implements AssistantContextBuilder {
   static Map<String, Object?> _capture(Capture capture) => <String, Object?>{
     'id': capture.id,
     'source': capture.source.wire,
-    'error': capture.error,
+    'reason': 'unclear_audio',
     'captured_at': capture.capturedAt.toIso8601String(),
   };
 

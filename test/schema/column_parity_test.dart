@@ -25,11 +25,11 @@ void main() {
     });
   });
 
-  test('drift schema is POC version 2 and mirrors cloud columns', () {
+  test('drift schema is POC version 3 and mirrors cloud columns', () {
     final AppDatabase db = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
     final Map<String, Set<String>> driftColumns = <String, Set<String>>{
       for (final TableInfo<Table, dynamic> t in db.allTables)
         if (t.actualTableName != 'sync_meta')

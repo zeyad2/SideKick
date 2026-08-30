@@ -338,6 +338,20 @@ class HeuristicReminderDraftService implements ReminderDraftService {
     }
   }
 
+  static bool isSupportedTimeZone(String zone) {
+    if (zone == 'UTC') return true;
+    if (!_timeZonesInitialized) {
+      tz_data.initializeTimeZones();
+      _timeZonesInitialized = true;
+    }
+    try {
+      tz.getLocation(zone);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static String _placeCandidate(String lower) {
     if (lower.contains('home')) return 'home';
     if (lower.contains('work')) return 'work';
@@ -736,6 +750,13 @@ class GeminiReminderDraftService implements ReminderDraftService {
       _prompt(context);
 
   static String _prompt(ReminderDraftContext context) {
+    final tz.Location location = HeuristicReminderDraftService._locationForZone(
+      context.timeZoneName,
+    );
+    final String localNow = tz.TZDateTime.from(
+      context.now.toUtc(),
+      location,
+    ).toIso8601String();
     final String contextJson = jsonEncode(
       context.assistantContext?.toJson() ?? const <String, Object?>{},
     );
@@ -774,7 +795,11 @@ When context influenced a field, list stable item IDs in context_items_used
 using these prefixes: place:<id>, reminder:<id>, reminder_event:<id>,
 capture:<id>. Do not include an ID unless it appears in the context JSON.
 If the input is unclear, set is_unclear true and drafts to [].
-Current UTC time: ${context.now.toIso8601String()}.
+User IANA time zone: ${context.timeZoneName}.
+Current local time in that zone: $localNow.
+Resolve wall-clock phrases such as "tomorrow at 9" in that zone, then return
+scheduled_at as an ISO-8601 value with an explicit offset.
+Current UTC time: ${context.now.toUtc().toIso8601String()}.
 Audio retry count: ${context.audioRetryCount}.
 Assistant context JSON, bounded and redacted:
 $contextJson
